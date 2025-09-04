@@ -33,33 +33,33 @@ class PageController extends Controller
         return view('laporan');
     }
 
-    public function registerAdminform()
+    // public function registerAdminform()
+    // {
+    //     return view('registerAdmin');
+    // }
+    // public function registerAdmin(Request $request)
+    // {
+    //     // validasi input
+    //     $request->validate([
+    //         'fullname' => 'required|string|max:255',
+    //         'email'    => 'required|string|email|max:255|unique:users',
+    //         'password' => 'required|string|min:6|confirmed',
+    //     ]);
+
+    //     // simpan ke database
+    //     User::create([
+    //         'name'     => $request->fullname,
+    //         'email'    => $request->email,
+    //         'password' => bcrypt($request->password),
+    //     ]);
+
+    //     return redirect()->route('login.admin')->with('success', 'Akun berhasil dibuat, silakan login.');
+    // }
+
+
+    public function Login()
     {
-        return view('registerAdmin');
-    }
-    public function registerAdmin(Request $request)
-    {
-        // validasi input
-        $request->validate([
-            'fullname' => 'required|string|max:255',
-            'email'    => 'required|string|email|max:255|unique:users',
-            'password' => 'required|string|min:6|confirmed',
-        ]);
-
-        // simpan ke database
-        User::create([
-            'name'     => $request->fullname,
-            'email'    => $request->email,
-            'password' => bcrypt($request->password),
-        ]);
-
-        return redirect()->route('login.admin')->with('success', 'Akun berhasil dibuat, silakan login.');
-    }
-
-
-    public function loginAdmin()
-    {
-        return view('loginAdmin');
+        return view('Login');
     }
 
     public function PresensiKaryawan()
