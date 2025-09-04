@@ -14,7 +14,7 @@
         <div class="bg-gradient-to-r from-blue-600 to-blue-400 p-5 flex items-center">
             <img src="https://i.pravatar.cc/80" alt="Profile" class="w-16 h-16 rounded-full border-2 border-white">
             <div class="ml-4 text-white">
-                <h2 class="text-lg font-semibold">I SUGIHH</h2>
+                <h2 class="text-lg font-semibold">I Made Sugi</h2>
                 <p class="text-sm">72220562 - Senior UX </p>
             </div>
         </div>
