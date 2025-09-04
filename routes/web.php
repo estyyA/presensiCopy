@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\PageController;
 
 Route::get('/', function () {
-    return view('registerAdmin');
+    return view('loginadmin');
 });
 
 //bagian register&login admin
