@@ -62,5 +62,11 @@ class PageController extends Controller
         return view('loginAdmin');
     }
 
+    public function PresensiKaryawan()
+    {
+        return view('PresensiKaryawan');
+    }
+
+
 
 }
