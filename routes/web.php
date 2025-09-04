@@ -23,3 +23,7 @@ Route::get('/dashboard', [PageController::class, 'dashboard']);
 Route::get('/daftarPresensi', [PageController::class, 'daftarPresensi']);
 Route::get('/daftarKaryawan', [PageController::class, 'daftarKaryawan']);
 Route::get('/laporan', [PageController::class, 'laporan']);
+
+
+// untuk presensi karyawan
+Route::get('/PresensiKaryawan', [PageController::class, 'PresensiKaryawan']);
