@@ -4,19 +4,19 @@ use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\PageController;
 
 Route::get('/', function () {
-    return view('loginadmin');
+    return view('Login');
 });
 
 //bagian register&login admin
-Route::get('/registeradmin', [PageController::class, 'registerAdminform'])->name('registeradmin');
-Route::post('/registeradmin', [PageController::class, 'registerAdmin'])->name('register.admin');
+//Route::get('/registeradmin', [PageController::class, 'registerAdminform'])->name('registeradmin');
+//Route::post('/registeradmin', [PageController::class, 'registerAdmin'])->name('register.admin');
 
 
 // tampilkan form login karyawan
-Route::get('/loginadmin', [PageController::class, 'loginAdmin'])->name('login.admin.form');
+Route::get('/Login', [PageController::class, 'Login'])->name('Login');
 
 // proses login karyawan (sementara kosong dulu)
-Route::post('/loginadmin', [PageController::class, 'login'])->name('login.admin');
+Route::post('/Login', [PageController::class, 'Login'])->name('Login');
 
 // arahkan ke PageController bagian dashboard&lain-lain
 Route::get('/dashboard', [PageController::class, 'dashboard']);
