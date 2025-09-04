@@ -5,131 +5,102 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Login Admin</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
   <style>
     body, html {
-        height: 100%;
-        margin: 0;
+      height: 100%;
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: linear-gradient(to bottom, #1976d2, #0d47a1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
-
-    .left-panel {
-        position: relative;
-        background-color: #0d47a1;
-        color: white;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-        padding: 30px;
+    .login-container {
+      width: 100%;
+      max-width: 400px;
+      text-align: center;
     }
-
-    .left-panel img {
-        width: 300px;
-        margin-bottom: 20px;
+    .login-container img {
+      width: 120px;
+      margin-bottom: 10px;
     }
-
-    /* alamat ditaruh di bawah kiri */
-    .left-panel .alamat {
-        position: absolute;
-        bottom: 20px;
-        left: 20px;
-        font-size: 14px;
+    .login-container h1 {
+      color: white;
+      font-weight: bold;
+      margin-bottom: 0;
     }
-
-    .right-panel {
-        position: relative;
-        background: url("{{ asset('img/loginimage.jpeg.jpg') }}") no-repeat center center;
-        background-size: cover;
-        display: flex;
-        justify-content: center;
-        align-items: center;
+    .login-container p {
+      color: white;
+      margin-bottom: 25px;
+      font-size: 14px;
     }
-
-    /* Overlay hanya untuk panel kanan */
-    .right-panel::before {
-        content: "";
-        position: absolute;
-        top: 0; left: 0; right: 0; bottom: 0;
-        background: rgba(0, 0, 0, 0.5);
-        z-index: 0;
-    }
-
     .login-card {
-        position: relative;
-        background: rgba(255, 255, 255, 0.9);
-        padding: 30px;
-        border-radius: 10px;
-        box-shadow: 0px 4px 8px rgba(0,0,0,0.2);
-        width: 350px;
-        z-index: 1; /* pastikan di atas overlay */
+      background: white;
+      padding: 25px;
+      border-radius: 10px;
+      box-shadow: 0px 4px 8px rgba(0,0,0,0.2);
+      text-align: left;
     }
-
-    .login-card h3 {
-        text-align: center;
-        color: #0d47a1;
-        margin-bottom: 20px;
+    .login-card h5 {
+      text-align: center;
+      margin-bottom: 20px;
+      color: #333;
     }
-
     .btn-login {
-        background-color: #f9a825;
-        color: white;
-        font-weight: bold;
+      background: linear-gradient(to right, #1976d2, #0d47a1);
+      color: white;
+      font-weight: bold;
     }
-
     .btn-login:hover {
-        background-color: #f57f17;
-        color: white;
+      background: linear-gradient(to right, #1565c0, #0b3c91);
+    }
+    .forgot {
+      font-size: 13px;
+      text-decoration: none;
     }
   </style>
 </head>
 <body>
-  <div class="container-fluid h-100">
-    <div class="row h-100">
+  <div class="login-container">
+    <!-- Logo & Title -->
+    <img src="{{ asset('img/logo.png') }}" alt="Logo">
+    <h1>PT Madubaru</h1>
+    <p>PG - PS MADUKISMO</p>
 
-      <!-- Panel Kiri -->
-      <div class="col-md-4 left-panel">
-        <img src="{{ asset('img/logo.png') }}" alt="Logo">
-        <h3>PT Madubaru</h3>
-        <p>Pabrik Gula dan Alkohol / Spiritus</p>
-
-        <!-- alamat pindah ke bawah kiri -->
-        <p class="alamat">
-          📍 Jl. Padokan, Tirtonirmolo Kasihan, Bantul<br>
-          Yogyakarta 55181
-        </p>
-      </div>
-
-      <!-- Panel Kanan -->
-      <div class="col-md-8 right-panel">
-        <div class="login-card">
-          <h3>Login Here!</h3>
-          <form action="{{ route('login.admin') }}" method="POST">
-            @csrf
-            <div class="mb-3">
-              <label for="username" class="form-label">Username</label>
-              <div class="input-group">
-                <input type="text" name="username" id="username" class="form-control" placeholder="Masukkan username" required>
-                <span class="input-group-text"><i class="bi bi-envelope"></i></span>
-              </div>
-            </div>
-            <div class="mb-3">
-              <label for="password" class="form-label">Password</label>
-              <div class="input-group">
-                <input type="password" name="password" id="password" class="form-control" placeholder="Masukkan password" required>
-                <span class="input-group-text" id="togglePassword" style="cursor: pointer;">
-                  <i class="bi bi-eye-slash" id="eyeIcon"></i>
-                </span>
-              </div>
-            </div>
-            <button type="submit" class="btn btn-login w-100">Login</button>
-          </form>
+    <!-- Card -->
+    <div class="login-card">
+      <h5>Login Here</h5>
+      <form action="{{ route('login.admin') }}" method="POST">
+        @csrf
+        <!-- Username -->
+        <div class="mb-3">
+          <label for="username" class="form-label">User Name</label>
+          <input type="text" name="username" id="username" class="form-control" placeholder="Enter username" required>
         </div>
-      </div>
-
+        <!-- Password -->
+        <div class="mb-3">
+          <label for="password" class="form-label">Password</label>
+          <div class="input-group">
+            <input type="password" name="password" id="password" class="form-control" placeholder="Enter password" required>
+            <span class="input-group-text" id="togglePassword" style="cursor: pointer;">
+              <i class="bi bi-eye-slash" id="eyeIcon"></i>
+            </span>
+          </div>
+        </div>
+        <!-- Remember & Forgot -->
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <div class="form-check">
+            <input type="checkbox" class="form-check-input" id="remember" name="remember">
+            <label class="form-check-label" for="remember">Remember me</label>
+          </div>
+          <a href="#" class="forgot">Forgot Password</a>
+        </div>
+        <!-- Button -->
+        <button type="submit" class="btn btn-login w-100">Login</button>
+      </form>
     </div>
   </div>
-
-  <!-- Bootstrap Icons -->
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
 
   <!-- Script Show/Hide Password -->
   <script>
@@ -140,7 +111,6 @@
     togglePassword.addEventListener('click', function () {
       const type = password.getAttribute('type') === 'password' ? 'text' : 'password';
       password.setAttribute('type', type);
-
       eyeIcon.classList.toggle('bi-eye');
       eyeIcon.classList.toggle('bi-eye-slash');
     });
