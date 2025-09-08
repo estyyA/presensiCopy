@@ -5,7 +5,8 @@ use Illuminate\Support\Facades\Route;
 
 use App\Http\Controllers\PageController;
 use App\Http\Controllers\Karyawan\DashboardController as KaryawanDashboardController;
-use App\Http\Controllers\KaryawanController;
+use App\Http\Controllers\Karyawan\KaryawanController;
+
 
 Route::get('/', function () {
     return view('Login');
@@ -28,7 +29,9 @@ Route::post('/laporan/simpan-catatan', [PageController::class, 'simpanCatatan'])
 Route::get('/PresensiKaryawan', [PageController::class, 'PresensiKaryawan']);
 
 // Karyawan
-Route::post('/karyawan/upload-foto', [KaryawanController::class, 'uploadFoto'])->name('karyawan.uploadFoto');
+Route::post('/karyawan/upload-foto', [KaryawanController::class, 'uploadFoto'])
+    ->name('karyawan.uploadFoto');
+
 
 // Dashboard karyawan
 Route::get('/karyawan/dashboard', function () {
