@@ -5,7 +5,7 @@
     <h5 class="mb-3 text-center fw-bold">Absensi Keluar</h5>
 
     <!-- Tombol Kembali -->
-    <a href="{{ url('/dashboard-karyawan') }}" class="btn btn-secondary mb-3">
+    <a href="{{ route('karyawan.dashboard') }}" class="btn btn-secondary mb-3">
         <i class="bi bi-arrow-left-circle"></i> Kembali ke Dashboard
     </a>
 
@@ -28,7 +28,7 @@
             <input type="time" name="jam_keluar" id="jam_keluar" class="form-control" required>
         </div>
 
-        <!-- Tombol Absen -->
+        <!-- Tombol Absen Keluar -->
         <button type="submit" class="btn btn-danger btn-lg w-100 text-center">
             <i class="bi bi-box-arrow-right"></i> Absen Keluar
         </button>
