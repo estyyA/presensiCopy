@@ -15,14 +15,14 @@
         <div class="card card-stat shadow-sm">
             <i class="fa fa-user-check text-success"></i>
             <div>Karyawan Masuk</div>
-            <h3>18</h3>
+            <h3>17</h3>
         </div>
     </div>
     <div class="col-md-4">
         <div class="card card-stat shadow-sm">
             <i class="fa fa-user-times text-danger"></i>
-            <div>Karyawan Izin</div>
-            <h3>2</h3>
+            <div>Karyawan Izin/Cuti</div>
+            <h3>3</h3>
         </div>
     </div>
 </div>
@@ -44,10 +44,10 @@
     new Chart(ctx, {
         type: 'doughnut',
         data: {
-            labels: ['Masuk', 'Izin', 'Tidak Masuk'],
+            labels: ['Masuk', 'Izin/Cuti'],
             datasets: [{
-                data: [5, 3, 2],
-                backgroundColor: ['#11ab59ff', '#7f9cf5', '#d81017ff']
+                data: [17, 3],
+                backgroundColor: ['#11ab59ff', '#d81017ff']
             }]
         },
         options: {
