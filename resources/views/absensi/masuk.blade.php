@@ -4,11 +4,6 @@
 <div class="card p-3">
     <h5 class="mb-3 text-center fw-bold">Absensi Masuk</h5>
 
-    <!-- Tombol Kembali -->
-    <a href="{{ url('/dashboard.karyawan') }}" class="btn btn-secondary mb-3">
-        <i class="bi bi-arrow-left-circle"></i> Kembali ke Dashboard
-    </a>
-
     <!-- Lokasi Map -->
     <div class="mb-3" id="map-container">
         <iframe id="map-frame"
@@ -20,7 +15,7 @@
     </div>
 
     <!-- Form Absensi -->
-    <form action="{{ url('/absensi/masuk') }}" method="POST">
+    <form id="formMasuk" action="{{ url('/absensi/masuk') }}" method="POST">
         @csrf
         <!-- Input jam masuk -->
         <div class="mb-3">
@@ -28,10 +23,11 @@
             <input type="time" name="jam_masuk" id="jam_masuk" class="form-control" required>
         </div>
 
-        <!-- Keterangan Absensi -->
-        <button type="submit" class="btn btn-success btn-lg w-100 text-center">
+        <!-- Tombol Absen -->
+        <button type="submit" id="btnMasuk" class="btn btn-success btn-lg w-100 text-center" disabled>
             <i class="bi bi-check-circle"></i> Absen Masuk
         </button>
+        <p id="warning" class="text-center text-muted small mt-2"></p>
     </form>
 
     <!-- Info jam kantor -->
@@ -42,14 +38,33 @@
 
 <script>
 document.addEventListener("DOMContentLoaded", function() {
-    // Isi jam otomatis
     let inputJam = document.getElementById("jam_masuk");
-    if (inputJam) {
-        let now = new Date();
-        let hh = String(now.getHours()).padStart(2, '0');
-        let mm = String(now.getMinutes()).padStart(2, '0');
-        inputJam.value = `${hh}:${mm}`;
+    let btnMasuk = document.getElementById("btnMasuk");
+    let warning = document.getElementById("warning");
+
+    // Isi jam otomatis
+    let now = new Date();
+    let hh = String(now.getHours()).padStart(2, '0');
+    let mm = String(now.getMinutes()).padStart(2, '0');
+    inputJam.value = `${hh}:${mm}`;
+
+    // Cek apakah sudah jam >= 07:30
+    if (now.getHours() > 7 || (now.getHours() === 7 && now.getMinutes() >= 30)) {
+        btnMasuk.disabled = false;
+        warning.innerText = "";
+    } else {
+        btnMasuk.disabled = true;
+        warning.innerText = "❌ Absensi masuk hanya bisa dilakukan setelah jam 07:30.";
     }
+
+    // Redirect ke dashboard setelah submit berhasil
+    document.getElementById("formMasuk").addEventListener("submit", function(e) {
+        e.preventDefault();
+        this.submit();
+        setTimeout(() => {
+            window.location.href = "{{ route('karyawan/dashboard') }}";
+        }, 500); // delay biar data sempat tersimpan
+    });
 
     // Ambil lokasi user
     if (navigator.geolocation) {
