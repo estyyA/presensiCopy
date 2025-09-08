@@ -94,8 +94,8 @@
         {{-- Topbar --}}
         <div class="topbar">
             <div class="d-flex align-items-center">
-                <span class="mr-2">Resty</span>
-                <img src="https://ui-avatars.com/api/?name=Resty&background=0D8ABC&color=fff"
+                <span class="mr-2">Budak Los Santos</span>
+                <img src="https://ui-avatars.com/api/?name=BudakAwak&background=0D8ABC&color=fff"
                      class="rounded-circle" width="35" height="35" alt="avatar">
             </div>
         </div>
