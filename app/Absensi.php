@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Absensi extends Model
 {
-    protected $table = 'absensis';
+    protected $table = 'presensi';
 
     protected $fillable = [
         'user_id',
