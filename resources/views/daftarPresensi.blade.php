@@ -12,21 +12,37 @@
 <div class="card shadow-sm mb-4">
     <div class="card-body">
         <h5 class="font-weight-bold mb-3">Filter dan Pencarian</h5>
-        <div class="d-flex align-items-center">
-            <button class="btn btn-light border mr-2">Nama Karyawan</button>
-            <button class="btn btn-light border mr-2">Bidang Pekerjaan</button>
-            <button class="btn btn-light border mr-2">Hari</button>
-            <button class="btn btn-primary ml-auto">
-                <i class="fa fa-user"></i>
-            </button>
-        </div>
+        <form>
+            <div class="form-row">
+                <div class="col-md-4 mb-2">
+                    <input type="text" class="form-control" placeholder="Nama Karyawan">
+                </div>
+                <div class="col-md-3 mb-2">
+                    <select class="form-control">
+                        <option value="">Pilih Divisi</option>
+                        <option>Direktur</option>
+                        <option>Keuangan</option>
+                        <option>HRD</option>
+                    </select>
+                </div>
+                <div class="col-md-3 mb-2">
+                    <input type="date" class="form-control" placeholder="Tanggal">
+                </div>
+                <div class="col-md-2 mb-2">
+                    <button class="btn btn-primary btn-block">
+                        <i class="fa fa-search"></i> Cari
+                    </button>
+                </div>
+            </div>
+        </form>
     </div>
 </div>
+
 
 {{-- Data Karyawan --}}
 <div class="card shadow-sm">
     <div class="card-body">
-        <h5 class="font-weight-bold mb-3">Data Karyawan</h5>
+        <h5 class="font-weight-bold mb-3">Data Presensi Karyawan</h5>
         <div class="table-responsive">
             <table class="table table-bordered table-hover">
                 <thead class="thead-light text-center">
@@ -34,7 +50,7 @@
                         <th>No</th>
                         <th>NIK</th>
                         <th>Nama Karyawan</th>
-                        <th>Bidang</th>
+                        <th>Divisi</th>
                         <th>Tanggal</th>
                         <th>Jam Masuk</th>
                         <th>Jam Pulang</th>
