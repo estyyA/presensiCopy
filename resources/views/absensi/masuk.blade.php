@@ -5,7 +5,7 @@
     <h5 class="mb-3 text-center fw-bold">Absensi Masuk</h5>
 
     <!-- Tombol Kembali -->
-    <a href="{{ url('/dashboard-karyawan') }}" class="btn btn-secondary mb-3">
+    <a href="{{ url('/dashboard.karyawan') }}" class="btn btn-secondary mb-3">
         <i class="bi bi-arrow-left-circle"></i> Kembali ke Dashboard
     </a>
 
