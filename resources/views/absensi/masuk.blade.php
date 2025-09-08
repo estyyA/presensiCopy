@@ -62,7 +62,7 @@ document.addEventListener("DOMContentLoaded", function() {
         e.preventDefault();
         this.submit();
         setTimeout(() => {
-            window.location.href = "{{ route('karyawan/dashboard') }}";
+            window.location.href = "{{ route('karyawan.dashboard') }}";
         }, 500); // delay biar data sempat tersimpan
     });
 
