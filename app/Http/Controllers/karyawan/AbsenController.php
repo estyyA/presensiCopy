@@ -19,19 +19,21 @@ class AbsensiController extends Controller
      * Proses simpan absen masuk
      */
     public function storeMasuk(Request $request)
-    {
-        $request->validate([
-            'jam_masuk' => 'required',
-        ]);
+{
+    $request->validate([
+        'jam_masuk' => 'required',
+    ]);
 
-        Absensi::create([
-            'user_id'    => auth()->id(), // asumsi sudah ada login
-            'jam_masuk'  => $request->jam_masuk,
-            'keterangan' => $request->keterangan,
-        ]);
+    Absensi::create([
+        'user_id'    => auth()->id(),
+        'jam_masuk'  => $request->jam_masuk,
+        'keterangan' => $request->keterangan,
+    ]);
 
-        return redirect()->route('dashboard')->with('success', 'Berhasil absen masuk!');
-    }
+    // Redirect ke dashboard karyawan
+    return redirect()->route('karyawan.dashboard')
+                     ->with('success', 'Berhasil absen masuk!');
+}
 
     /**
      * Tampilkan halaman absen keluar
@@ -50,13 +52,6 @@ class AbsensiController extends Controller
             'jam_keluar' => 'required',
         ]);
 
-        // Cek apakah sudah jam 15:30
-        $now = now()->format('H:i');
-        if ($now < "15:30") {
-            return back()->with('error', 'Absensi keluar hanya bisa dilakukan setelah jam 15:30.');
-        }
-
-        // cari data absen hari ini
         $absensi = Absensi::where('user_id', auth()->id())
                           ->whereDate('created_at', now()->toDateString())
                           ->first();
@@ -67,7 +62,6 @@ class AbsensiController extends Controller
                 'catatan'    => $request->catatan,
             ]);
         } else {
-            // fallback: kalau belum absen masuk, tetap buat data
             Absensi::create([
                 'user_id'    => auth()->id(),
                 'jam_keluar' => $request->jam_keluar,
@@ -75,7 +69,8 @@ class AbsensiController extends Controller
             ]);
         }
 
-        // Redirect ke dashboard setelah absen keluar
-        return redirect()->route('dashboard')->with('success', 'Berhasil absen keluar!');
+        // Redirect ke dashboard karyawan
+        return redirect()->route('karyawan.dashboard')
+                         ->with('success', 'Berhasil absen keluar!');
     }
 }
