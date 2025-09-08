@@ -2,6 +2,8 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\PageController;
+use App\Http\Controllers\Karyawan\DashboardController as KaryawanDashboardController;
+use App\Http\Controllers\KaryawanController;
 
 Route::get('/', function () {
     return view('Login');
@@ -27,3 +29,21 @@ Route::get('/laporan', [PageController::class, 'laporan']);
 
 // untuk presensi karyawan
 Route::get('/PresensiKaryawan', [PageController::class, 'PresensiKaryawan']);
+
+//Karyawan
+Route::post('/karyawan/upload-foto', [KaryawanController::class, 'uploadFoto'])->name('karyawan.uploadFoto');
+//Route::get('/karyawan/dashboard', [KaryawanDashboardController::class, 'index'])->name('karyawan.dashboard');
+// Dashboard karyawan
+Route::get('/karyawan/dashboard', function () {
+    return view('karyawan.dashboard');
+})->name('karyawan.dashboard');
+
+// Absensi masuk
+Route::get('/absensi/masuk', function () {
+    return view('absensi.masuk');
+})->name('absensi.masuk');
+
+// Absensi keluar
+Route::get('/absensi/keluar', function () {
+    return view('absensi.keluar');
+})->name('absensi.keluar');
