@@ -44,7 +44,7 @@
                         <th>No</th>
                         <th>NIK</th>
                         <th>Nama Karyawan</th>
-                        <th>Bidang</th>
+                        <th>Divis</th>
                         <th>Username</th>
                         <th>Password</th>
                         <th>No. HP</th>
