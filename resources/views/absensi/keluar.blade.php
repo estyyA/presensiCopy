@@ -1,4 +1,4 @@
-@extends('layouts.karyawan')
+@extends('layout.karyawan')
 
 @section('content')
 <div class="card p-3">

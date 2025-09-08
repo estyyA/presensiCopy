@@ -7,11 +7,16 @@ use Illuminate\Http\Request;
 
 class DashboardController extends Controller
 {
-    public function index()
+   public function index()
     {
-        // contoh data dummy
-        $nama_karyawan = "Budi Santoso";
+        // Dummy user untuk testing
+        $user = (object) [
+            'nama' => 'I Made Sugi Hantara',
+            'nip'  => '72220562',
+            'jabatan' => 'Senior UX Designer',
+            'foto' => file_exists(public_path('img/profile.png')) ? 'img/profile.png' : 'img/default.png',
+        ];
 
-        return view('karyawan.dashboard', compact('nama_karyawan'));
+        return view('karyawan.dashboard', compact('user'));
     }
 }
