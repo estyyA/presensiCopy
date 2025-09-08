@@ -2,6 +2,9 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\PageController;
+use App\Http\Controllers\Karyawan\DashboardController as KaryawanDashboardController;
+use App\Http\Controllers\KaryawanController;
+use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
     return view('Login');
