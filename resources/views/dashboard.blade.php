@@ -47,7 +47,7 @@
             labels: ['Masuk', 'Izin', 'Tidak Masuk'],
             datasets: [{
                 data: [5, 3, 2],
-                backgroundColor: ['#035d2dff', '#7f9cf5', '#d81017ff']
+                backgroundColor: ['#11ab59ff', '#7f9cf5', '#d81017ff']
             }]
         },
         options: {
