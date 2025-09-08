@@ -19,81 +19,90 @@
             <input type="date" class="form-control mr-3" value="2023-09-07">
 
             <button class="btn btn-primary mr-2">Tampilkan</button>
-            <button class="btn btn-primary">
-                <i class="fa fa-print mr-1"></i> Print
-            </button>
+            <a href="{{ route('laporan.cetakPdf') }}" class="btn btn-danger mr-2" target="_blank">
+                <i class="fa fa-file-pdf mr-1"></i> Export PDF
+            </a>
+            <a href="{{ route('laporan.exportExcel') }}" class="btn btn-success">
+                <i class="fa fa-file-excel mr-1"></i> Export Excel
+            </a>
         </div>
     </div>
 </div>
 
-{{-- Data Transaksi --}}
+{{-- Data Karyawan --}}
 <div class="card shadow-sm">
     <div class="card-body">
         <h5 class="font-weight-bold mb-3">Tabel Data Transaksi</h5>
         <div class="table-responsive">
-            <table class="table table-bordered table-hover">
-                <thead class="thead-light text-center">
-                    <tr>
-                        <th>No</th>
-                        <th>NIM</th>
-                        <th>Tahun Akademik</th>
-                        <th>Instansi</th>
-                        <th>Total Bayar</th>
-                        <th>Tgl Transaksi</th>
-                        <th>Kode VA</th>
-                        <th>Status Bayar</th>
-                    </tr>
-                </thead>
-                <tbody class="text-center">
-                    <tr>
-                        <td>1</td>
-                        <td>72220535</td>
-                        <td>Semester Genap 2023</td>
-                        <td>UKDW</td>
-                        <td>Rp0</td>
-                        <td>06/08/2023</td>
-                        <td>00172220535</td>
-                        <td><span class="badge badge-success px-3 py-2">Sudah Bayar</span></td>
-                    </tr>
-                    <tr>
-                        <td>2</td>
-                        <td>72220545</td>
-                        <td>Semester Genap 2023</td>
-                        <td>UKDW</td>
-                        <td>Rp1.500.000</td>
-                        <td>10/08/2023</td>
-                        <td>00172220545</td>
-                        <td><span class="badge badge-danger px-3 py-2">Belum Bayar</span></td>
-                    </tr>
-                    <tr>
-                        <td>3</td>
-                        <td>72220555</td>
-                        <td>Semester Genap 2023</td>
-                        <td>UKDW</td>
-                        <td>Rp10.500.000</td>
-                        <td>20/08/2023</td>
-                        <td>00172220555</td>
-                        <td><span class="badge badge-warning px-3 py-2">Pending</span></td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
+            <form method="POST" action="#">
+                @csrf
+                <table class="table table-bordered table-hover">
+                    <thead class="thead-light text-center">
+                        <tr>
+                            <th>No</th>
+                            <th>NIK</th>
+                            <th>Nama</th>
+                            <th>Divisi</th>
+                            <th>Total Hari Kerja</th>
+                            <th>Jumlah Hadir</th>
+                            <th>Jumlah Sakit</th>
+                            <th>Jumlah Cuti</th>
+                            <th>Catatan</th>
+                        </tr>
+                    </thead>
+                    <tbody class="text-center">
+                        <tr>
+                            <td>1</td>
+                            <td>72220535</td>
+                            <td>Esra</td>
+                            <td>Keuangan</td>
+                            <td>0</td>
+                            <td>5</td>
+                            <td>2</td>
+                            <td>2</td>
+                            <td>
+                                <textarea name="catatan[1]" class="form-control" rows="2" placeholder="Opsional..."></textarea>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>2</td>
+                            <td>72220536</td>
+                            <td>Rudi</td>
+                            <td>HRD</td>
+                            <td>0</td>
+                            <td>4</td>
+                            <td>1</td>
+                            <td>3</td>
+                            <td>
+                                <textarea name="catatan[2]" class="form-control" rows="2" placeholder="Opsional..."></textarea>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>3</td>
+                            <td>72220537</td>
+                            <td>Sinta</td>
+                            <td>Marketing</td>
+                            <td>0</td>
+                            <td>6</td>
+                            <td>0</td>
+                            <td>1</td>
+                            <td>
+                                <textarea name="catatan[3]" class="form-control" rows="2" placeholder="Opsional..."></textarea>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
 
-        {{-- Pagination --}}
-        <div class="d-flex justify-content-center mt-3">
-            <nav>
-                <ul class="pagination">
-                    <li class="page-item"><a class="page-link bg-purple text-white border-0" href="#">&laquo;</a></li>
-                    <li class="page-item"><a class="page-link bg-purple text-white border-0" href="#">1</a></li>
-                    <li class="page-item"><a class="page-link bg-purple text-white border-0" href="#">2</a></li>
-                    <li class="page-item"><a class="page-link bg-purple text-white border-0" href="#">3</a></li>
-                    <li class="page-item"><a class="page-link bg-purple text-white border-0" href="#">&raquo;</a></li>
-                </ul>
-            </nav>
+                {{-- Tombol Simpan Catatan --}}
+                <div class="d-flex justify-content-end mt-3">
+                    <button type="submit" class="btn btn-success">
+                        <i class="fa fa-save mr-1"></i> Simpan Catatan
+                    </button>
+                </div>
+            </form>
         </div>
     </div>
 </div>
-
 @endsection
 
 @push('styles')
