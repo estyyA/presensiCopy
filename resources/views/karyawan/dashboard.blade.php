@@ -1,4 +1,4 @@
-@extends('layouts.karyawan')
+@extends('karyawan.dashboard')
 
 @section('content')
 <div class="card profile-card p-3 mb-3 text-center">
@@ -13,6 +13,7 @@
         <h6 class="mb-0">I Made Sugi Hantara</h6>
         <small class="text-light">72220562 - Senior UX Designer</small>
     </div>
+</div> <!-- Tutup card profile -->
 
 <!-- Jam & Absensi -->
 <div class="card p-3 mb-3 text-center">
