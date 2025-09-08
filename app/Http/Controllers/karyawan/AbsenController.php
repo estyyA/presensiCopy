@@ -30,7 +30,7 @@ class AbsensiController extends Controller
             'keterangan' => $request->keterangan,
         ]);
 
-        return back()->with('success', 'Berhasil absen masuk!');
+        return redirect()->route('dashboard')->with('success', 'Berhasil absen masuk!');
     }
 
     /**
@@ -49,6 +49,12 @@ class AbsensiController extends Controller
         $request->validate([
             'jam_keluar' => 'required',
         ]);
+
+        // Cek apakah sudah jam 15:30
+        $now = now()->format('H:i');
+        if ($now < "15:30") {
+            return back()->with('error', 'Absensi keluar hanya bisa dilakukan setelah jam 15:30.');
+        }
 
         // cari data absen hari ini
         $absensi = Absensi::where('user_id', auth()->id())
@@ -69,6 +75,7 @@ class AbsensiController extends Controller
             ]);
         }
 
-        return back()->with('success', 'Berhasil absen keluar!');
+        // Redirect ke dashboard setelah absen keluar
+        return redirect()->route('dashboard')->with('success', 'Berhasil absen keluar!');
     }
 }
