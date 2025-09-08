@@ -4,6 +4,11 @@
 <div class="card p-3">
     <h5 class="mb-3 text-center fw-bold">Absensi Masuk</h5>
 
+    <!-- Tombol Kembali -->
+    <a href="{{ url('/dashboard-karyawan') }}" class="btn btn-secondary mb-3">
+        <i class="bi bi-arrow-left-circle"></i> Kembali ke Dashboard
+    </a>
+
     <!-- Lokasi Map -->
     <div class="mb-3" id="map-container">
         <iframe id="map-frame"
@@ -24,13 +29,15 @@
         </div>
 
         <!-- Keterangan Absensi -->
-<div class="btn btn-success btn-lg w-100 text-center">
-    <i class="bi bi-check-circle"></i> Absen Masuk
-</div>
+        <button type="submit" class="btn btn-success btn-lg w-100 text-center">
+            <i class="bi bi-check-circle"></i> Absen Masuk
+        </button>
+    </form>
 
-<!-- Info jam kantor -->
-<div class="card p-2 mt-3 text-center small">
-    <span class="text-muted">Jam kerja: 07:30 - 16:30 WIB</span>
+    <!-- Info jam kantor -->
+    <div class="card p-2 mt-3 text-center small">
+        <span class="text-muted">Jam kerja: 07:30 - 16:30 WIB</span>
+    </div>
 </div>
 
 <script>
