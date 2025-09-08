@@ -34,7 +34,7 @@
                         <th>No</th>
                         <th>NIK</th>
                         <th>Nama Karyawan</th>
-                        <th>Bidang</th>
+                        <th>Divisi</th>
                         <th>Tanggal</th>
                         <th>Jam Masuk</th>
                         <th>Jam Pulang</th>
