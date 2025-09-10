@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Barryvdh\DomPDF\Facade as PDF;
 use Maatwebsite\Excel\Facades\Excel;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 
 class PageController extends Controller
 {
@@ -28,9 +30,32 @@ class PageController extends Controller
         return view('laporan');
     }
 
-    public function Login()
+    public function showLogin()
     {
         return view('Login');
+    }
+
+    public function processLogin(Request $request)
+    {
+        $request->validate([
+            'username' => 'required',
+            'password' => 'required',
+        ]);
+
+        // Cek user di tabel akun
+        $akun = DB::table('akun')->where('username', $request->username)->first();
+
+        if ($akun && Hash::check($request->password, $akun->password)) {
+            // simpan session
+            session(['user' => $akun->username]);
+
+            // redirect ke dashboard karyawan
+            return redirect()->route('karyawan.dashboard');
+        }
+
+        return back()->withErrors([
+            'login' => 'Username atau password salah!',
+        ]);
     }
 
     public function PresensiKaryawan()
@@ -50,11 +75,11 @@ class PageController extends Controller
 
     // Cetak PDF
     public function cetakPdf()
-    {
-        $data = $this->getData();
-        $pdf = PDF::loadView('laporan_pdf', ['data' => $data]);
-        return $pdf->download('laporan.pdf');
-    }
+{
+    $data = $this->getData();
+    $pdf = PDF::loadView('laporan_pdf', ['data' => $data]);
+    return $pdf->download('laporan.pdf');
+}
 
     // Export Excel
     public function exportExcel()
