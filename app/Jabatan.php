@@ -20,3 +20,4 @@ class Jabatan extends Model
         return $this->hasMany(Karyawan::class, 'id_jabatan', 'id_jabatan');
     }
 }
+//jadi gini
