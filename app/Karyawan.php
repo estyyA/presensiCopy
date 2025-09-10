@@ -48,3 +48,4 @@ class Karyawan extends Model
         return $this->hasOne(Akun::class, 'NIK', 'NIK');
     }
 }
+//jadi gini
