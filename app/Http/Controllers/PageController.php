@@ -7,6 +7,7 @@ use Barryvdh\DomPDF\Facade as PDF;
 use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Auth;
 
 class PageController extends Controller
 {
@@ -102,5 +103,16 @@ class PageController extends Controller
                 return $header->merge($rows);
             }
         }, 'laporan.xlsx');
+    }
+
+    public function logout(Request $request)
+    {
+        Auth::logout();
+
+        // Hapus session
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+
+        return redirect('/login')->with('success', 'Berhasil logout.');
     }
 }
