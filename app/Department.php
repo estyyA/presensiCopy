@@ -20,3 +20,4 @@ class Department extends Model
         return $this->hasMany(Karyawan::class, 'id_divisi', 'id_divisi');
     }
 }
+//jadi gini
