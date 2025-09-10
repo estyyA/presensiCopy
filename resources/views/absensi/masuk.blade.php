@@ -32,7 +32,7 @@
 
     <!-- Info jam kantor -->
     <div class="card p-2 mt-3 text-center small">
-        <span class="text-muted">Jam kerja: 07:30 - 16:30 WIB</span>
+        <span class="text-muted">Jam kerja: 07:00 - 15:30 WIB</span>
     </div>
 </div>
 
