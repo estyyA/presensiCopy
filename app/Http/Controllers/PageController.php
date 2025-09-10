@@ -33,6 +33,20 @@ class PageController extends Controller
         return view('Login');
     }
 
+     // Memproses form login
+    public function doLogin(Request $request)
+    {
+        $username = $request->input('username');
+        $password = $request->input('password');
+
+        // Contoh validasi sederhana
+        if($username === 'admin' && $password === '12345'){
+            return redirect()->route('dashboard'); // nanti buat dashboard route
+        } else {
+            return redirect()->back()->with('error', 'Username atau password salah!');
+        }
+    }
+    
     public function PresensiKaryawan()
     {
         return view('PresensiKaryawan');
