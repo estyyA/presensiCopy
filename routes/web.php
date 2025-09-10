@@ -11,7 +11,7 @@ use App\Http\Controllers\Karyawan\KaryawanController;
 Route::get('/', function () {
     return view('Login');
 });
-
+Route::middleware('web')->group(function () {
 // Login
 Route::get('/login', [PageController::class, 'showLogin'])->name('login.form');
 Route::post('/login', [PageController::class, 'processLogin'])->name('login.process');
@@ -22,6 +22,7 @@ Route::post('/logout', [PageController::class, 'logout'])->name('logout');
 
 // Dashboard & halaman utama
 Route::get('/dashboard', [PageController::class, 'dashboard']);
+});
 Route::get('/daftarPresensi', [PageController::class, 'daftarPresensi']);
 Route::get('/daftarKaryawan', [PageController::class, 'daftarKaryawan']);
 Route::get('/laporan', [PageController::class, 'laporan'])->name('laporan');
