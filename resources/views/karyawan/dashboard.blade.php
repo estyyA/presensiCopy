@@ -18,8 +18,8 @@
             <i class="bi bi-pencil-fill"></i>
         </label>
 
-        <h6 class="mb-0 mt-2">{{ Auth::user()->name ?? 'Nama User' }}</h6>
-        <small class="text-muted">{{ Auth::user()->bidang ?? 'Bidang Pekerjaan' }}</small>
+        <h6 class="mb-0 mt-2">{{ Auth::user()->name ?? 'Resty Aryanti' }}</h6>
+        <small class="text-muted">{{ Auth::user()->bidang ?? 'HRD' }}</small>
 
         <!-- Tombol Logout -->
 
