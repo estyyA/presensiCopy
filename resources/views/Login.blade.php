@@ -71,7 +71,7 @@
     <!-- Card -->
     <div class="login-card">
       <h5>Login Here</h5>
-      <form action="{{ route('Login') }}" method="POST">
+      <form action="{{ route('login.process') }}" method="POST">
         @csrf
         <!-- Username -->
         <div class="mb-3">
