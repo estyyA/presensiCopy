@@ -16,6 +16,10 @@ Route::get('/', function () {
 Route::get('/login', [PageController::class, 'showLogin'])->name('login.form');
 Route::post('/login', [PageController::class, 'processLogin'])->name('login.process');
 
+//Logout
+Route::post('/logout', [PageController::class, 'logout'])->name('logout');
+
+
 // Dashboard & halaman utama
 Route::get('/dashboard', [PageController::class, 'dashboard']);
 Route::get('/daftarPresensi', [PageController::class, 'daftarPresensi']);
