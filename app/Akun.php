@@ -33,3 +33,4 @@ class Akun extends Authenticatable
         return $this->belongsTo(Karyawan::class, 'NIK', 'NIK');
     }
 }
+//jadi gini
