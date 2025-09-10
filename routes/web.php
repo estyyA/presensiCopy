@@ -13,8 +13,8 @@ Route::get('/', function () {
 });
 
 // Login
-Route::get('/Login', [PageController::class, 'Login'])->name('Login');
-Route::post('/Login', [PageController::class, 'Login'])->name('Login');
+Route::get('/login', [PageController::class, 'showLogin'])->name('login.form');
+Route::post('/login', [PageController::class, 'processLogin'])->name('login.process');
 
 // Dashboard & halaman utama
 Route::get('/dashboard', [PageController::class, 'dashboard']);
