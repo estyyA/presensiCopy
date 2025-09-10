@@ -19,8 +19,8 @@
             <i class="bi bi-pencil-fill"></i>
         </label>
 
-        <h6 class="mb-0 mt-2">I Made Sugi Hantara</h6>
-        <small class="text-muted">72220562 - Senior UX Designer</small>
+        <h6 class="mb-0 mt-2">Nama Sesuai Dengan User Yang Masuk</h6>
+        <small class="text-muted">Bidang Pekerjaan Apa</small>
     </div>
 </div>
 
