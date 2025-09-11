@@ -8,6 +8,15 @@ use App\Http\Controllers\Karyawan\DashboardController as KaryawanDashboardContro
 use App\Http\Controllers\Karyawan\KaryawanController;
 
 
+// Form Registrasi
+Route::get('/register', [PageController::class, 'showRegister'])->name('register.form');
+
+// Proses Registrasi
+Route::post('/register', [PageController::class, 'processRegister'])->name('register.store');
+
+
+
+
 Route::get('/', function () {
     return view('Login');
 });
