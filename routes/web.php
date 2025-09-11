@@ -64,3 +64,16 @@ Route::get('/absensi/keluar', function () {
 // Laporan (PDF & Excel)
 Route::get('/laporan/pdf', [PageController::class, 'cetakPdf'])->name('laporan.cetakPdf');
 Route::get('/laporan/excel', [PageController::class, 'exportExcel'])->name('laporan.exportExcel');
+
+// CRUD Karyawan (admin)
+Route::get('/karyawan/create', [PageController::class, 'createKaryawan'])->name('karyawan.create');
+Route::post('/karyawan/store', [PageController::class, 'storeKaryawan'])->name('karyawan.store');
+
+Route::get('/karyawan/{nik}/edit', [PageController::class, 'editKaryawan'])->name('karyawan.edit');
+Route::put('/karyawan/{nik}/update', [PageController::class, 'updateKaryawan'])->name('karyawan.update');
+
+Route::delete('/karyawan/{nik}', [PageController::class, 'deleteKaryawan'])->name('karyawan.delete');
+
+Route::get('/karyawan/{nik}/detail', [PageController::class, 'showKaryawan'])->name('karyawan.show');
+
+
