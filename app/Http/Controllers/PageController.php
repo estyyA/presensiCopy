@@ -31,9 +31,10 @@ class PageController extends Controller
         return view('laporan');
     }
 
+    /** ---------------- LOGIN ---------------- */
     public function showLogin()
     {
-        return view('Login');
+        return view('login');
     }
 
     public function processLogin(Request $request)
@@ -43,14 +44,11 @@ class PageController extends Controller
             'password' => 'required',
         ]);
 
-        // Cek user di tabel akun
         $akun = DB::table('akun')->where('username', $request->username)->first();
 
         if ($akun && Hash::check($request->password, $akun->password)) {
-            // simpan session
             session(['user' => $akun->username]);
 
-            // redirect ke dashboard karyawan
             return redirect()->route('karyawan.dashboard');
         }
 
@@ -59,12 +57,72 @@ class PageController extends Controller
         ]);
     }
 
+    /** ---------------- REGISTER ---------------- */
+    public function showRegister()
+    {
+        return view('register'); // bikin view register.blade.php
+    }
+
+    public function processRegister(Request $request)
+    {
+        $request->validate([
+            'nik'          => 'required|unique:karyawan,NIK',
+            'username'     => 'required|unique:akun,username',
+            'password'     => 'required|min:6',
+            'id_divisi'    => 'required|integer',
+            'id_jabatan'   => 'required|integer',
+            'divisi'       => 'required|string',
+            'nama_lengkap' => 'required|string',
+            'no_hp'        => 'required|string',
+            'tgl_lahir'    => 'required|date',
+            'alamat'       => 'required|string',
+            'role'         => 'required|string',
+            'foto'         => 'nullable|image|max:2048',
+        ]);
+
+        // Simpan ke tabel akun
+        DB::table('akun')->insert([
+            'username' => $request->username,
+            'NIK'      => $request->nik,
+            'password' => Hash::make($request->password),
+        ]);
+
+        // Upload foto (jika ada)
+        $fotoName = null;
+        if ($request->hasFile('foto')) {
+            $fotoName = time() . '.' . $request->foto->extension();
+            $request->foto->move(public_path('uploads'), $fotoName);
+        }
+
+        // Simpan ke tabel karyawan
+        DB::table('karyawan')->insert([
+            'NIK'          => $request->nik,
+            'username'     => $request->username,
+            'id_divisi'    => $request->id_divisi,
+            'id_jabatan'   => $request->id_jabatan,
+            'divisi'       => $request->divisi,
+            'nama_lengkap' => $request->nama_lengkap,
+            'no_hp'        => $request->no_hp,
+            'tgl_lahir'    => $request->tgl_lahir,
+            'alamat'       => $request->alamat,
+            'role'         => $request->role,
+            'foto'         => $fotoName,
+        ]);
+
+        // ✅ Set session user agar langsung login
+        session(['user' => $request->username]);
+
+        // ✅ Redirect langsung ke dashboard karyawan
+        return redirect()->route('karyawan.dashboard')
+            ->with('success', 'Registrasi berhasil! Selamat datang, ' . $request->nama_lengkap);
+    }
+
+    /** ---------------- PRESENSI ---------------- */
     public function PresensiKaryawan()
     {
         return view('PresensiKaryawan');
     }
 
-    // Data dummy (nanti ganti query DB)
     private function getData()
     {
         return collect([
@@ -74,15 +132,15 @@ class PageController extends Controller
         ]);
     }
 
-    // Cetak PDF
+    /** ---------------- CETAK PDF ---------------- */
     public function cetakPdf()
-{
-    $data = $this->getData();
-    $pdf = PDF::loadView('laporan_pdf', ['data' => $data]);
-    return $pdf->download('laporan.pdf');
-}
+    {
+        $data = $this->getData();
+        $pdf = PDF::loadView('laporan_pdf', ['data' => $data]);
+        return $pdf->download('laporan.pdf');
+    }
 
-    // Export Excel
+    /** ---------------- EXPORT EXCEL ---------------- */
     public function exportExcel()
     {
         $data = $this->getData();
@@ -96,7 +154,7 @@ class PageController extends Controller
                 $rows = $this->data->map(function($row){
                     return [
                         $row['nik'], $row['nama'], $row['divisi'],
-                        0, // total hari kerja
+                        0,
                         $row['hadir'], $row['sakit'], $row['cuti']
                     ];
                 });
@@ -105,11 +163,10 @@ class PageController extends Controller
         }, 'laporan.xlsx');
     }
 
+    /** ---------------- LOGOUT ---------------- */
     public function logout(Request $request)
     {
         Auth::logout();
-
-        // Hapus session
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
