@@ -8,6 +8,12 @@ use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
+use App\Karyawan;
+use App\Akun;
+use App\Department;
+use App\Jabatan;
+use App\Absensi;
+
 
 class PageController extends Controller
 {
@@ -22,9 +28,93 @@ class PageController extends Controller
     }
 
     public function daftarKaryawan()
-    {
-        return view('daftarKaryawan');
+{
+    $karyawan = Karyawan::paginate(10); // ambil 10 data per halaman
+    return view('daftarKaryawan', compact('karyawan'));
+}
+
+    public function createKaryawan()
+{
+    return view('createKaryawan');
+}
+
+public function store(Request $request)
+{
+    DB::table('karyawan')->insert([
+        'NIK' => $request->NIK,
+        'nama_lengkap' => $request->nama_lengkap,
+        'id_divisi' => $request->id_divisi,
+        'username' => $request->username,
+        'password' => Hash::make($request->password), // 🔑 bcrypt
+        'no_hp' => $request->no_hp,
+        'status' => $request->status,
+    ]);
+
+    return redirect('/daftarKaryawan')->with('success', 'Karyawan berhasil ditambahkan.');
+}
+
+public function editKaryawan($nik)
+{
+    $karyawan = DB::table('karyawan')->where('NIK', $nik)->first();
+    $departements = DB::table('departement')->get();
+    $jabatans = DB::table('jabatan')->get();
+
+    return view('editKaryawan', compact('karyawan', 'departements', 'jabatans'));
+}
+
+
+public function updateKaryawan(Request $request, $NIK)
+{
+    // Ambil data karyawan
+    $karyawan = DB::table('karyawan')->where('NIK', $NIK)->first();
+
+    // Siapkan data update selain foto
+    $dataUpdate = [
+        'username'     => $request->username,
+        'no_hp'        => $request->no_hp,
+        'tgl_lahir'    => $request->tgl_lahir,
+        'alamat'       => $request->alamat,
+        'id_divisi'    => $request->id_divisi,
+        'id_jabatan'   => $request->id_jabatan,
+        'role'         => $request->role,
+        'status'       => $request->status,
+    ];
+
+    // Jika ada upload foto baru
+    if ($request->hasFile('foto')) {
+        $fotoPath = $request->file('foto')->store('foto', 'public');
+
+        // Simpan path ke database
+        $dataUpdate['foto'] = $fotoPath;
     }
+
+    // Update ke database
+    DB::table('karyawan')->where('NIK', $NIK)->update($dataUpdate);
+
+    return redirect('/daftarKaryawan')->with('success', 'Data karyawan berhasil diupdate.');
+}
+
+
+
+public function deleteKaryawan($nik)
+{
+    DB::table('karyawan')->where('NIK', $nik)->delete();
+    return redirect('/daftarKaryawan')->with('success', 'Karyawan berhasil dihapus.');
+}
+
+public function showKaryawan($nik)
+{
+    $karyawan = DB::table('karyawan')
+        ->leftJoin('departement', 'karyawan.id_divisi', '=', 'departement.id_divisi')
+        ->leftJoin('jabatan', 'karyawan.id_jabatan', '=', 'jabatan.id_jabatan')
+        ->select('karyawan.*', 'departement.nama_divisi', 'jabatan.nama_jabatan')
+        ->where('karyawan.NIK', $nik)
+        ->first();
+
+    return view('showKaryawan', compact('karyawan'));
+}
+
+
 
     public function laporan()
     {
