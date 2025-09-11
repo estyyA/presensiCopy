@@ -126,7 +126,7 @@
                 <!-- Register -->
                 <div class="text-center mt-3">
                     <small>Belum punya akun?
-                        <a href="#" class="register fw-bold text-decoration-none">Register</a>
+                        <a href="{{ url('/register') }}" class="register fw-bold text-decoration-none">Register</a>
                     </small>
                 </div>
             </form>
