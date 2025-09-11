@@ -1,11 +1,13 @@
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Presensi Karyawan</title>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
+
 <body class="bg-gray-100 font-sans">
 
     <div class="max-w-md mx-auto bg-white shadow-lg rounded-2xl mt-6 overflow-hidden">
@@ -48,22 +50,28 @@
                 <li class="flex justify-between items-center border-b pb-2">
                     <span class="text-gray-600">Fri, 14 April 2023</span>
                     <div class="text-right">
-                        <p><span class="text-blue-600 font-medium">08:00 AM</span> <span class="text-xs text-gray-500">(Yogyakarta)</span></p>
-                        <p><span class="text-red-500 font-medium">05:00 PM</span> <span class="text-xs text-gray-500">(Bantul)</span></p>
+                        <p><span class="text-blue-600 font-medium">08:00 AM</span> <span
+                                class="text-xs text-gray-500">(Yogyakarta)</span></p>
+                        <p><span class="text-red-500 font-medium">05:00 PM</span> <span
+                                class="text-xs text-gray-500">(Bantul)</span></p>
                     </div>
                 </li>
                 <li class="flex justify-between items-center border-b pb-2">
                     <span class="text-gray-600">Thu, 13 April 2023</span>
                     <div class="text-right">
-                        <p><span class="text-red-500 font-medium">08:45 AM</span> <span class="text-xs text-gray-500">(Sleman)</span></p>
-                        <p><span class="text-red-500 font-medium">05:00 PM</span> <span class="text-xs text-gray-500">(Sleman)</span></p>
+                        <p><span class="text-red-500 font-medium">08:45 AM</span> <span
+                                class="text-xs text-gray-500">(Sleman)</span></p>
+                        <p><span class="text-red-500 font-medium">05:00 PM</span> <span
+                                class="text-xs text-gray-500">(Sleman)</span></p>
                     </div>
                 </li>
                 <li class="flex justify-between items-center border-b pb-2">
                     <span class="text-gray-600">Wed, 12 April 2023</span>
                     <div class="text-right">
-                        <p><span class="text-blue-600 font-medium">07:53 AM</span> <span class="text-xs text-gray-500">(Yogyakarta)</span></p>
-                        <p><span class="text-gray-600 font-medium">05:00 PM</span> <span class="text-xs text-gray-500">(Yogyakarta)</span></p>
+                        <p><span class="text-blue-600 font-medium">07:53 AM</span> <span
+                                class="text-xs text-gray-500">(Yogyakarta)</span></p>
+                        <p><span class="text-gray-600 font-medium">05:00 PM</span> <span
+                                class="text-xs text-gray-500">(Yogyakarta)</span></p>
                     </div>
                 </li>
             </ul>
@@ -72,4 +80,5 @@
     </div>
 
 </body>
+
 </html>
