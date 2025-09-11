@@ -7,30 +7,32 @@
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
   <style>
-    body, html {
-      height: 100%;
+    body {
       margin: 0;
       font-family: 'Segoe UI', Arial, sans-serif;
       background: linear-gradient(to bottom, #1976d2, #0d47a1);
+      min-height: 100vh;
       display: flex;
       align-items: center;
       justify-content: center;
+      padding: 40px 15px; /* jarak atas & bawah biar tidak menempel */
     }
     .register-container {
       width: 100%;
-      max-width: 900px;
-      margin: 20px;
+      max-width: 950px;
     }
     .register-card {
       background: white;
       border-radius: 15px;
       box-shadow: 0px 8px 16px rgba(0,0,0,0.25);
       overflow: hidden;
+      display: flex;
+      flex-direction: column;
     }
     .register-header {
       background: linear-gradient(to right, #1976d2, #0d47a1);
       color: white;
-      padding: 20px;
+      padding: 25px 20px;
       text-align: center;
     }
     .register-header img {
@@ -48,8 +50,8 @@
       color: #e3f2fd;
     }
     .register-body {
-      padding: 30px 30px 50px 30px; /* extra padding bawah */
-      max-height: 75vh;
+      padding: 35px 30px 40px 30px;
+      max-height: 70vh;
       overflow-y: auto;
     }
     .register-body h5 {
@@ -72,8 +74,7 @@
       border-radius: 8px;
       padding: 12px;
       transition: all 0.3s ease;
-      margin-top: 15px;
-      margin-bottom: 10px; /* ruang bawah */
+      margin-top: 20px;
     }
     .btn-register:hover {
       background: linear-gradient(to right, #1565c0, #0b3c91);
@@ -84,7 +85,7 @@
       text-align: center;
       font-size: 13px;
       color: #666;
-      padding: 10px;
+      padding: 12px;
       background: #f9f9f9;
       border-top: 1px solid #eee;
     }
