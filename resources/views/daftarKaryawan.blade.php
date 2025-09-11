@@ -39,83 +39,64 @@
         {{-- Tabel Data Karyawan --}}
         <div class="table-responsive">
             <table class="table table-bordered table-striped text-center">
-                <thead class="thead-thead-light ">
+                <thead>
                     <tr>
                         <th>No</th>
                         <th>NIK</th>
                         <th>Nama Karyawan</th>
-                        <th>Divis</th>
+                        <th>Divisi</th>
                         <th>Username</th>
-                        <th>Password</th>
                         <th>No. HP</th>
                         <th>Status</th>
                         <th>Aksi</th>
                     </tr>
                 </thead>
                 <tbody>
-                    <tr>
-                        <td>1</td>
-                        <td>72220535</td>
-                        <td>I Made Sugihantara</td>
-                        <td>Direktur</td>
-                        <td>Arjuna</td>
-                        <td>Duryudana</td>
-                        <td>082344441130</td>
-                        <td><span class="badge badge-success">Aktif</span></td>
-                        <td>
-                            <button class="btn btn-sm btn-info"><i class="fa fa-folder-open"></i></button>
-                            <button class="btn btn-sm btn-success"><i class="fa fa-pen"></i></button>
-                            <button class="btn btn-sm btn-danger"><i class="fa fa-times"></i></button>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>2</td>
-                        <td>72220545</td>
-                        <td>Imanuel Yayan L</td>
-                        <td>Keuangan</td>
-                        <td>Rainexx</td>
-                        <td>nuel1234</td>
-                        <td>081324567890</td>
-                        <td><span class="badge badge-success">Aktif</span></td>
-                        <td>
-                            <button class="btn btn-sm btn-info"><i class="fa fa-folder-open"></i></button>
-                            <button class="btn btn-sm btn-success"><i class="fa fa-pen"></i></button>
-                            <button class="btn btn-sm btn-danger"><i class="fa fa-times"></i></button>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>3</td>
-                        <td>72220555</td>
-                        <td>Esra Duwi Saputra</td>
-                        <td>Keuangan</td>
-                        <td>Dutaepepehe</td>
-                        <td>duta1234</td>
-                        <td>081324567896</td>
-                        <td><span class="badge badge-success">Aktif</span></td>
-                        <td>
-                            <button class="btn btn-sm btn-info"><i class="fa fa-folder-open"></i></button>
-                            <button class="btn btn-sm btn-success"><i class="fa fa-pen"></i></button>
-                            <button class="btn btn-sm btn-danger"><i class="fa fa-times"></i></button>
-                        </td>
-                    </tr>
+                    @forelse ($karyawan as $index => $row)
+                        <tr>
+                            <td>{{ $index + 1 }}</td>
+                            <td>{{ $row->NIK }}</td>
+                            <td>{{ $row->nama_lengkap }}</td>
+                            <td>{{ $row->departement->nama_divisi ?? '-' }}</td>
+                            <td>{{ $row->username }}</td>
+                            <td>{{ $row->no_hp }}</td>
+                            <td>
+                                @if($row->status == 'Aktif')
+                                    <span class="badge badge-success">Aktif</span>
+                                @else
+                                    <span class="badge badge-secondary">{{ $row->status }}</span>
+                                @endif
+                            </td>
+                            <td>
+                                <a href="{{ route('karyawan.show', $row->NIK) }}" class="btn btn-sm btn-info">
+                                    <i class="fa fa-folder-open"></i>
+                                </a>
+                                <a href="{{ route('karyawan.edit', $row->NIK) }}" class="btn btn-sm btn-success">
+                                    <i class="fa fa-pen"></i>
+                                </a>
+                                <form action="{{ route('karyawan.delete', $row->NIK) }}" method="POST" style="display:inline-block;" onsubmit="return confirm('Yakin mau hapus data ini?');">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" class="btn btn-sm btn-danger">
+                                        <i class="fa fa-times"></i>
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                    @empty
+                        <tr>
+                            <td colspan="8">Tidak ada data karyawan</td>
+                        </tr>
+                    @endforelse
                 </tbody>
             </table>
         </div>
 
-        {{-- Pagination --}}
+        {{-- Pagination (kalau pakai paginate) --}}
         <div class="d-flex justify-content-center mt-3">
-            <nav>
-                <ul class="pagination">
-                    <li class="page-item"><a class="page-link" href="#">&laquo;</a></li>
-                    <li class="page-item"><a class="page-link" href="#">&lt;</a></li>
-                    <li class="page-item"><a class="page-link" href="#">1</a></li>
-                    <li class="page-item"><a class="page-link" href="#">&gt;</a></li>
-                    <li class="page-item"><a class="page-link" href="#">&raquo;</a></li>
-                </ul>
-            </nav>
+            {{ $karyawan->links() ?? '' }}
         </div>
 
     </div>
 </div>
-
 @endsection
