@@ -1,13 +1,12 @@
 <?php
 
-namespace App\Models;
+namespace App;
 
-use App\Akun;
 use Illuminate\Database\Eloquent\Model;
 
 class Karyawan extends Model
 {
-    protected $table = 'Karyawan';
+    protected $table = 'karyawan';
     protected $primaryKey = 'NIK';
     public $incrementing = false; // karena PK bukan auto increment
     protected $keyType = 'string';
@@ -22,6 +21,7 @@ class Karyawan extends Model
         'tgl_lahir',
         'alamat',
         'role',
+        'status', 
     ];
 
     // Relasi ke Departement
