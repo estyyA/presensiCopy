@@ -2,7 +2,7 @@
 
 namespace App;
 
-use App\Models\Karyawan;
+use App\Karyawan;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
