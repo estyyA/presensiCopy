@@ -96,6 +96,10 @@
           </div>
           <a href="#" class="forgot">Forgot Password</a>
         </div>
+        <div>
+            <a href="#" class="register">Register</a>
+        </div>
+
         <!-- Button -->
         <button type="submit" class="btn btn-login w-100">Login</button>
       </form>
