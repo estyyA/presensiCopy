@@ -7,115 +7,100 @@ use Barryvdh\DomPDF\Facade as PDF;
 use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Auth;
-use App\Karyawan;
-use App\Akun;
-use App\Department;
-use App\Jabatan;
-use App\Absensi;
-
 
 class PageController extends Controller
 {
+    /** ---------------- DASHBOARD ---------------- */
     public function dashboard()
     {
-        return view('dashboard');
+        // Ambil data karyawan dari session
+        $karyawan = session('karyawan');
+        return view('dashboard', compact('karyawan'));
     }
 
+    /** ---------------- KARYAWAN ---------------- */
     public function daftarPresensi()
     {
         return view('daftarPresensi');
     }
 
     public function daftarKaryawan()
-{
-    $karyawan = Karyawan::paginate(10); // ambil 10 data per halaman
-    return view('daftarKaryawan', compact('karyawan'));
-}
-
-    public function createKaryawan()
-{
-    return view('createKaryawan');
-}
-
-public function store(Request $request)
-{
-    DB::table('karyawan')->insert([
-        'NIK' => $request->NIK,
-        'nama_lengkap' => $request->nama_lengkap,
-        'id_divisi' => $request->id_divisi,
-        'username' => $request->username,
-        'password' => Hash::make($request->password), // 🔑 bcrypt
-        'no_hp' => $request->no_hp,
-        'status' => $request->status,
-    ]);
-
-    return redirect('/daftarKaryawan')->with('success', 'Karyawan berhasil ditambahkan.');
-}
-
-public function editKaryawan($nik)
-{
-    $karyawan = DB::table('karyawan')->where('NIK', $nik)->first();
-    $departements = DB::table('departement')->get();
-    $jabatans = DB::table('jabatan')->get();
-
-    return view('editKaryawan', compact('karyawan', 'departements', 'jabatans'));
-}
-
-
-public function updateKaryawan(Request $request, $NIK)
-{
-    // Ambil data karyawan
-    $karyawan = DB::table('karyawan')->where('NIK', $NIK)->first();
-
-    // Siapkan data update selain foto
-    $dataUpdate = [
-        'username'     => $request->username,
-        'no_hp'        => $request->no_hp,
-        'tgl_lahir'    => $request->tgl_lahir,
-        'alamat'       => $request->alamat,
-        'id_divisi'    => $request->id_divisi,
-        'id_jabatan'   => $request->id_jabatan,
-        'role'         => $request->role,
-        'status'       => $request->status,
-    ];
-
-    // Jika ada upload foto baru
-    if ($request->hasFile('foto')) {
-        $fotoPath = $request->file('foto')->store('foto', 'public');
-
-        // Simpan path ke database
-        $dataUpdate['foto'] = $fotoPath;
+    {
+        $karyawan = DB::table('karyawan')->paginate(10);
+        return view('daftarKaryawan', compact('karyawan'));
     }
 
-    // Update ke database
-    DB::table('karyawan')->where('NIK', $NIK)->update($dataUpdate);
+    public function createKaryawan()
+    {
+        return view('createKaryawan');
+    }
 
-    return redirect('/daftarKaryawan')->with('success', 'Data karyawan berhasil diupdate.');
-}
+    public function store(Request $request)
+    {
+        DB::table('karyawan')->insert([
+            'NIK'          => $request->NIK,
+            'nama_lengkap' => $request->nama_lengkap,
+            'id_divisi'    => $request->id_divisi,
+            'username'     => $request->username,
+            'password'     => Hash::make($request->password),
+            'no_hp'        => $request->no_hp,
+            'status'       => $request->status,
+        ]);
 
+        return redirect('/daftarKaryawan')->with('success', 'Karyawan berhasil ditambahkan.');
+    }
 
+    public function editKaryawan($NIK)
+    {
+        $karyawan     = DB::table('karyawan')->where('NIK', $NIK)->first();
+        $departements = DB::table('departement')->get();
+        $jabatans     = DB::table('jabatan')->get();
 
-public function deleteKaryawan($nik)
-{
-    DB::table('karyawan')->where('NIK', $nik)->delete();
-    return redirect('/daftarKaryawan')->with('success', 'Karyawan berhasil dihapus.');
-}
+        return view('editKaryawan', compact('karyawan', 'departements', 'jabatans'));
+    }
 
-public function showKaryawan($nik)
-{
-    $karyawan = DB::table('karyawan')
-        ->leftJoin('departement', 'karyawan.id_divisi', '=', 'departement.id_divisi')
-        ->leftJoin('jabatan', 'karyawan.id_jabatan', '=', 'jabatan.id_jabatan')
-        ->select('karyawan.*', 'departement.nama_divisi', 'jabatan.nama_jabatan')
-        ->where('karyawan.NIK', $nik)
-        ->first();
+    public function updateKaryawan(Request $request, $NIK)
+    {
+        $dataUpdate = [
+            'username'   => $request->username,
+            'no_hp'      => $request->no_hp,
+            'tgl_lahir'  => $request->tgl_lahir,
+            'alamat'     => $request->alamat,
+            'id_divisi'  => $request->id_divisi,
+            'id_jabatan' => $request->id_jabatan,
+            'role'       => $request->role,
+            'status'     => $request->status,
+        ];
 
-    return view('showKaryawan', compact('karyawan'));
-}
+        if ($request->hasFile('foto')) {
+            $fotoPath = $request->file('foto')->store('foto', 'public');
+            $dataUpdate['foto'] = $fotoPath;
+        }
 
+        DB::table('karyawan')->where('NIK', $NIK)->update($dataUpdate);
 
+        return redirect('/daftarKaryawan')->with('success', 'Data karyawan berhasil diupdate.');
+    }
 
+    public function deleteKaryawan($NIK)
+    {
+        DB::table('karyawan')->where('NIK', $NIK)->delete();
+        return redirect('/daftarKaryawan')->with('success', 'Karyawan berhasil dihapus.');
+    }
+
+    public function showKaryawan($NIK)
+    {
+        $karyawan = DB::table('karyawan')
+            ->leftJoin('departement', 'karyawan.id_divisi', '=', 'departement.id_divisi')
+            ->leftJoin('jabatan', 'karyawan.id_jabatan', '=', 'jabatan.id_jabatan')
+            ->select('karyawan.*', 'departement.nama_divisi', 'jabatan.nama_jabatan')
+            ->where('karyawan.NIK', $NIK)
+            ->first();
+
+        return view('showKaryawan', compact('karyawan'));
+    }
+
+    /** ---------------- LAPORAN ---------------- */
     public function laporan()
     {
         return view('laporan');
@@ -134,34 +119,53 @@ public function showKaryawan($nik)
             'password' => 'required',
         ]);
 
-        $akun = DB::table('akun')->where('username', $request->username)->first();
+        // Cari akun
+        $akun = DB::table('akun')
+            ->where('username', $request->username)
+            ->first();
 
-        if ($akun && Hash::check($request->password, $akun->password)) {
-            session(['user' => $akun->username]);
-
-            return redirect()->route('karyawan.dashboard');
+        if (!$akun || !Hash::check($request->password, $akun->password)) {
+            return back()->withErrors(['login' => 'Username atau password salah.']);
         }
 
-        return back()->withErrors([
-            'login' => 'Username atau password salah!',
+        // Ambil data karyawan
+        $karyawan = DB::table('karyawan')
+            ->where('NIK', $akun->NIK)
+            ->first();
+
+        if (!$karyawan) {
+            return back()->withErrors(['login' => 'Data karyawan tidak ditemukan.']);
+        }
+
+        // Simpan ke session
+        session([
+            'username' => $akun->username,
+            'role'     => $karyawan->role,
+            'karyawan' => $karyawan,
         ]);
+
+        // Redirect sesuai role
+        if ($karyawan->role === 'admin') {
+            return redirect()->route('dashboard')->with('success', 'Login berhasil sebagai Admin');
+        }
+
+        return redirect()->route('karyawan.dashboard')->with('success', 'Login berhasil sebagai Karyawan');
     }
 
     /** ---------------- REGISTER ---------------- */
     public function showRegister()
     {
-        return view('register'); // bikin view register.blade.php
+        return view('register');
     }
 
     public function processRegister(Request $request)
     {
         $request->validate([
-            'nik'          => 'required|unique:karyawan,NIK',
+            'NIK'          => 'required|unique:karyawan,NIK',
             'username'     => 'required|unique:akun,username',
             'password'     => 'required|min:6',
             'id_divisi'    => 'required|integer',
             'id_jabatan'   => 'required|integer',
-            'divisi'       => 'required|string',
             'nama_lengkap' => 'required|string',
             'no_hp'        => 'required|string',
             'tgl_lahir'    => 'required|date',
@@ -170,27 +174,17 @@ public function showKaryawan($nik)
             'foto'         => 'nullable|image|max:2048',
         ]);
 
-        // Simpan ke tabel akun
-        DB::table('akun')->insert([
-            'username' => $request->username,
-            'NIK'      => $request->nik,
-            'password' => Hash::make($request->password),
-        ]);
-
-        // Upload foto (jika ada)
         $fotoName = null;
         if ($request->hasFile('foto')) {
             $fotoName = time() . '.' . $request->foto->extension();
             $request->foto->move(public_path('uploads'), $fotoName);
         }
 
-        // Simpan ke tabel karyawan
         DB::table('karyawan')->insert([
-            'NIK'          => $request->nik,
+            'NIK'          => $request->NIK,
             'username'     => $request->username,
             'id_divisi'    => $request->id_divisi,
             'id_jabatan'   => $request->id_jabatan,
-            'divisi'       => $request->divisi,
             'nama_lengkap' => $request->nama_lengkap,
             'no_hp'        => $request->no_hp,
             'tgl_lahir'    => $request->tgl_lahir,
@@ -199,12 +193,13 @@ public function showKaryawan($nik)
             'foto'         => $fotoName,
         ]);
 
-        // ✅ Set session user agar langsung login
-        session(['user' => $request->username]);
+        DB::table('akun')->insert([
+            'username' => $request->username,
+            'NIK'      => $request->NIK,
+            'password' => Hash::make($request->password),
+        ]);
 
-        // ✅ Redirect langsung ke dashboard karyawan
-        return redirect()->route('karyawan.dashboard')
-            ->with('success', 'Registrasi berhasil! Selamat datang, ' . $request->nama_lengkap);
+        return redirect()->route('login.form')->with('success', 'Registrasi berhasil! Silakan login.');
     }
 
     /** ---------------- PRESENSI ---------------- */
@@ -222,15 +217,13 @@ public function showKaryawan($nik)
         ]);
     }
 
-    /** ---------------- CETAK PDF ---------------- */
     public function cetakPdf()
     {
         $data = $this->getData();
-        $pdf = PDF::loadView('laporan_pdf', ['data' => $data]);
+        $pdf  = PDF::loadView('laporan_pdf', ['data' => $data]);
         return $pdf->download('laporan.pdf');
     }
 
-    /** ---------------- EXPORT EXCEL ---------------- */
     public function exportExcel()
     {
         $data = $this->getData();
@@ -256,10 +249,30 @@ public function showKaryawan($nik)
     /** ---------------- LOGOUT ---------------- */
     public function logout(Request $request)
     {
-        Auth::logout();
+        $request->session()->forget(['username','role','karyawan']);
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
         return redirect('/login')->with('success', 'Berhasil logout.');
     }
+
+    // public function karyawanDashboard()
+    // {
+    //     // Ambil data karyawan dari session
+    //     $karyawan = session('karyawan');
+
+    //     if (!$karyawan) {
+    //         // Kalau belum login, arahkan ke halaman login
+    //         return redirect()->route('login')->with('error', 'Silakan login dulu.');
+    //     }
+
+    //     // Ambil data absensi milik karyawan ini dari tabel absensi
+    //     $absensi = DB::table('absensi')
+    //         ->where('NIK', $karyawan->NIK)   // sesuaikan nama kolom NIK di database Anda
+    //         ->orderBy('tanggal', 'desc')
+    //         ->get();
+
+    //     // Kirim data ke view
+    //     return view('karyawan.dashboard', compact('karyawan', 'absensi'));
+    // }
 }
