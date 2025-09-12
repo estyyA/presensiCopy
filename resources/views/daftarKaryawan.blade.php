@@ -10,31 +10,37 @@
     </div>
     <div class="card-body">
 
-        {{-- Filter dan Pencarian --}}
-        <div class="mb-3 p-3 border rounded bg-light">
-            <h6 class="font-weight-bold">Filter dan Pencarian</h6>
-            <div class="form-row">
-                <div class="col-md-4 mb-2">
-                    <input type="text" class="form-control" placeholder="Nama Karyawan">
-                </div>
-                <div class="col-md-3 mb-2">
-                    <select class="form-control">
-                        <option value="">Bidang Pekerjaan</option>
-                        <option>Direktur</option>
-                        <option>Keuangan</option>
-                        <option>HRD</option>
-                    </select>
-                </div>
-                <div class="col-md-3 mb-2">
-                    <input type="text" class="form-control" placeholder="Search...">
-                </div>
-                <div class="col-md-2 mb-2">
-                    <button class="btn btn-primary btn-block">
-                        <i class="fa fa-search"></i> Cari
-                    </button>
-                </div>
+       {{-- Filter dan Pencarian --}}
+<div class="mb-3 p-3 border rounded bg-light">
+    <h6 class="font-weight-bold">Filter dan Pencarian</h6>
+    <form method="GET" action="{{ route('daftar.karyawan') }}">
+        <div class="form-row">
+            <div class="col-md-4 mb-2">
+                <input type="text" name="nama" class="form-control" placeholder="Nama Karyawan" value="{{ request('nama') }}">
+            </div>
+            <div class="col-md-3 mb-2">
+                <select name="divisi" class="form-control">
+                    <option value="">Bidang Pekerjaan</option>
+                    @foreach($departements as $dept)
+                        <option value="{{ $dept->nama_divisi }}"
+                            {{ request('divisi') == $dept->nama_divisi ? 'selected' : '' }}>
+                            {{ $dept->nama_divisi }}
+                        </option>
+                    @endforeach
+                </select>
+            </div>
+            <div class="col-md-3 mb-2">
+                <input type="text" name="search" class="form-control" placeholder="Search..." value="{{ request('search') }}">
+            </div>
+            <div class="col-md-2 mb-2">
+                <button class="btn btn-primary btn-block">
+                    <i class="fa fa-search"></i> Cari
+                </button>
             </div>
         </div>
+    </form>
+</div>
+
 
         {{-- Tabel Data Karyawan --}}
         <div class="table-responsive">

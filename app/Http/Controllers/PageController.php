@@ -24,10 +24,102 @@ class PageController extends Controller
         return view('daftarPresensi');
     }
 
+
     public function daftarKaryawan()
     {
         $karyawan = DB::table('karyawan')->paginate(10);
         return view('daftarKaryawan', compact('karyawan'));
+    }
+
+    public function daftarKaryawan(Request $request)
+{
+    $query = Karyawan::query();
+
+    if ($request->filled('nama')) {
+        $query->where('nama_lengkap', 'like', '%' . $request->nama . '%');
+    }
+
+    if ($request->filled('divisi')) {
+        $query->whereHas('departement', function($q) use ($request) {
+            $q->where('nama_divisi', $request->divisi);
+        });
+    }
+
+    if ($request->filled('search')) {
+        $search = $request->search;
+        $query->where(function($q) use ($search) {
+            $q->where('NIK', 'like', "%$search%")
+              ->orWhere('nama_lengkap', 'like', "%$search%")
+              ->orWhere('username', 'like', "%$search%")
+              ->orWhere('no_hp', 'like', "%$search%");
+        });
+    }
+
+    $karyawan = $query->paginate(10)->appends($request->all());
+
+    // Ambil semua divisi untuk dropdown filter
+    $departements = Department::all();
+
+    return view('daftarKaryawan', compact('karyawan', 'departements'));
+}
+
+
+
+
+    public function createKaryawan()
+{
+    return view('createKaryawan');
+}
+
+public function store(Request $request)
+{
+    DB::table('karyawan')->insert([
+        'NIK' => $request->NIK,
+        'nama_lengkap' => $request->nama_lengkap,
+        'id_divisi' => $request->id_divisi,
+        'username' => $request->username,
+        'password' => Hash::make($request->password), // 🔑 bcrypt
+        'no_hp' => $request->no_hp,
+        'status' => $request->status,
+    ]);
+
+    return redirect('/daftarKaryawan')->with('success', 'Karyawan berhasil ditambahkan.');
+}
+
+public function editKaryawan($nik)
+{
+    $karyawan = DB::table('karyawan')->where('NIK', $nik)->first();
+    $departements = DB::table('departement')->get();
+    $jabatans = DB::table('jabatan')->get();
+
+    return view('editKaryawan', compact('karyawan', 'departements', 'jabatans'));
+}
+
+
+public function updateKaryawan(Request $request, $NIK)
+{
+    // Ambil data karyawan
+    $karyawan = DB::table('karyawan')->where('NIK', $NIK)->first();
+
+    // Siapkan data update selain foto
+    $dataUpdate = [
+        'username'     => $request->username,
+        'no_hp'        => $request->no_hp,
+        'tgl_lahir'    => $request->tgl_lahir,
+        'alamat'       => $request->alamat,
+        'id_divisi'    => $request->id_divisi,
+        'id_jabatan'   => $request->id_jabatan,
+        'role'         => $request->role,
+        'status'       => $request->status,
+    ];
+
+    // Jika ada upload foto baru
+    if ($request->hasFile('foto')) {
+        $fotoPath = $request->file('foto')->store('foto', 'public');
+
+        // Simpan path ke database
+        $dataUpdate['foto'] = $fotoPath;
+
     }
 
     public function createKaryawan()

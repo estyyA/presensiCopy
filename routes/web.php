@@ -33,7 +33,7 @@ Route::post('/logout', [PageController::class, 'logout'])->name('logout');
 Route::get('/dashboard', [PageController::class, 'dashboard']);
 });
 Route::get('/daftarPresensi', [PageController::class, 'daftarPresensi']);
-Route::get('/daftarKaryawan', [PageController::class, 'daftarKaryawan']);
+Route::get('/daftarKaryawan', [PageController::class, 'daftarKaryawan'])->name('daftar.karyawan');
 Route::get('/laporan', [PageController::class, 'laporan'])->name('laporan');
 
 // simpan catatan laporan (POST)
