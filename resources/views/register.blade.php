@@ -122,102 +122,109 @@
     </style>
 </head>
 
-<body>
-    <div class="register-container">
-        <div class="register-card">
-            <!-- Header -->
-            <div class="register-header">
-                <img src="{{ asset('img/logo.png') }}" alt="Logo">
-                <h1>PT Madubaru</h1>
-                <p>PG - PS MADUKISMO</p>
-            </div>
+<div class="register-container">
+    <div class="register-card">
+        <!-- Header -->
+        <div class="register-header">
+            <img src="{{ asset('img/logo.png') }}" alt="Logo">
+            <h1>PT Madubaru</h1>
+            <p>PG - PS MADUKISMO</p>
+        </div>
 
-            <!-- Body -->
-            <div class="register-body">
-                <h5><i class="bi bi-person-plus-fill me-2"></i> Registrasi Akun</h5>
-                <form action="{{ route('register.store') }}" method="POST" enctype="multipart/form-data">
-                    @csrf
-                    <div class="row">
-                        <!-- Kolom Kiri -->
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label for="NIK" class="form-label">NIK</label>
-                                <input type="text" name="NIK" id="NIK" class="form-control"
-                                    placeholder="Masukkan NIK" required>
-                            </div>
-                            <div class="mb-3">
-                                <label for="username" class="form-label">Username</label>
-                                <input type="text" name="username" id="username" class="form-control"
-                                    placeholder="Masukkan username" required>
-                            </div>
-                            <div class="mb-3">
-                                <label for="password" class="form-label">Password</label>
-                                <div class="input-group">
-                                    <input type="password" name="password" id="password" class="form-control"
-                                        placeholder="Buat password" required>
-                                    <span class="input-group-text" id="togglePassword" style="cursor: pointer;">
-                                        <i class="bi bi-eye-slash" id="eyeIcon"></i>
-                                    </span>
-                                </div>
-                            </div>
-                            <div class="mb-3">
-                                <label for="nama_lengkap" class="form-label">Nama Lengkap</label>
-                                <input type="text" name="nama_lengkap" id="nama_lengkap" class="form-control"
-                                    placeholder="Masukkan nama lengkap" required>
-                            </div>
-                            <div class="mb-3">
-                                <label for="no_hp" class="form-label">No HP</label>
-                                <input type="text" name="no_hp" id="no_hp" class="form-control"
-                                    placeholder="08xxxxxxxxxx" required>
+        <!-- Body -->
+        <div class="register-body">
+            <h5><i class="bi bi-person-plus-fill me-2"></i> Registrasi Akun</h5>
+
+            <!-- tampilkan error -->
+            @if ($errors->any())
+                <div class="alert alert-danger">
+                    <ul class="mb-0">
+                        @foreach ($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                </div>
+            @endif
+
+            <form action="{{ route('register.store') }}" method="POST" enctype="multipart/form-data">
+                @csrf
+                <div class="row">
+                    <!-- Kolom Kiri -->
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label for="nik" class="form-label">NIK</label>
+                            <input type="text" name="nik" id="nik" class="form-control" placeholder="Masukkan NIK" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="username" class="form-label">Username</label>
+                            <input type="text" name="username" id="username" class="form-control" placeholder="Masukkan username" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="password" class="form-label">Password</label>
+                            <div class="input-group">
+                                <input type="password" name="password" id="password" class="form-control" placeholder="Buat password" required>
+                                <span class="input-group-text" id="togglePassword" style="cursor: pointer;">
+                                    <i class="bi bi-eye-slash" id="eyeIcon"></i>
+                                </span>
                             </div>
                         </div>
-
-                        <!-- Kolom Kanan -->
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label for="tgl_lahir" class="form-label">Tanggal Lahir</label>
-                                <input type="date" name="tgl_lahir" id="tgl_lahir" class="form-control" required>
-                            </div>
-                            <div class="mb-3">
-                                <label for="alamat" class="form-label">Alamat</label>
-                                <textarea name="alamat" id="alamat" class="form-control" rows="2" placeholder="Masukkan alamat lengkap"
-                                    required></textarea>
-                            </div>
-                            <div class="mb-3">
-                                <label for="divisi" class="form-label">Divisi</label>
-                                <select name="role Divisi" id="role" class="form-select"required>
-                                    <option value="">--Pilih Divisi--</option>
-                                    <option value="SDM">SDM</option>
-                                    <option value="Keuangan">Keuangan</option>
-                                    <option value="Keamanan">Keamanan</option>
-                                </select>
-                            </div>
-                            <div class="mb-3">
-                                <label for="id_jabatan" class="form-label">Jabatan</label>
-                                <select name="role Divisi" id="role" class="form-select"required>
-                                    <option value="">--Pilih Jabatan--</option>
-                                    <option value="Kepala Divisi">Kepala Divisi</option>
-                                    <option value="Staff">Staff</option>
-                                </select>
-                            </div>
-                            <div class="mb-3">
-                                <label for="role" class="form-label">Role</label>
-                                <input type="text" id="role" class="form-control" value="Karyawan" disabled>
-                                <input type="hidden" name="role" value="karyawan">
-                            </div>
-                            <div class="mb-3">
-                                <label for="foto" class="form-label">Foto</label>
-                                <input type="file" name="foto" id="foto" class="form-control">
-                            </div>
+                        <div class="mb-3">
+                            <label for="nama_lengkap" class="form-label">Nama Lengkap</label>
+                            <input type="text" name="nama_lengkap" id="nama_lengkap" class="form-control" placeholder="Masukkan nama lengkap" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="no_hp" class="form-label">No HP</label>
+                            <input type="text" name="no_hp" id="no_hp" class="form-control" placeholder="08xxxxxxxxxx" required>
                         </div>
                     </div>
 
-                    <!-- Tombol -->
-                    <button type="submit" class="btn btn-register w-100">
-                        <i class="bi bi-check-circle me-2"></i>Daftar
-                    </button>
-                </form>
-            </div>
+                    <!-- Kolom Kanan -->
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label for="tgl_lahir" class="form-label">Tanggal Lahir</label>
+                            <input type="date" name="tgl_lahir" id="tgl_lahir" class="form-control" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="alamat" class="form-label">Alamat</label>
+                            <textarea name="alamat" id="alamat" class="form-control" rows="2" placeholder="Masukkan alamat lengkap" required></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label for="id_divisi" class="form-label">Divisi</label>
+                            <select name="id_divisi" id="id_divisi" class="form-select" required>
+                                <option value="">--Pilih Divisi--</option>
+                                <option value="1">SDM</option>
+                                <option value="2">Keuangan</option>
+                                <option value="3">Keamanan</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="id_jabatan" class="form-label">Jabatan</label>
+                            <select name="id_jabatan" id="id_jabatan" class="form-select" required>
+                                <option value="">--Pilih Jabatan--</option>
+                                <option value="1">Kepala Divisi</option>
+                                <option value="2">Staff</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="role" class="form-label">Role</label>
+                            <input type="text" class="form-control" value="Karyawan" disabled>
+                            <input type="hidden" name="role" value="Karyawan">
+                        </div>
+                        <div class="mb-3">
+                            <label for="foto" class="form-label">Foto</label>
+                            <input type="file" name="foto" id="foto" class="form-control">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- hidden divisi string -->
+                <input type="hidden" name="divisi" value="Umum">
+
+                <button type="submit" class="btn btn-register w-100">
+                    <i class="bi bi-check-circle me-2"></i>Daftar
+                </button>
+            </form>
+        </div>
 
             <!-- Footer -->
             <div class="footer-text">
