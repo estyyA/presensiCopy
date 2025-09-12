@@ -7,6 +7,7 @@ use Barryvdh\DomPDF\Facade as PDF;
 use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Auth;
 
 class PageController extends Controller
 {
@@ -22,13 +23,6 @@ class PageController extends Controller
     public function daftarPresensi()
     {
         return view('daftarPresensi');
-    }
-
-
-    public function daftarKaryawan()
-    {
-        $karyawan = DB::table('karyawan')->paginate(10);
-        return view('daftarKaryawan', compact('karyawan'));
     }
 
     public function daftarKaryawan(Request $request)
@@ -63,65 +57,6 @@ class PageController extends Controller
     return view('daftarKaryawan', compact('karyawan', 'departements'));
 }
 
-
-
-
-    public function createKaryawan()
-{
-    return view('createKaryawan');
-}
-
-public function store(Request $request)
-{
-    DB::table('karyawan')->insert([
-        'NIK' => $request->NIK,
-        'nama_lengkap' => $request->nama_lengkap,
-        'id_divisi' => $request->id_divisi,
-        'username' => $request->username,
-        'password' => Hash::make($request->password), // 🔑 bcrypt
-        'no_hp' => $request->no_hp,
-        'status' => $request->status,
-    ]);
-
-    return redirect('/daftarKaryawan')->with('success', 'Karyawan berhasil ditambahkan.');
-}
-
-public function editKaryawan($nik)
-{
-    $karyawan = DB::table('karyawan')->where('NIK', $nik)->first();
-    $departements = DB::table('departement')->get();
-    $jabatans = DB::table('jabatan')->get();
-
-    return view('editKaryawan', compact('karyawan', 'departements', 'jabatans'));
-}
-
-
-public function updateKaryawan(Request $request, $NIK)
-{
-    // Ambil data karyawan
-    $karyawan = DB::table('karyawan')->where('NIK', $NIK)->first();
-
-    // Siapkan data update selain foto
-    $dataUpdate = [
-        'username'     => $request->username,
-        'no_hp'        => $request->no_hp,
-        'tgl_lahir'    => $request->tgl_lahir,
-        'alamat'       => $request->alamat,
-        'id_divisi'    => $request->id_divisi,
-        'id_jabatan'   => $request->id_jabatan,
-        'role'         => $request->role,
-        'status'       => $request->status,
-    ];
-
-    // Jika ada upload foto baru
-    if ($request->hasFile('foto')) {
-        $fotoPath = $request->file('foto')->store('foto', 'public');
-
-        // Simpan path ke database
-        $dataUpdate['foto'] = $fotoPath;
-
-    }
-
     public function createKaryawan()
     {
         return view('createKaryawan');
@@ -142,9 +77,9 @@ public function updateKaryawan(Request $request, $NIK)
         return redirect('/daftarKaryawan')->with('success', 'Karyawan berhasil ditambahkan.');
     }
 
-    public function editKaryawan($NIK)
+    public function editKaryawan($nik)
     {
-        $karyawan     = DB::table('karyawan')->where('NIK', $NIK)->first();
+        $karyawan    = DB::table('karyawan')->where('NIK', $nik)->first();
         $departements = DB::table('departement')->get();
         $jabatans     = DB::table('jabatan')->get();
 
@@ -154,14 +89,14 @@ public function updateKaryawan(Request $request, $NIK)
     public function updateKaryawan(Request $request, $NIK)
     {
         $dataUpdate = [
-            'username'   => $request->username,
-            'no_hp'      => $request->no_hp,
-            'tgl_lahir'  => $request->tgl_lahir,
-            'alamat'     => $request->alamat,
-            'id_divisi'  => $request->id_divisi,
-            'id_jabatan' => $request->id_jabatan,
-            'role'       => $request->role,
-            'status'     => $request->status,
+            'username'  => $request->username,
+            'no_hp'     => $request->no_hp,
+            'tgl_lahir' => $request->tgl_lahir,
+            'alamat'    => $request->alamat,
+            'id_divisi' => $request->id_divisi,
+            'id_jabatan'=> $request->id_jabatan,
+            'role'      => $request->role,
+            'status'    => $request->status,
         ];
 
         if ($request->hasFile('foto')) {
@@ -174,25 +109,24 @@ public function updateKaryawan(Request $request, $NIK)
         return redirect('/daftarKaryawan')->with('success', 'Data karyawan berhasil diupdate.');
     }
 
-    public function deleteKaryawan($NIK)
+    public function deleteKaryawan($nik)
     {
-        DB::table('karyawan')->where('NIK', $NIK)->delete();
+        DB::table('karyawan')->where('NIK', $nik)->delete();
         return redirect('/daftarKaryawan')->with('success', 'Karyawan berhasil dihapus.');
     }
 
-    public function showKaryawan($NIK)
+    public function showKaryawan($nik)
     {
         $karyawan = DB::table('karyawan')
             ->leftJoin('departement', 'karyawan.id_divisi', '=', 'departement.id_divisi')
             ->leftJoin('jabatan', 'karyawan.id_jabatan', '=', 'jabatan.id_jabatan')
             ->select('karyawan.*', 'departement.nama_divisi', 'jabatan.nama_jabatan')
-            ->where('karyawan.NIK', $NIK)
+            ->where('karyawan.NIK', $nik)
             ->first();
 
         return view('showKaryawan', compact('karyawan'));
     }
 
-    /** ---------------- LAPORAN ---------------- */
     public function laporan()
     {
         return view('laporan');
@@ -205,44 +139,44 @@ public function updateKaryawan(Request $request, $NIK)
     }
 
     public function processLogin(Request $request)
-    {
-        $request->validate([
-            'username' => 'required',
-            'password' => 'required',
-        ]);
+{
+    $request->validate([
+        'username' => 'required',
+        'password' => 'required',
+    ]);
 
-        // Cari akun
-        $akun = DB::table('akun')
-            ->where('username', $request->username)
-            ->first();
+    // Cari akun
+    $akun = DB::table('akun')
+        ->where('username', $request->username)
+        ->first();
 
-        if (!$akun || !Hash::check($request->password, $akun->password)) {
-            return back()->withErrors(['login' => 'Username atau password salah.']);
-        }
+    if (!$akun || !Hash::check($request->password, $akun->password)) {
+        return back()->withErrors(['login' => 'Username atau password salah.']);
+    }
 
-        // Ambil data karyawan
-        $karyawan = DB::table('karyawan')
-            ->where('NIK', $akun->NIK)
-            ->first();
+    // Ambil data karyawan berdasarkan NIK dari tabel akun
+    $karyawan = DB::table('karyawan')
+        ->where('NIK', $akun->NIK)
+        ->first();
 
-        if (!$karyawan) {
-            return back()->withErrors(['login' => 'Data karyawan tidak ditemukan.']);
-        }
+    if (!$karyawan) {
+        return back()->withErrors(['login' => 'Data karyawan tidak ditemukan.']);
+    }
 
-        // Simpan ke session
-        session([
-            'username' => $akun->username,
-            'role'     => $karyawan->role,
-            'karyawan' => $karyawan,
-        ]);
+    // Simpan ke session
+    session([
+        'username' => $akun->username,
+        'role'     => $karyawan->role,   // role dari tabel karyawan
+        'karyawan' => $karyawan,
+    ]);
 
-        // Redirect sesuai role
-        if ($karyawan->role === 'admin') {
-            return redirect()->route('dashboard')->with('success', 'Login berhasil sebagai Admin');
-        }
-
+    // Redirect sesuai role
+    if ($karyawan->role === 'admin') {
+        return redirect()->route('dashboard')->with('success', 'Login berhasil sebagai Admin');
+    } else {
         return redirect()->route('karyawan.dashboard')->with('success', 'Login berhasil sebagai Karyawan');
     }
+}
 
     /** ---------------- REGISTER ---------------- */
     public function showRegister()
@@ -253,17 +187,18 @@ public function updateKaryawan(Request $request, $NIK)
     public function processRegister(Request $request)
     {
         $request->validate([
-            'NIK'          => 'required|unique:karyawan,NIK',
-            'username'     => 'required|unique:akun,username',
-            'password'     => 'required|min:6',
-            'id_divisi'    => 'required|integer',
-            'id_jabatan'   => 'required|integer',
-            'nama_lengkap' => 'required|string',
-            'no_hp'        => 'required|string',
-            'tgl_lahir'    => 'required|date',
-            'alamat'       => 'required|string',
-            'role'         => 'required|string',
-            'foto'         => 'nullable|image|max:2048',
+            'nik'        => 'required|unique:karyawan,NIK',
+            'username'   => 'required|unique:akun,username',
+            'password'   => 'required|min:6',
+            'id_divisi'  => 'required|integer',
+            'id_jabatan' => 'required|integer',
+            'divisi'     => 'required|string',
+            'nama_lengkap'=> 'required|string',
+            'no_hp'      => 'required|string',
+            'tgl_lahir'  => 'required|date',
+            'alamat'     => 'required|string',
+            'role'       => 'required|string',
+            'foto'       => 'nullable|image|max:2048',
         ]);
 
         $fotoName = null;
@@ -273,10 +208,11 @@ public function updateKaryawan(Request $request, $NIK)
         }
 
         DB::table('karyawan')->insert([
-            'NIK'          => $request->NIK,
+            'NIK'          => $request->nik,
             'username'     => $request->username,
             'id_divisi'    => $request->id_divisi,
             'id_jabatan'   => $request->id_jabatan,
+            'divisi'       => $request->divisi,
             'nama_lengkap' => $request->nama_lengkap,
             'no_hp'        => $request->no_hp,
             'tgl_lahir'    => $request->tgl_lahir,
@@ -287,7 +223,7 @@ public function updateKaryawan(Request $request, $NIK)
 
         DB::table('akun')->insert([
             'username' => $request->username,
-            'NIK'      => $request->NIK,
+            'NIK'      => $request->nik,
             'password' => Hash::make($request->password),
         ]);
 
@@ -303,9 +239,9 @@ public function updateKaryawan(Request $request, $NIK)
     private function getData()
     {
         return collect([
-            ['nik' => '72220535', 'nama' => 'Esra', 'divisi' => 'Keuangan', 'hadir' => 5, 'sakit' => 2, 'cuti' => 2],
-            ['nik' => '72220536', 'nama' => 'Rudi', 'divisi' => 'HRD', 'hadir' => 4, 'sakit' => 1, 'cuti' => 3],
-            ['nik' => '72220537', 'nama' => 'Sinta', 'divisi' => 'Marketing', 'hadir' => 6, 'sakit' => 0, 'cuti' => 1],
+            ['nik' => '72220535', 'nama' => 'Esra', 'divisi' => 'Keuangan',  'hadir' => 5, 'sakit' => 2, 'cuti' => 2],
+            ['nik' => '72220536', 'nama' => 'Rudi', 'divisi' => 'HRD',       'hadir' => 4, 'sakit' => 1, 'cuti' => 3],
+            ['nik' => '72220537', 'nama' => 'Sinta','divisi' => 'Marketing', 'hadir' => 6, 'sakit' => 0, 'cuti' => 1],
         ]);
     }
 
@@ -322,17 +258,28 @@ public function updateKaryawan(Request $request, $NIK)
 
         return Excel::download(new class($data) implements \Maatwebsite\Excel\Concerns\FromCollection {
             private $data;
-            public function __construct($data) { $this->data = $data; }
+
+            public function __construct($data)
+            {
+                $this->data = $data;
+            }
+
             public function collection()
             {
                 $header = collect([['NIK','Nama','Divisi','Total Hari Kerja','Jumlah Hadir','Jumlah Sakit','Jumlah Cuti']]);
-                $rows = $this->data->map(function($row){
+
+                $rows = $this->data->map(function ($row) {
                     return [
-                        $row['nik'], $row['nama'], $row['divisi'],
+                        $row['nik'],
+                        $row['nama'],
+                        $row['divisi'],
                         0,
-                        $row['hadir'], $row['sakit'], $row['cuti']
+                        $row['hadir'],
+                        $row['sakit'],
+                        $row['cuti'],
                     ];
                 });
+
                 return $header->merge($rows);
             }
         }, 'laporan.xlsx');
@@ -341,30 +288,10 @@ public function updateKaryawan(Request $request, $NIK)
     /** ---------------- LOGOUT ---------------- */
     public function logout(Request $request)
     {
-        $request->session()->forget(['username','role','karyawan']);
+        $request->session()->forget(['user', 'karyawan']);
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
         return redirect('/login')->with('success', 'Berhasil logout.');
     }
-
-    // public function karyawanDashboard()
-    // {
-    //     // Ambil data karyawan dari session
-    //     $karyawan = session('karyawan');
-
-    //     if (!$karyawan) {
-    //         // Kalau belum login, arahkan ke halaman login
-    //         return redirect()->route('login')->with('error', 'Silakan login dulu.');
-    //     }
-
-    //     // Ambil data absensi milik karyawan ini dari tabel absensi
-    //     $absensi = DB::table('absensi')
-    //         ->where('NIK', $karyawan->NIK)   // sesuaikan nama kolom NIK di database Anda
-    //         ->orderBy('tanggal', 'desc')
-    //         ->get();
-
-    //     // Kirim data ke view
-    //     return view('karyawan.dashboard', compact('karyawan', 'absensi'));
-    // }
 }
