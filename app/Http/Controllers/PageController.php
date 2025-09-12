@@ -27,11 +27,40 @@ class PageController extends Controller
         return view('daftarPresensi');
     }
 
-    public function daftarKaryawan()
+    public function daftarKaryawan(Request $request)
 {
-    $karyawan = Karyawan::paginate(10); // ambil 10 data per halaman
-    return view('daftarKaryawan', compact('karyawan'));
+    $query = Karyawan::query();
+
+    if ($request->filled('nama')) {
+        $query->where('nama_lengkap', 'like', '%' . $request->nama . '%');
+    }
+
+    if ($request->filled('divisi')) {
+        $query->whereHas('departement', function($q) use ($request) {
+            $q->where('nama_divisi', $request->divisi);
+        });
+    }
+
+    if ($request->filled('search')) {
+        $search = $request->search;
+        $query->where(function($q) use ($search) {
+            $q->where('NIK', 'like', "%$search%")
+              ->orWhere('nama_lengkap', 'like', "%$search%")
+              ->orWhere('username', 'like', "%$search%")
+              ->orWhere('no_hp', 'like', "%$search%");
+        });
+    }
+
+    $karyawan = $query->paginate(10)->appends($request->all());
+
+    // Ambil semua divisi untuk dropdown filter
+    $departements = Department::all();
+
+    return view('daftarKaryawan', compact('karyawan', 'departements'));
 }
+
+
+
 
     public function createKaryawan()
 {
