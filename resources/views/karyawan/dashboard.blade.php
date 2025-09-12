@@ -6,23 +6,20 @@
 
         <!-- Foto Profil -->
         <img id="previewFoto"
-            src="{{ asset(optional(Auth::user())->foto ?? 'img/profile.png') }}"
+            src="{{ asset((session('karyawan')->foto ?? ($karyawan->foto ?? null)) ? 'uploads/'.(session('karyawan')->foto ?? $karyawan->foto) : 'img/profile.png') }}"
             class="rounded-circle mb-2"
             width="90" height="90"
             alt="Foto Karyawan"
             style="object-fit: cover;">
 
-        <!-- Tombol Edit -->
+        <!-- Tombol Edit Foto -->
         <input type="file" id="inputFoto" class="d-none" accept="image/*">
         <label for="inputFoto" class="position-absolute bottom-0 end-0 bg-primary text-white rounded-circle p-1" style="cursor: pointer;">
             <i class="bi bi-pencil-fill"></i>
         </label>
 
-        <h6 class="mb-0 mt-2">{{ Auth::user()->name ?? 'Resty Aryanti' }}</h6>
-        <small class="text-muted">{{ Auth::user()->bidang ?? 'HRD' }}</small>
-
-        <!-- Tombol Logout -->
-
+        <h6 class="mb-0 mt-2">{{ session('karyawan')->nama_lengkap ?? $karyawan->nama_lengkap ?? 'Nama Karyawan' }}</h6>
+        <small class="text-muted">{{ session('karyawan')->divisi ?? $karyawan->divisi ?? 'Divisi' }}</small>
     </div>
 </div>
 
@@ -49,7 +46,6 @@
   </div>
 </div>
 
-<!-- Script Preview + Modal -->
 <script>
 document.getElementById('inputFoto').addEventListener('change', function(e) {
     let file = e.target.files[0];
@@ -58,8 +54,6 @@ document.getElementById('inputFoto').addEventListener('change', function(e) {
         reader.onload = function(e){
             document.getElementById('modalFoto').src = e.target.result;
             document.getElementById('fotoBase64').value = e.target.result;
-
-            // tampilkan modal
             var modal = new bootstrap.Modal(document.getElementById('modalPreview'));
             modal.show();
         };
@@ -99,6 +93,7 @@ document.getElementById('inputFoto').addEventListener('change', function(e) {
         </li>
     </ul>
 </div>
+
 <form action="{{ route('logout') }}" method="POST" class="mt-3">
     @csrf
     <button type="submit" class="btn btn-outline-danger btn-sm">
