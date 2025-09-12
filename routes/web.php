@@ -52,6 +52,10 @@ Route::get('/karyawan/dashboard', function () {
     return view('karyawan.dashboard');
 })->name('karyawan.dashboard');
 
+// Dashboard admin
+Route::get('/dashboard', [PageController::class, 'dashboard'])->name('dashboard');
+
+
 // Absensi masuk & keluar
 Route::get('/absensi/masuk', function () {
     return view('absensi.masuk');
