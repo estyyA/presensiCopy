@@ -20,3 +20,12 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
     return $request->user();
 });
 Route::apiResource('karyawan', KaryawanController::class);
+
+//login
+Route::get('/login', [AuthController::class, 'showLogin'])->name('login.form');
+Route::post('/login', [AuthController::class, 'login']);
+
+//dashboardkaryawan
+Route::get('/dashboard', function () {
+    return view('dashboard'); 
+})->middleware('auth');
