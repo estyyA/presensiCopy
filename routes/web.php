@@ -8,6 +8,8 @@ use App\Http\Controllers\Karyawan\DashboardController as KaryawanDashboardContro
 use App\Http\Controllers\Karyawan\KaryawanController;
 
 
+//Forgot Password
+
 // Form Registrasi
 Route::get('/register', [PageController::class, 'showRegister'])->name('register.form');
 
