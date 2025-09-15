@@ -9,17 +9,12 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
 use App\Karyawan;
-<<<<<<< HEAD
-use App\Department;
-use App\Jabatan;
-=======
 use App\Akun;
 use App\Department;
 use App\Jabatan;
 use App\Absensi;
 
 
->>>>>>> 9a1c2ca7f304926e9d1bda07ebfb45c8f8c0385b
 
 class PageController extends Controller
 {
@@ -30,13 +25,8 @@ class PageController extends Controller
         return view('dashboard', compact('karyawan'));
     }
 
-<<<<<<< HEAD
-    /** ---------------- PRESENSI ---------------- */
-    public function daftarPresensi()
-=======
     /** ---------------- KARYAWAN ---------------- */
     public function daftarPresensi(Request $request)
->>>>>>> 9a1c2ca7f304926e9d1bda07ebfb45c8f8c0385b
     {
         $query = DB::table('presensi')
             ->join('karyawan', 'presensi.nik', '=', 'karyawan.NIK')
@@ -76,11 +66,6 @@ class PageController extends Controller
         return view('daftarPresensi', compact('presensis', 'departements'));
     }
 
-<<<<<<< HEAD
-    /** ---------------- KARYAWAN ---------------- */
-=======
-
->>>>>>> 9a1c2ca7f304926e9d1bda07ebfb45c8f8c0385b
     public function daftarKaryawan(Request $request)
     {
         $query = Karyawan::with(['departement', 'jabatan']);
@@ -191,15 +176,6 @@ class PageController extends Controller
         return view('showKaryawan', compact('karyawan'));
     }
 
-<<<<<<< HEAD
-    /** ---------------- LAPORAN ---------------- */
-    public function laporan()
-    {
-        return view('laporan');
-    }
-=======
-
->>>>>>> 9a1c2ca7f304926e9d1bda07ebfb45c8f8c0385b
 
     /** ---------------- LOGIN ---------------- */
     public function showLogin()
