@@ -25,6 +25,9 @@
 </head>
 <body>
     <h3 align="center">Laporan Presensi Karyawan</h3>
+    <p align="center">
+        Periode: {{ request('mulai') }} s/d {{ request('sampai') }}
+    </p>
     <table>
         <thead>
             <tr>
@@ -35,20 +38,22 @@
                 <th>Total Hari Kerja</th>
                 <th>Jumlah Hadir</th>
                 <th>Jumlah Sakit</th>
-                <th>Jumlah Cuti</th>
+                <th>Jumlah Izin</th>
+                <th>Jumlah Alpha</th>
             </tr>
         </thead>
         <tbody>
             @foreach($data as $i => $row)
                 <tr>
                     <td>{{ $i+1 }}</td>
-                    <td>{{ $row['nik'] }}</td>
-                    <td>{{ $row['nama'] }}</td>
-                    <td>{{ $row['divisi'] }}</td>
-                    <td>0</td>
-                    <td>{{ $row['hadir'] }}</td>
-                    <td>{{ $row['sakit'] }}</td>
-                    <td>{{ $row['cuti'] }}</td>
+                    <td>{{ $row->nik }}</td>
+                    <td>{{ $row->nama }}</td>
+                    <td>{{ $row->divisi ?? '-' }}</td>
+                    <td>{{ $row->total_hari }}</td>
+                    <td>{{ $row->hadir }}</td>
+                    <td>{{ $row->sakit }}</td>
+                    <td>{{ $row->izin }}</td>
+                    <td>{{ $row->alpha }}</td>
                 </tr>
             @endforeach
         </tbody>
