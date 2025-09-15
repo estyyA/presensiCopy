@@ -10,6 +10,12 @@ use App\Http\Controllers\Karyawan\KaryawanController; // dipakai untuk upload-fo
 // Home / Login / Register
 Route::get('/', function () { return view('Login'); });
 
+<<<<<<< HEAD
+=======
+//Forgot Password
+
+// Form Registrasi
+>>>>>>> 9a1c2ca7f304926e9d1bda07ebfb45c8f8c0385b
 Route::get('/register', [PageController::class, 'showRegister'])->name('register.form');
 Route::post('/register', [PageController::class, 'processRegister'])->name('register.store');
 
