@@ -91,14 +91,32 @@
 
     {{-- Main Content --}}
     <div class="flex-fill">
-        {{-- Topbar --}}
-        <div class="topbar">
-            <div class="d-flex align-items-center">
-                <span class="mr-2">Budak Los Santos</span>
-                <img src="https://ui-avatars.com/api/?name=BudakAwak&background=0D8ABC&color=fff"
-                     class="rounded-circle" width="35" height="35" alt="avatar">
-            </div>
+{{-- Topbar --}}
+<div class="topbar">
+    <div class="dropdown">
+        <a class="d-flex align-items-center text-dark text-decoration-none dropdown-toggle"
+           href="#" id="userDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+           <span class="mr-2">
+            {{ session('karyawan')->nama_lengkap ?? 'Guest' }}
+        </span>
+        <img src="https://ui-avatars.com/api/?name={{ urlencode(session('karyawan')->nama_lengkap ?? 'User') }}&background=0D8ABC&color=fff"
+             class="rounded-circle" width="35" height="35" alt="avatar">
+        </a>
+        <div class="dropdown-menu dropdown-menu-right shadow" aria-labelledby="userDropdown">
+            <a class="dropdown-item" href="#">
+                <i class="fa fa-user mr-2"></i> Profil
+            </a>
+            <div class="dropdown-divider"></div>
+            <form action="{{ route('logout') }}" method="POST" class="m-0">
+                @csrf
+                <button type="submit" class="dropdown-item text-danger">
+                    <i class="fa fa-sign-out-alt mr-2"></i> Logout
+                </button>
+            </form>
         </div>
+    </div>
+</div>
+
 
         {{-- Content --}}
         <div class="content">
