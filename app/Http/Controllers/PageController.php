@@ -8,6 +8,13 @@ use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
+use App\Karyawan;
+use App\Akun;
+use App\Department;
+use App\Jabatan;
+use App\Absensi;
+
+
 
 class PageController extends Controller
 {
@@ -20,10 +27,46 @@ class PageController extends Controller
     }
 
     /** ---------------- KARYAWAN ---------------- */
-    public function daftarPresensi()
+    public function daftarPresensi(Request $request)
     {
-        return view('daftarPresensi');
+        $query = DB::table('presensi')
+            ->join('karyawan', 'presensi.nik', '=', 'karyawan.NIK')
+            ->leftJoin('departement', 'karyawan.id_divisi', '=', 'departement.id_divisi')
+            ->select(
+                'presensi.id',
+                'presensi.tanggal',
+                'presensi.jam_masuk',
+                'presensi.jam_pulang',
+                'presensi.status',
+                'karyawan.NIK',
+                'karyawan.nama_lengkap',
+                'departement.nama_divisi'
+            );
+
+        // Nama (partial match)
+        if ($request->filled('nama')) {
+            $query->where('karyawan.nama_lengkap', 'like', '%' . $request->nama . '%');
+        }
+
+        // Filter Divisi (by id)
+        if ($request->filled('divisi')) {
+            $query->where('departement.id_divisi', $request->divisi);
+        }
+
+        // Filter Tanggal
+        if ($request->filled('tanggal')) {
+            $query->whereDate('presensi.tanggal', $request->tanggal);
+        }
+
+        // Urut terbaru dulu, paginate, dan pertahankan query string (Laravel 6 pakai appends)
+        $presensis = $query->orderBy('presensi.tanggal', 'desc')->paginate(10)->appends($request->all());
+
+        // Hanya kirim departement untuk dropdown divisi — jangan kirim karyawanList
+        $departements = DB::table('departement')->select('id_divisi', 'nama_divisi')->get();
+
+        return view('daftarPresensi', compact('presensis', 'departements'));
     }
+
 
     public function daftarKaryawan(Request $request)
 {
@@ -127,10 +170,7 @@ class PageController extends Controller
         return view('showKaryawan', compact('karyawan'));
     }
 
-    public function laporan()
-    {
-        return view('laporan');
-    }
+
 
     /** ---------------- LOGIN ---------------- */
     public function showLogin()
@@ -236,13 +276,35 @@ class PageController extends Controller
         return view('PresensiKaryawan');
     }
 
-    private function getData()
+    public function getData($startDate = null, $endDate = null)
     {
-        return collect([
-            ['nik' => '72220535', 'nama' => 'Esra', 'divisi' => 'Keuangan',  'hadir' => 5, 'sakit' => 2, 'cuti' => 2],
-            ['nik' => '72220536', 'nama' => 'Rudi', 'divisi' => 'HRD',       'hadir' => 4, 'sakit' => 1, 'cuti' => 3],
-            ['nik' => '72220537', 'nama' => 'Sinta','divisi' => 'Marketing', 'hadir' => 6, 'sakit' => 0, 'cuti' => 1],
-        ]);
+        $query = DB::table('presensi')
+            ->join('karyawan', 'presensi.NIK', '=', 'karyawan.NIK')
+            ->leftJoin('departement', 'karyawan.id_divisi', '=', 'departement.id_divisi')
+            ->select(
+                'karyawan.NIK as nik',
+                'karyawan.nama_lengkap as nama',
+                'departement.nama_divisi as divisi',
+                DB::raw('COUNT(DISTINCT presensi.tgl_presen) as total_hari'),
+                DB::raw('SUM(CASE WHEN presensi.status = "hadir" THEN 1 ELSE 0 END) as hadir'),
+                DB::raw('SUM(CASE WHEN presensi.status = "sakit" THEN 1 ELSE 0 END) as sakit'),
+                DB::raw('SUM(CASE WHEN presensi.status = "izin" THEN 1 ELSE 0 END) as izin'),
+                DB::raw('SUM(CASE WHEN presensi.status = "alpha" THEN 1 ELSE 0 END) as alpha')
+            )
+            ->groupBy('karyawan.NIK', 'karyawan.nama_lengkap', 'departement.nama_divisi');
+
+        if ($startDate && $endDate) {
+            $query->whereBetween('presensi.tgl_presen', [$startDate, $endDate]);
+        }
+
+        return $query->get();
+    }
+
+
+    public function laporan(Request $request)
+    {
+        $data = $this->getData($request->mulai, $request->sampai);
+        return view('laporan', compact('data'));
     }
 
     public function cetakPdf()
