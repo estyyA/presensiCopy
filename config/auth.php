@@ -66,16 +66,17 @@ return [
     */
 
     'providers' => [
-        'users' => [
+        'akun' => [   // <-- samakan dengan nama di guards
             'driver' => 'eloquent',
             'model' => App\Akun::class,
         ],
+    ],
 
         // 'users' => [
         //     'driver' => 'database',
         //     'table' => 'users',
         // ],
-    ],
+        
 
     /*
     |--------------------------------------------------------------------------
@@ -93,7 +94,7 @@ return [
     */
 
     'passwords' => [
-        'users' => [
+        'akun' => [
             'provider' => 'akun',
             'table' => 'password_resets',
             'expire' => 60,
