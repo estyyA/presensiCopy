@@ -11,28 +11,34 @@
 <div class="card shadow-sm mb-4">
     <div class="card-body">
         <h5 class="font-weight-bold mb-3">Filter dan Pencarian</h5>
-        <div class="form-inline">
+
+        {{-- Form Filter --}}
+        <form method="GET" action="{{ route('laporan') }}" class="form-inline">
             <label class="mr-2">Mulai Tanggal</label>
-            <input type="date" class="form-control mr-3" value="2023-08-06">
+            <input type="date" name="mulai" class="form-control mr-3" value="{{ request('mulai') }}">
 
             <label class="mr-2">Sampai Tanggal</label>
-            <input type="date" class="form-control mr-3" value="2023-09-07">
+            <input type="date" name="sampai" class="form-control mr-3" value="{{ request('sampai') }}">
 
-            <button class="btn btn-primary mr-2">Tampilkan</button>
-            <a href="{{ route('laporan.cetakPdf') }}" class="btn btn-danger mr-2" target="_blank">
+            <button type="submit" class="btn btn-primary mr-2">Tampilkan</button>
+
+            {{-- Export PDF & Excel tetap ada --}}
+            <a href="{{ route('laporan.cetakPdf', ['mulai' => request('mulai'), 'sampai' => request('sampai')]) }}"
+               class="btn btn-danger mr-2" target="_blank">
                 <i class="fa fa-file-pdf mr-1"></i> Export PDF
             </a>
-            <a href="{{ route('laporan.exportExcel') }}" class="btn btn-success">
+            <a href="{{ route('laporan.exportExcel', ['mulai' => request('mulai'), 'sampai' => request('sampai')]) }}"
+               class="btn btn-success">
                 <i class="fa fa-file-excel mr-1"></i> Export Excel
             </a>
-        </div>
+        </form>
     </div>
 </div>
 
 {{-- Data Karyawan --}}
 <div class="card shadow-sm">
     <div class="card-body">
-        <h5 class="font-weight-bold mb-3">Tabel Data Transaksi</h5>
+        <h5 class="font-weight-bold mb-3">Tabel Data Presensi</h5>
         <div class="table-responsive">
             <form method="POST" action="#">
                 @csrf
@@ -46,51 +52,34 @@
                             <th>Total Hari Kerja</th>
                             <th>Jumlah Hadir</th>
                             <th>Jumlah Sakit</th>
-                            <th>Jumlah Cuti</th>
+                            <th>Jumlah Izin</th>
+                            <th>Jumlah Alpha</th>
                             <th>Catatan</th>
                         </tr>
                     </thead>
                     <tbody class="text-center">
-                        <tr>
-                            <td>1</td>
-                            <td>72220535</td>
-                            <td>Esra</td>
-                            <td>Keuangan</td>
-                            <td>0</td>
-                            <td>5</td>
-                            <td>2</td>
-                            <td>2</td>
-                            <td>
-                                <textarea name="catatan[1]" class="form-control" rows="2" placeholder="Opsional..."></textarea>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>2</td>
-                            <td>72220536</td>
-                            <td>Rudi</td>
-                            <td>HRD</td>
-                            <td>0</td>
-                            <td>4</td>
-                            <td>1</td>
-                            <td>3</td>
-                            <td>
-                                <textarea name="catatan[2]" class="form-control" rows="2" placeholder="Opsional..."></textarea>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>3</td>
-                            <td>72220537</td>
-                            <td>Sinta</td>
-                            <td>Marketing</td>
-                            <td>0</td>
-                            <td>6</td>
-                            <td>0</td>
-                            <td>1</td>
-                            <td>
-                                <textarea name="catatan[3]" class="form-control" rows="2" placeholder="Opsional..."></textarea>
-                            </td>
-                        </tr>
+                        @forelse($data as $i => $row)
+                            <tr>
+                                <td>{{ $i+1 }}</td>
+                                <td>{{ $row->nik }}</td>
+                                <td>{{ $row->nama }}</td>
+                                <td>{{ $row->divisi ?? '-' }}</td>
+                                <td>{{ $row->total_hari }}</td>
+                                <td>{{ $row->hadir }}</td>
+                                <td>{{ $row->sakit }}</td>
+                                <td>{{ $row->izin }}</td>
+                                <td>{{ $row->alpha }}</td>
+                                <td>
+                                    <textarea name="catatan[{{ $row->nik }}]" class="form-control" rows="2" placeholder="Opsional..."></textarea>
+                                </td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="10" style="color: #777;">Tidak ada data presensi</td>
+                            </tr>
+                        @endforelse
                     </tbody>
+
                 </table>
 
                 {{-- Tombol Simpan Catatan --}}
