@@ -8,7 +8,20 @@ use App\Http\Controllers\Karyawan\DashboardController as KaryawanDashboardContro
 use App\Http\Controllers\Karyawan\KaryawanController;
 
 
+//NOTE:
+//--------------BAGIAN FORGOT PASSWORD BELUM BISA KARENA HARUS MENGGUNAKAN EMAIL PERUSAHAAN------------//
+
 //Forgot Password
+// Forgot Password
+Route::get('/forgot-password', [PageController::class, 'showForgotPasswordForm'])->name('password.request');
+Route::post('/forgot-password', [PageController::class, 'sendResetLink'])->name('password.email');
+
+// Reset Password
+Route::get('/reset-password/{token}', [PageController::class, 'showResetForm'])->name('password.reset');
+Route::post('/reset-password', [PageController::class, 'resetPassword'])->name('password.update');
+
+
+
 
 // Form Registrasi
 Route::get('/register', [PageController::class, 'showRegister'])->name('register.form');
