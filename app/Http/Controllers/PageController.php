@@ -8,6 +8,9 @@ use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Str;
+use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Mail;
 use App\Karyawan;
 use App\Akun;
 use App\Department;
@@ -225,50 +228,60 @@ class PageController extends Controller
     }
 
     public function processRegister(Request $request)
-    {
-        $request->validate([
-            'nik'        => 'required|unique:karyawan,NIK',
-            'username'   => 'required|unique:akun,username',
-            'password'   => 'required|min:6',
-            'id_divisi'  => 'required|integer',
-            'id_jabatan' => 'required|integer',
-            'divisi'     => 'required|string',
-            'nama_lengkap'=> 'required|string',
-            'no_hp'      => 'required|string',
-            'tgl_lahir'  => 'required|date',
-            'alamat'     => 'required|string',
-            'role'       => 'required|string',
-            'foto'       => 'nullable|image|max:2048',
-        ]);
+{
+    $request->validate([
+        'nik'         => 'required|unique:karyawan,NIK',
+        'username'    => 'required|unique:akun,username',
+        'password'    => 'required|min:6',
+        'email'       => 'required|email|unique:karyawan,email',
+        'id_divisi'   => 'required|integer',
+        'id_jabatan'  => 'required|integer',
+        'divisi'      => 'required|string',
+        'nama_lengkap'=> 'required|string',
+        'no_hp'       => 'required|string',
+        'tgl_lahir'   => 'required|date',
+        'alamat'      => 'required|string',
+        'role'        => 'required|string',
+        'foto'        => 'nullable|image|max:2048',
+    ]);
 
-        $fotoName = null;
-        if ($request->hasFile('foto')) {
-            $fotoName = time() . '.' . $request->foto->extension();
-            $request->foto->move(public_path('uploads'), $fotoName);
-        }
-
-        DB::table('karyawan')->insert([
-            'NIK'          => $request->nik,
-            'username'     => $request->username,
-            'id_divisi'    => $request->id_divisi,
-            'id_jabatan'   => $request->id_jabatan,
-            'divisi'       => $request->divisi,
-            'nama_lengkap' => $request->nama_lengkap,
-            'no_hp'        => $request->no_hp,
-            'tgl_lahir'    => $request->tgl_lahir,
-            'alamat'       => $request->alamat,
-            'role'         => $request->role,
-            'foto'         => $fotoName,
-        ]);
-
-        DB::table('akun')->insert([
-            'username' => $request->username,
-            'NIK'      => $request->nik,
-            'password' => Hash::make($request->password),
-        ]);
-
-        return redirect()->route('login.form')->with('success', 'Registrasi berhasil! Silakan login.');
+    $fotoName = null;
+    if ($request->hasFile('foto')) {
+        $fotoName = time() . '.' . $request->foto->extension();
+        $request->foto->move(public_path('uploads'), $fotoName);
     }
+
+    // Simpan data ke tabel karyawan (tambahkan status default = Aktif)
+    DB::table('karyawan')->insert([
+        'NIK'          => $request->nik,
+        'username'     => $request->username,
+        'email'        => $request->email,
+        'id_divisi'    => $request->id_divisi,
+        'id_jabatan'   => $request->id_jabatan,
+        'divisi'       => $request->divisi,
+        'nama_lengkap' => $request->nama_lengkap,
+        'no_hp'        => $request->no_hp,
+        'tgl_lahir'    => $request->tgl_lahir,
+        'alamat'       => $request->alamat,
+        'role'         => $request->role,
+        'foto'         => $fotoName,
+        'status'       => 'Aktif', // <- tambahkan ini
+        // 'created_at'   => now(),
+        // 'updated_at'   => now(),
+    ]);
+
+    // Simpan data ke tabel akun
+    DB::table('akun')->insert([
+        'username'   => $request->username,
+        'NIK'        => $request->nik,
+        'password'   => Hash::make($request->password),
+        // 'created_at' => now(),
+        // 'updated_at' => now(),
+    ]);
+
+    return redirect()->route('login.form')->with('success', 'Registrasi berhasil! Silakan login.');
+}
+
 
     /** ---------------- PRESENSI ---------------- */
     public function PresensiKaryawan()
@@ -356,4 +369,77 @@ class PageController extends Controller
 
         return redirect('/login')->with('success', 'Berhasil logout.');
     }
+
+        /** ---------------- FORGOT PASSWORD ---------------- */
+    public function showForgotPasswordForm()
+    {
+        return view('auth.forgot-password');
+    }
+
+    public function sendResetLink(Request $request)
+    {
+        $request->validate(['email' => 'required|email']);
+
+        // cek apakah email ada di tabel karyawan
+        $user = DB::table('karyawan')->where('email', $request->email)->first();
+        if (!$user) {
+            return back()->withErrors(['email' => 'Email tidak ditemukan.']);
+        }
+
+        // generate token
+        $token = Str::random(60);
+
+        // simpan ke tabel password_resets
+        DB::table('password_resets')->updateOrInsert(
+            ['email' => $request->email],
+            ['token' => $token, 'created_at' => Carbon::now()]
+        );
+
+        // kirim email (sementara pakai teks sederhana)
+        Mail::raw("Klik link berikut untuk reset password: " . url('/reset-password/' . $token), function ($message) use ($request) {
+            $message->to($request->email);
+            $message->subject('Reset Password');
+        });
+
+        return back()->with('success', 'Link reset password sudah dikirim ke email.');
+    }
+
+    public function showResetForm($token)
+    {
+        return view('auth.reset-password', ['token' => $token]);
+    }
+
+    public function resetPassword(Request $request)
+    {
+        $request->validate([
+            'email' => 'required|email',
+            'password' => 'required|min:6|confirmed',
+            'token' => 'required'
+        ]);
+
+        $reset = DB::table('password_resets')
+            ->where('email', $request->email)
+            ->where('token', $request->token)
+            ->first();
+
+        if (!$reset) {
+            return back()->withErrors(['email' => 'Token tidak valid atau sudah kadaluarsa.']);
+        }
+
+        // update password di tabel akun (pakai NIK dari karyawan)
+        $karyawan = DB::table('karyawan')->where('email', $request->email)->first();
+        if (!$karyawan) {
+            return back()->withErrors(['email' => 'Karyawan tidak ditemukan.']);
+        }
+
+        DB::table('akun')->where('NIK', $karyawan->NIK)->update([
+            'password' => Hash::make($request->password)
+        ]);
+
+        // hapus token biar tidak bisa dipakai lagi
+        DB::table('password_resets')->where('email', $request->email)->delete();
+
+        return redirect()->route('login.form')->with('success', 'Password berhasil direset. Silakan login.');
+    }
+
 }
