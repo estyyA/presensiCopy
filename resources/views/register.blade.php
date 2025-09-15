@@ -169,6 +169,17 @@
                             </div>
                         </div>
                         <div class="mb-3">
+                            <label for="email" class="form-label">Email</label>
+                            <input
+                                type="email"
+                                name="email"
+                                id="email"
+                                class="form-control"
+                                placeholder="Masukkan email aktif"
+                                required>
+                        </div>
+
+                        <div class="mb-3">
                             <label for="nama_lengkap" class="form-label">Nama Lengkap</label>
                             <input type="text" name="nama_lengkap" id="nama_lengkap" class="form-control" placeholder="Masukkan nama lengkap" required>
                         </div>
@@ -219,6 +230,8 @@
 
                 <!-- hidden divisi string -->
                 <input type="hidden" name="divisi" value="Umum">
+                <input type="hidden" name="status" value="Aktif">
+
 
                 <button type="submit" class="btn btn-register w-100">
                     <i class="bi bi-check-circle me-2"></i>Daftar
