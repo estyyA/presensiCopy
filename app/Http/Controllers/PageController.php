@@ -442,4 +442,13 @@ class PageController extends Controller
         return redirect()->route('login.form')->with('success', 'Password berhasil direset. Silakan login.');
     }
 
+    public function logoutUser(Request $request)
+{
+    Auth::logout();
+    $request->session()->invalidate();
+    $request->session()->regenerateToken();
+
+    return redirect('/login');
+}
+
 }
