@@ -8,9 +8,6 @@ use App\Http\Controllers\Karyawan\DashboardController as KaryawanDashboardContro
 use App\Http\Controllers\Karyawan\KaryawanController;
 
 
-//NOTE:
-//--------------BAGIAN FORGOT PASSWORD BELUM BISA KARENA HARUS MENGGUNAKAN EMAIL PERUSAHAAN------------//
-
 //Forgot Password
 // Forgot Password
 Route::get('/forgot-password', [PageController::class, 'showForgotPasswordForm'])->name('password.request');
@@ -42,6 +39,8 @@ Route::post('/login', [PageController::class, 'processLogin'])->name('login.proc
 
 //Logout
 Route::post('/logout', [PageController::class, 'logout'])->name('logout');
+Route::post('/logout', [PageController::class, 'logoutUser'])->name('logout');
+
 
 
 // Dashboard & halaman utama
