@@ -2,7 +2,7 @@
 
 @section('content')
 <div class="container mt-4">
-    <h2 class="mb-4">Detail Karyawan</h2>
+    <h2 class="mb-4">{{ $title ?? 'Detail Karyawan' }}</h2>
 
     <div class="card shadow-lg border-0">
         <div class="card-body p-4">
@@ -21,11 +21,11 @@
                     </div>
                 @endif
                     <h4 class="fw-bold">{{ $karyawan->nama_lengkap }}</h4>
-                    <p class="text-muted">{{ $karyawan->nama_jabatan ?? '-' }}</p>
-                    <span class="badge
-                        {{ $karyawan->status == 'Aktif' ? 'bg-success' : ($karyawan->status == 'Nonaktif' ? 'bg-secondary' : 'bg-warning') }}">
-                        {{ $karyawan->status }}
-                    </span>
+                    <p class="text-muted">
+                        Jabatan: {{ $karyawan->nama_jabatan ?? '-' }} <br>
+                        Role: {{ ucfirst($karyawan->role) }}
+                    </p>
+
                 </div>
 
                 <!-- Kolom Detail -->
