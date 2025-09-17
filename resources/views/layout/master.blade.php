@@ -99,8 +99,8 @@
              class="rounded-circle" width="35" height="35" alt="avatar">
         </a>
         <div class="dropdown-menu dropdown-menu-right shadow" aria-labelledby="userDropdown">
-            <a class="dropdown-item" href="#">
-                <i class="fa fa-user mr-2"></i> Profil
+            <a class="dropdown-item" href="{{ route('profil') }}">
+                <i class="fa fa-user"></i> Profil
             </a>
             <div class="dropdown-divider"></div>
             <form action="{{ route('logout') }}" method="POST" class="m-0">
