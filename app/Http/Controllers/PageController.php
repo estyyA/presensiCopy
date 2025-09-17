@@ -195,17 +195,19 @@ class PageController extends Controller
     }
 
     public function showKaryawan($nik)
-    {
-        $karyawan = DB::table('karyawan')
-            ->leftJoin('departement', 'karyawan.id_divisi', '=', 'departement.id_divisi')
-            ->leftJoin('jabatan', 'karyawan.id_jabatan', '=', 'jabatan.id_jabatan')
-            ->select('karyawan.*', 'departement.nama_divisi', 'jabatan.nama_jabatan')
-            ->where('karyawan.NIK', $nik)
-            ->first();
+{
+    $karyawan = DB::table('karyawan')
+        ->leftJoin('departement', 'karyawan.id_divisi', '=', 'departement.id_divisi')
+        ->leftJoin('jabatan', 'karyawan.id_jabatan', '=', 'jabatan.id_jabatan')
+        ->select('karyawan.*', 'departement.nama_divisi', 'jabatan.nama_jabatan')
+        ->where('karyawan.NIK', $nik)
+        ->first();
 
-        return view('showKaryawan', compact('karyawan'));
-    }
-
+    return view('showKaryawan', [
+        'karyawan' => $karyawan,
+        'title'    => 'Detail Karyawan' // 👈 tambahin ini
+    ]);
+}
 
 
     /** ---------------- LOGIN ---------------- */
@@ -484,6 +486,27 @@ class PageController extends Controller
     $request->session()->regenerateToken();
 
     return redirect('/login');
+}
+
+public function profil()
+{
+    $sessionKaryawan = session('karyawan');
+
+    if (!$sessionKaryawan) {
+        return redirect()->route('login.form')->withErrors(['login' => 'Silakan login dulu']);
+    }
+
+    $karyawan = DB::table('karyawan')
+        ->leftJoin('departement', 'karyawan.id_divisi', '=', 'departement.id_divisi')
+        ->leftJoin('jabatan', 'karyawan.id_jabatan', '=', 'jabatan.id_jabatan')
+        ->select('karyawan.*', 'departement.nama_divisi', 'jabatan.nama_jabatan')
+        ->where('karyawan.NIK', $sessionKaryawan->NIK)
+        ->first();
+
+    return view('showKaryawan', [
+        'title'    => 'Profile',
+        'karyawan' => $karyawan
+    ]);
 }
 
 }
