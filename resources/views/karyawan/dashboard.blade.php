@@ -19,7 +19,8 @@
         </label>
 
         <h6 class="mb-0 mt-2">{{ session('karyawan')->nama_lengkap ?? $karyawan->nama_lengkap ?? 'Nama Karyawan' }}</h6>
-        <small class="text-muted">{{ session('karyawan')->divisi ?? $karyawan->divisi ?? 'Divisi' }}</small>
+        <small class="text-muted">{{ session('karyawan')->nama_divisi ?? $karyawan->nama_divisi ?? 'Divisi' }}</small>
+
     </div>
 </div>
 
