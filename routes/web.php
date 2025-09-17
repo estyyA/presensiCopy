@@ -94,5 +94,6 @@ Route::delete('/karyawan/{nik}', [PageController::class, 'deleteKaryawan'])->nam
 
 Route::get('/karyawan/{nik}/detail', [PageController::class, 'showKaryawan'])->name('karyawan.show');
 
+Route::get('/profil', [App\Http\Controllers\PageController::class, 'profil'])->name('profil');
 
 
