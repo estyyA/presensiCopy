@@ -26,8 +26,31 @@ class PageController extends Controller
     {
         // Ambil data karyawan dari session
         $karyawan = session('karyawan');
-        return view('dashboard', compact('karyawan'));
+
+        // Hitung total karyawan
+        $totalKaryawan = DB::table('karyawan')->count();
+
+        // Hitung presensi hari ini
+        $today = now()->toDateString();
+
+        $karyawanMasuk = DB::table('presensi')
+            ->whereDate('tgl_presen', $today)  // ubah ke tgl_presen
+            ->where('status', 'hadir')
+            ->count();
+
+        $karyawanIzin = DB::table('presensi')
+            ->whereDate('tgl_presen', $today)  // ubah ke tgl_presen
+            ->whereIn('status', ['izin', 'cuti'])
+            ->count();
+
+        return view('dashboard', compact(
+            'karyawan',
+            'totalKaryawan',
+            'karyawanMasuk',
+            'karyawanIzin'
+        ));
     }
+
 
     /** ---------------- KARYAWAN ---------------- */
     public function daftarPresensi(Request $request)

@@ -83,10 +83,6 @@
             <i class="fa fa-file-alt mr-2"></i> Laporan
         </a>
 
-        <h6 class="mt-4">ADMINISTRATOR</h6>
-        <a href="#" class="nav-link">
-            <i class="fa fa-user mr-2"></i> Admin
-        </a>
     </div>
 
     {{-- Main Content --}}
