@@ -73,35 +73,45 @@ class PageController extends Controller
 
     public function daftarKaryawan(Request $request)
 {
-    $query = Karyawan::query();
+    $query = DB::table('karyawan')
+        ->leftJoin('departement', 'karyawan.id_divisi', '=', 'departement.id_divisi')
+        ->leftJoin('jabatan', 'karyawan.id_jabatan', '=', 'jabatan.id_jabatan')
+        ->select(
+            'karyawan.*',
+            'departement.nama_divisi',
+            'jabatan.nama_jabatan'
+        );
 
+    // Filter nama
     if ($request->filled('nama')) {
-        $query->where('nama_lengkap', 'like', '%' . $request->nama . '%');
+        $query->where('karyawan.nama_lengkap', 'like', '%' . $request->nama . '%');
     }
 
+    // Filter divisi
     if ($request->filled('divisi')) {
-        $query->whereHas('departement', function($q) use ($request) {
-            $q->where('nama_divisi', $request->divisi);
-        });
+        $query->where('departement.id_divisi', $request->divisi);
     }
 
+    // Filter pencarian umum
     if ($request->filled('search')) {
         $search = $request->search;
         $query->where(function($q) use ($search) {
-            $q->where('NIK', 'like', "%$search%")
-              ->orWhere('nama_lengkap', 'like', "%$search%")
-              ->orWhere('username', 'like', "%$search%")
-              ->orWhere('no_hp', 'like', "%$search%");
+            $q->where('karyawan.NIK', 'like', "%$search%")
+              ->orWhere('karyawan.nama_lengkap', 'like', "%$search%")
+              ->orWhere('karyawan.username', 'like', "%$search%")
+              ->orWhere('karyawan.no_hp', 'like', "%$search%");
         });
     }
 
+    // Ambil data dengan pagination
     $karyawan = $query->paginate(10)->appends($request->all());
 
     // Ambil semua divisi untuk dropdown filter
-    $departements = Department::all();
+    $departements = DB::table('departement')->select('id_divisi', 'nama_divisi')->get();
 
     return view('daftarKaryawan', compact('karyawan', 'departements'));
 }
+
 
     public function createKaryawan()
     {
@@ -197,10 +207,14 @@ class PageController extends Controller
         return back()->withErrors(['login' => 'Username atau password salah.']);
     }
 
-    // Ambil data karyawan berdasarkan NIK dari tabel akun
+    // Ambil data karyawan + nama_divisi + nama_jabatan
     $karyawan = DB::table('karyawan')
-        ->where('NIK', $akun->NIK)
-        ->first();
+    ->leftJoin('departement', 'karyawan.id_divisi', '=', 'departement.id_divisi')
+    ->where('karyawan.NIK', $akun->NIK)
+    ->select('karyawan.*', 'departement.nama_divisi')
+    ->first();
+
+
 
     if (!$karyawan) {
         return back()->withErrors(['login' => 'Data karyawan tidak ditemukan.']);
@@ -236,7 +250,6 @@ class PageController extends Controller
         'email'       => 'required|email|unique:karyawan,email',
         'id_divisi'   => 'required|integer',
         'id_jabatan'  => 'required|integer',
-        'divisi'      => 'required|string',
         'nama_lengkap'=> 'required|string',
         'no_hp'       => 'required|string',
         'tgl_lahir'   => 'required|date',
@@ -258,7 +271,6 @@ class PageController extends Controller
         'email'        => $request->email,
         'id_divisi'    => $request->id_divisi,
         'id_jabatan'   => $request->id_jabatan,
-        'divisi'       => $request->divisi,
         'nama_lengkap' => $request->nama_lengkap,
         'no_hp'        => $request->no_hp,
         'tgl_lahir'    => $request->tgl_lahir,
