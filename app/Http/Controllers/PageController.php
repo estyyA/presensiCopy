@@ -486,4 +486,100 @@ class PageController extends Controller
     return redirect('/login');
 }
 
+// =======================
+    // DASHBOARD KARYAWAN
+    // =======================
+    public function dashboardKaryawan()
+    {
+        $karyawan = session('karyawan');
+        if (!$karyawan) {
+            return redirect()->route('login.form');
+        }
+
+        $nik = $karyawan->NIK;
+
+        // Ambil presensi hari ini
+        $presensiHariIni = DB::table('presensi')
+            ->where('NIK', $nik)
+            ->whereDate('tgl_presen', now()->toDateString())
+            ->first();
+
+        // Ambil riwayat presensi terakhir (7 hari)
+        $riwayat = DB::table('presensi')
+            ->where('NIK', $nik)
+            ->orderBy('tgl_presen', 'desc')
+            ->limit(7)
+            ->get();
+
+        return view('karyawan.dashboard', compact('presensiHariIni', 'riwayat'));
+    }
+
+    // =======================
+    // FORM ABSEN MASUK
+    // =======================
+    public function showFormMasuk()
+    {
+        return view('absensi.masuk');
+    }
+
+    public function presensiMasuk(Request $request)
+    {
+        $karyawan = session('karyawan');
+        if (!$karyawan) {
+            return redirect()->route('login.form');
+        }
+
+        $tanggal = now()->toDateString();
+
+        // Cek apakah sudah absen hari ini
+        $sudahAbsen = DB::table('presensi')
+            ->where('NIK', $karyawan->NIK)
+            ->whereDate('tgl_presen', $tanggal)
+            ->exists();
+
+        if ($sudahAbsen) {
+            return redirect()->route('karyawan.dashboard')
+                ->with('warning', 'Anda sudah absen masuk hari ini!');
+        }
+
+        // Simpan data presensi (isi semua kolom penting)
+        DB::table('presensi')->insert([
+            'NIK'           => $karyawan->NIK,
+            'nama_karyawan' => $karyawan->nama ?? $karyawan->nama_karyawan, // sesuaikan field
+            'divisi'        => $karyawan->divisi ?? '-',
+            'tgl_presen'    => $tanggal,
+            'jam_masuk'     => now()->toTimeString(),
+            'status'        => 'hadir',
+            'created_at'    => now(),
+            'updated_at'    => now(),
+        ]);
+
+        return redirect()->route('karyawan.dashboard')->with('success', 'Absen masuk berhasil!');
+    }
+
+    // =======================
+    // FORM ABSEN KELUAR
+    // =======================
+    public function showFormKeluar()
+    {
+        return view('absensi.keluar');
+    }
+
+    public function presensiKeluar(Request $request)
+    {
+        $karyawan = session('karyawan');
+        if (!$karyawan) {
+            return redirect()->route('login.form');
+        }
+
+        DB::table('presensi')
+            ->where('NIK', $karyawan->NIK)
+            ->whereDate('tgl_presen', now()->toDateString())
+            ->update([
+                'jam_keluar' => now()->toTimeString(),
+                'updated_at' => now(),
+            ]);
+
+        return redirect()->route('karyawan.dashboard')->with('success', 'Absen keluar berhasil!');
+    }
 }
