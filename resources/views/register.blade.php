@@ -229,7 +229,6 @@
                 </div>
 
                 <!-- hidden divisi string -->
-                <input type="hidden" name="divisi" value="Umum">
                 <input type="hidden" name="status" value="Aktif">
 
 
