@@ -62,22 +62,22 @@ Route::post('/karyawan/upload-foto', [KaryawanController::class, 'uploadFoto'])
 
 
 // Dashboard karyawan
-Route::get('/karyawan/dashboard', function () {
-    return view('karyawan.dashboard');
-})->name('karyawan.dashboard');
+Route::get('/karyawan/dashboard', [PageController::class, 'dashboardKaryawan'])
+    ->name('karyawan.dashboard');
+
 
 // Dashboard admin
 Route::get('/dashboard', [PageController::class, 'dashboard'])->name('dashboard');
 
 
-// Absensi masuk & keluar
-Route::get('/absensi/masuk', function () {
-    return view('absensi.masuk');
-})->name('absensi.masuk');
+// Form absen masuk & keluar
 
-Route::get('/absensi/keluar', function () {
-    return view('absensi.keluar');
-})->name('absensi.keluar');
+Route::get('/absensi/masuk', [PageController::class, 'showFormMasuk'])->name('absensi.formMasuk');
+Route::post('/absensi/masuk', [PageController::class, 'presensiMasuk'])->name('absensi.masuk');
+
+Route::get('/absensi/keluar', [PageController::class, 'showFormKeluar'])->name('absensi.formKeluar');
+Route::post('/absensi/keluar', [PageController::class, 'presensiKeluar'])->name('absensi.keluar');
+
 
 // Laporan (PDF & Excel)
 Route::get('/laporan/pdf', [PageController::class, 'cetakPdf'])->name('laporan.cetakPdf');
@@ -93,6 +93,3 @@ Route::put('/karyawan/{nik}/update', [PageController::class, 'updateKaryawan'])-
 Route::delete('/karyawan/{nik}', [PageController::class, 'deleteKaryawan'])->name('karyawan.delete');
 
 Route::get('/karyawan/{nik}/detail', [PageController::class, 'showKaryawan'])->name('karyawan.show');
-
-
-
