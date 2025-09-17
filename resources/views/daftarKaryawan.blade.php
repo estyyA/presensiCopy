@@ -22,10 +22,11 @@
                 <select name="divisi" class="form-control">
                     <option value="">Bidang Pekerjaan</option>
                     @foreach($departements as $dept)
-                        <option value="{{ $dept->nama_divisi }}"
-                            {{ request('divisi') == $dept->nama_divisi ? 'selected' : '' }}>
+                        <option value="{{ $dept->id_divisi }}"
+                            {{ request('divisi') == $dept->id_divisi ? 'selected' : '' }}>
                             {{ $dept->nama_divisi }}
                         </option>
+
                     @endforeach
                 </select>
             </div>
@@ -63,7 +64,7 @@
                             <td>{{ $index + 1 }}</td>
                             <td>{{ $row->NIK }}</td>
                             <td>{{ $row->nama_lengkap }}</td>
-                            <td>{{ $row->departement->nama_divisi ?? '-' }}</td>
+                            <td>{{ $row->nama_divisi ?? '-' }}</td>
                             <td>{{ $row->username }}</td>
                             <td>{{ $row->no_hp }}</td>
                             <td>
