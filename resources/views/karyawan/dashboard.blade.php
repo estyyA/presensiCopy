@@ -1,6 +1,8 @@
 @extends('layout.karyawan')
 
 @section('content')
+
+<!-- Card Profil Karyawan -->
 <div class="card profile-card p-3 mb-3 text-center">
     <div class="d-flex flex-column align-items-center position-relative">
 
@@ -20,7 +22,6 @@
 
         <h6 class="mb-0 mt-2">{{ session('karyawan')->nama_lengkap ?? $karyawan->nama_lengkap ?? 'Nama Karyawan' }}</h6>
         <small class="text-muted">{{ session('karyawan')->nama_divisi ?? $karyawan->nama_divisi ?? 'Divisi' }}</small>
-
     </div>
 </div>
 
@@ -66,13 +67,43 @@ document.getElementById('inputFoto').addEventListener('change', function(e) {
 <!-- Jam & Absensi -->
 <div class="card p-3 mb-3 text-center">
     <h5 class="fw-bold">Live Attendance</h5>
-    <h2 class="text-primary">08:34 AM</h2>
-    <p class="mb-1">Fri, 14 April 2023</p>
-    <p class="text-muted small">Office Hours: 08:00 AM - 05:00 PM</p>
+    <h2 class="text-primary" id="liveClock">--:-- --</h2>
+    <p class="mb-1" id="liveDate"></p>
 
-    <div class="d-flex justify-content-between">
-        <a href="{{ url('/absensi/masuk') }}" class="btn btn-primary btn-lg">Masuk</a>
-        <a href="{{ url('/absensi/keluar') }}" class="btn btn-danger btn-lg">Keluar</a>
+<script>
+function updateClock() {
+    let now = new Date();
+
+    // Format waktu (hh:mm AM/PM)
+    let hours = now.getHours();
+    let minutes = now.getMinutes();
+    let ampm = hours >= 12 ? 'PM' : 'AM';
+    hours = hours % 12 || 12;
+    let timeString = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')} ${ampm}`;
+    document.getElementById('liveClock').textContent = timeString;
+
+    // Format tanggal (Wed, 17 September 2025)
+    let options = { weekday: 'short', year: 'numeric', month: 'long', day: 'numeric' };
+    document.getElementById('liveDate').textContent = now.toLocaleDateString('en-US', options);
+}
+
+updateClock();
+setInterval(updateClock, 1000);
+</script>
+
+    <div class="d-flex justify-content-between mt-3">
+        @if(!$presensiHariIni)
+            <!-- Belum Absen Masuk -->
+            <a href="{{ route('absensi.formMasuk') }}" class="btn btn-primary btn-lg">Masuk</a>
+            <button class="btn btn-danger btn-lg" disabled>Keluar</button>
+        @elseif(!$presensiHariIni->jam_keluar)
+            <!-- Sudah Masuk, Belum Keluar -->
+            <button class="btn btn-primary btn-lg" disabled>Masuk</button>
+            <a href="{{ route('absensi.formKeluar') }}" class="btn btn-danger btn-lg">Keluar</a>
+        @else
+            <!-- Sudah Masuk & Keluar -->
+            <p class="text-success w-100 fw-bold">Anda sudah absen masuk & keluar hari ini ✅</p>
+        @endif
     </div>
 </div>
 
@@ -80,25 +111,31 @@ document.getElementById('inputFoto').addEventListener('change', function(e) {
 <div class="card p-3">
     <h6 class="fw-bold">Attendance History</h6>
     <ul class="list-unstyled mt-2 mb-0">
-        <li class="d-flex justify-content-between small border-bottom py-2">
-            <span>Fri, 14 April 2023</span>
-            <span>08:00 AM - 05:00 PM</span>
-        </li>
-        <li class="d-flex justify-content-between small border-bottom py-2 text-danger">
-            <span>Thu, 13 April 2023</span>
-            <span>08:45 AM - 05:00 PM</span>
-        </li>
-        <li class="d-flex justify-content-between small border-bottom py-2">
-            <span>Wed, 12 April 2023</span>
-            <span>07:55 AM - 05:00 PM</span>
-        </li>
+        @forelse($riwayat as $item)
+            <li class="d-flex justify-content-between small border-bottom py-2 {{ $item->jam_masuk > '08:30:00' ? 'text-danger' : '' }}">
+                <span>{{ \Carbon\Carbon::parse($item->tgl_presen)->format('D, d F Y') }}</span>
+                <span>{{ $item->jam_masuk ?? '--:--' }} - {{ $item->jam_keluar ?? '--:--' }}</span>
+            </li>
+        @empty
+            <li class="text-muted text-center py-2">Belum ada data presensi</li>
+        @endforelse
     </ul>
 </div>
 
+<!-- Tombol Logout -->
 <form action="{{ route('logout') }}" method="POST" class="mt-3">
     @csrf
     <button type="submit" class="btn btn-outline-danger btn-sm">
         <i class="bi bi-box-arrow-right"></i> Logout
     </button>
 </form>
+
+{{-- @if(session('success'))
+<div class="alert alert-success alert-dismissible fade show" role="alert">
+    {{ session('success') }}
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+</div>
+@endif --}}
+
+
 @endsection
