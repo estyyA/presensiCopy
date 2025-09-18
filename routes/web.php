@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\PageController;
 use App\Http\Controllers\Karyawan\DashboardController as KaryawanDashboardController;
 use App\Http\Controllers\Karyawan\KaryawanController;
+// use App\Http\Controllers\AbsensiController;
 
 
 //Forgot Password
@@ -69,13 +70,18 @@ Route::get('/karyawan/dashboard', [PageController::class, 'dashboardKaryawan'])
 Route::get('/dashboard', [PageController::class, 'dashboard'])->name('dashboard');
 
 
+
+
 // Form absen masuk & keluar
 
+// Form Absen Masuk
 Route::get('/absensi/masuk', [PageController::class, 'showFormMasuk'])->name('absensi.formMasuk');
 Route::post('/absensi/masuk', [PageController::class, 'presensiMasuk'])->name('absensi.masuk');
 
+// Form Absen Keluar
 Route::get('/absensi/keluar', [PageController::class, 'showFormKeluar'])->name('absensi.formKeluar');
 Route::post('/absensi/keluar', [PageController::class, 'presensiKeluar'])->name('absensi.keluar');
+
 
 
 // Laporan (PDF & Excel)
@@ -97,3 +103,10 @@ Route::get('/profil', [PageController::class, 'profil'])->name('profil');
 Route::get('/profil', [PageController::class, 'profil'])->name('profil');
 
 //
+
+
+// Edit Presensi
+Route::get('/presensi/{id}/edit', [PageController::class, 'editPresensi'])->name('presensi.edit');
+
+// Hapus Presensi
+Route::delete('/presensi/{id}', [PageController::class, 'deletePresensi'])->name('presensi.destroy');
