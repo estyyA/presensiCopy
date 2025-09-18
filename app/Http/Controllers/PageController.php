@@ -582,4 +582,25 @@ class PageController extends Controller
 
         return redirect()->route('karyawan.dashboard')->with('success', 'Absen keluar berhasil!');
     }
+
+    public function profil()
+{
+    $sessionKaryawan = session('karyawan');
+
+    if (!$sessionKaryawan) {
+        return redirect()->route('login.form')->withErrors(['login' => 'Silakan login dulu']);
+    }
+
+    $karyawan = DB::table('karyawan')
+        ->leftJoin('departement', 'karyawan.id_divisi', '=', 'departement.id_divisi')
+        ->leftJoin('jabatan', 'karyawan.id_jabatan', '=', 'jabatan.id_jabatan')
+        ->select('karyawan.*', 'departement.nama_divisi', 'jabatan.nama_jabatan')
+        ->where('karyawan.NIK', $sessionKaryawan->NIK)
+        ->first();
+
+    return view('showKaryawan', [
+        'karyawan' => $karyawan,
+        'title'    => 'Profile'
+    ]);
+}
 }
