@@ -498,13 +498,11 @@ class PageController extends Controller
 
         $nik = $karyawan->NIK;
 
-        // Ambil presensi hari ini
         $presensiHariIni = DB::table('presensi')
             ->where('NIK', $nik)
             ->whereDate('tgl_presen', now()->toDateString())
             ->first();
 
-        // Ambil riwayat presensi terakhir (7 hari)
         $riwayat = DB::table('presensi')
             ->where('NIK', $nik)
             ->orderBy('tgl_presen', 'desc')

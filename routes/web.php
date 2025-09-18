@@ -65,7 +65,6 @@ Route::post('/karyawan/upload-foto', [KaryawanController::class, 'uploadFoto'])
 Route::get('/karyawan/dashboard', [PageController::class, 'dashboardKaryawan'])
     ->name('karyawan.dashboard');
 
-
 // Dashboard admin
 Route::get('/dashboard', [PageController::class, 'dashboard'])->name('dashboard');
 
@@ -93,7 +92,7 @@ Route::put('/karyawan/{nik}/update', [PageController::class, 'updateKaryawan'])-
 Route::delete('/karyawan/{nik}', [PageController::class, 'deleteKaryawan'])->name('karyawan.delete');
 
 Route::get('/karyawan/{nik}/detail', [PageController::class, 'showKaryawan'])->name('karyawan.show');
-
+Route::get('/profil', [PageController::class, 'profil'])->name('profil');
 
 Route::get('/profil', [PageController::class, 'profil'])->name('profil');
 
