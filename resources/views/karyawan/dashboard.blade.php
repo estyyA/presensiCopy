@@ -93,10 +93,11 @@ setInterval(updateClock, 1000);
 </script>
 
     <div class="d-flex justify-content-between mt-3">
-        @if(!$presensiHariIni)
-            <!-- Belum Absen Masuk -->
-            <a href="{{ route('absensi.formMasuk') }}" class="btn btn-primary btn-lg">Masuk</a>
-            <button class="btn btn-danger btn-lg" disabled>Keluar</button>
+    @if(!$presensiHariIni)
+        <!-- Belum Absen Masuk -->
+        <a href="{{ route('absensi.formMasuk') }}" class="btn btn-primary btn-lg">Masuk</a>
+        <button class="btn btn-danger btn-lg" disabled>Keluar</button>
+
         @elseif(!$presensiHariIni->jam_keluar)
             <!-- Sudah Masuk, Belum Keluar -->
             <button class="btn btn-primary btn-lg" disabled>Masuk</button>
