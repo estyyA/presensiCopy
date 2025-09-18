@@ -96,3 +96,5 @@ Route::get('/karyawan/{nik}/detail', [PageController::class, 'showKaryawan'])->n
 
 
 Route::get('/profil', [PageController::class, 'profil'])->name('profil');
+
+//
