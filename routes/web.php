@@ -95,9 +95,12 @@ Route::delete('/karyawan/{nik}', [PageController::class, 'deleteKaryawan'])->nam
 Route::get('/karyawan/{nik}/detail', [PageController::class, 'showKaryawan'])->name('karyawan.show');
 <<<<<<< Updated upstream
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
 
 Route::get('/profil', [PageController::class, 'profil'])->name('profil');
 
+=======
+>>>>>>> Stashed changes
 =======
 >>>>>>> Stashed changes
 =======
