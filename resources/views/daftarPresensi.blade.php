@@ -78,10 +78,10 @@
                             <td class="text-center">{{ $presensis->firstItem() + $i }}</td>
                             <td class="text-center">{{ $p->NIK }}</td>
                             <td>{{ $p->nama_lengkap }}</td>
-                            <td class="text-center">{{ $p->nama_divisi }}</td>
-                            <td class="text-center">{{ \Carbon\Carbon::parse($p->tanggal)->format('d/m/Y') }}</td>
+                            <td class="text-center">{{ $p->nama_divisi ?? '-' }}</td>
+                            <td class="text-center">{{ \Carbon\Carbon::parse($p->tgl_presen)->format('d/m/Y') }}</td>
                             <td class="text-center">{{ $p->jam_masuk ?? '-' }}</td>
-                            <td class="text-center">{{ $p->jam_pulang ?? '-' }}</td>
+                            <td class="text-center">{{ $p->jam_keluar ?? '-' }}</td>
                             <td class="text-center">
                                 @if(strtolower($p->status) == 'hadir')
                                     <span class="badge badge-success">Hadir</span>
@@ -95,10 +95,10 @@
                             </td>
                             <td class="text-center action-btns">
                                 {{-- ganti route jika beda nama, atau hapus jika belum ada --}}
-                                <a href="{{ route('presensi.edit', $p->id) }}" class="btn btn-warning btn-sm" title="Edit">
+                                <a href="{{ route('presensi.edit', $p->id_presen) }}" class="btn btn-warning btn-sm" title="Edit">
                                     <i class="fa fa-edit"></i>
                                 </a>
-                                <form action="{{ route('presensi.destroy', $p->id) }}" method="POST" style="display:inline-block;" onsubmit="return confirm('Yakin ingin menghapus presensi ini?');">
+                                <form action="{{ route('presensi.destroy', $p->id_presen) }}" method="POST" style="display:inline-block;" onsubmit="return confirm('Yakin ingin menghapus presensi ini?');">
                                     @csrf
                                     @method('DELETE')
                                     <button class="btn btn-danger btn-sm" title="Hapus"><i class="fa fa-trash"></i></button>
