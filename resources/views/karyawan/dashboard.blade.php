@@ -8,11 +8,11 @@
 
         <!-- Foto Profil -->
         <img id="previewFoto"
-            src="{{ asset((session('karyawan')->foto ?? ($karyawan->foto ?? null)) ? 'uploads/'.(session('karyawan')->foto ?? $karyawan->foto) : 'img/profile.png') }}"
-            class="rounded-circle mb-2"
-            width="90" height="90"
-            alt="Foto Karyawan"
-            style="object-fit: cover;">
+        src="{{ asset('img/profile.png') }}"
+        class="rounded-circle mb-2"
+        width="90" height="90"
+        alt="Foto Karyawan"
+        style="object-fit: cover;">
 
         <!-- Tombol Edit Foto -->
         <input type="file" id="inputFoto" class="d-none" accept="image/*">
