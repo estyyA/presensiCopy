@@ -54,44 +54,48 @@ class PageController extends Controller
 
     /** ---------------- KARYAWAN ---------------- */
     public function daftarPresensi(Request $request)
-    {
-        $query = DB::table('presensi')
-            ->join('karyawan', 'presensi.nik', '=', 'karyawan.NIK')
-            ->leftJoin('departement', 'karyawan.id_divisi', '=', 'departement.id_divisi')
-            ->select(
-                'presensi.id',
-                'presensi.tanggal',
-                'presensi.jam_masuk',
-                'presensi.jam_pulang',
-                'presensi.status',
-                'karyawan.NIK',
-                'karyawan.nama_lengkap',
-                'departement.nama_divisi'
-            );
+{
+    $query = DB::table('presensi')
+        ->join('karyawan', 'presensi.NIK', '=', 'karyawan.NIK')
+        ->leftJoin('departement', 'karyawan.id_divisi', '=', 'departement.id_divisi')
+        ->select(
+            'presensi.id_presen',
+            'presensi.tgl_presen',
+            'presensi.jam_masuk',
+            'presensi.jam_keluar',
+            'presensi.status',
+            'karyawan.NIK',
+            'karyawan.nama_lengkap',
+            'departement.nama_divisi'
+        );
 
-        // Nama (partial match)
-        if ($request->filled('nama')) {
-            $query->where('karyawan.nama_lengkap', 'like', '%' . $request->nama . '%');
-        }
-
-        // Filter Divisi (by id)
-        if ($request->filled('divisi')) {
-            $query->where('departement.id_divisi', $request->divisi);
-        }
-
-        // Filter Tanggal
-        if ($request->filled('tanggal')) {
-            $query->whereDate('presensi.tanggal', $request->tanggal);
-        }
-
-        // Urut terbaru dulu, paginate, dan pertahankan query string (Laravel 6 pakai appends)
-        $presensis = $query->orderBy('presensi.tanggal', 'desc')->paginate(10)->appends($request->all());
-
-        // Hanya kirim departement untuk dropdown divisi — jangan kirim karyawanList
-        $departements = DB::table('departement')->select('id_divisi', 'nama_divisi')->get();
-
-        return view('daftarPresensi', compact('presensis', 'departements'));
+    // Nama (partial match)
+    if ($request->filled('nama')) {
+        $query->where('karyawan.nama_lengkap', 'like', '%' . $request->nama . '%');
     }
+
+    // Filter Divisi (by id)
+    if ($request->filled('divisi')) {
+        $query->where('departement.id_divisi', $request->divisi);
+    }
+
+    // Filter Tanggal
+    if ($request->filled('tanggal')) {
+        $query->whereDate('presensi.tgl_presen', $request->tanggal);
+    }
+
+    // Urut terbaru dulu, paginate, dan pertahankan query string
+    $presensis = $query->orderBy('presensi.tgl_presen', 'desc')
+        ->paginate(10)
+        ->appends($request->all());
+
+    // Data dropdown divisi
+    $departements = DB::table('departement')
+        ->select('id_divisi', 'nama_divisi')
+        ->get();
+
+    return view('daftarPresensi', compact('presensis', 'departements'));
+}
 
 
     public function daftarKaryawan(Request $request)
@@ -512,74 +516,74 @@ class PageController extends Controller
         return view('karyawan.dashboard', compact('presensiHariIni', 'riwayat'));
     }
 
-    // =======================
-    // FORM ABSEN MASUK
-    // =======================
-    public function showFormMasuk()
-    {
-        return view('absensi.masuk');
+   // =======================
+// FORM ABSEN MASUK
+// =======================
+public function presensiMasuk(Request $request)
+{
+    $karyawan = session('karyawan');
+    if (!$karyawan) {
+        return redirect()->route('login.form');
     }
 
-    public function presensiMasuk(Request $request)
-    {
-        $karyawan = session('karyawan');
-        if (!$karyawan) {
-            return redirect()->route('login.form');
-        }
+    $tanggal = now('Asia/Jakarta')->toDateString(); // <-- pakai timezone Asia/Jakarta
 
-        $tanggal = now()->toDateString();
+    // Cek apakah sudah absen hari ini
+    $sudahAbsen = DB::table('presensi')
+        ->where('NIK', $karyawan->NIK)
+        ->whereDate('tgl_presen', $tanggal)
+        ->exists();
 
-        // Cek apakah sudah absen hari ini
-        $sudahAbsen = DB::table('presensi')
-            ->where('NIK', $karyawan->NIK)
-            ->whereDate('tgl_presen', $tanggal)
-            ->exists();
+    if ($sudahAbsen) {
+        return redirect()->route('karyawan.dashboard')
+            ->with('warning', 'Anda sudah absen masuk hari ini!');
+    }
 
-        if ($sudahAbsen) {
-            return redirect()->route('karyawan.dashboard')
-                ->with('warning', 'Anda sudah absen masuk hari ini!');
-        }
+    // Simpan data presensi
+    DB::table('presensi')->insert([
+        'NIK'           => $karyawan->NIK,
+        'nama_karyawan' => $karyawan->nama_lengkap,
+        'divisi'        => $karyawan->divisi ?? '-',
+        'tgl_presen'    => $tanggal,
+        'jam_masuk'     => now('Asia/Jakarta')->format('H:i:s'), // <-- pakai WIB
+        'status'        => 'hadir',
+    ]);
 
-        // Simpan data presensi (isi semua kolom penting)
-        DB::table('presensi')->insert([
-            'NIK'           => $karyawan->NIK,
-            'nama_karyawan' => $karyawan->nama ?? $karyawan->nama_karyawan, // sesuaikan field
-            'divisi'        => $karyawan->divisi ?? '-',
-            'tgl_presen'    => $tanggal,
-            'jam_masuk'     => now()->toTimeString(),
-            'status'        => 'hadir',
-            'created_at'    => now(),
-            'updated_at'    => now(),
+    return redirect()->route('karyawan.dashboard')->with('success', 'Absen masuk berhasil!');
+}
+
+// =======================
+// FORM ABSEN KELUAR
+// =======================
+public function presensiKeluar(Request $request)
+{
+    $karyawan = session('karyawan');
+    if (!$karyawan) {
+        return redirect()->route('login.form');
+    }
+
+    DB::table('presensi')
+        ->where('NIK', $karyawan->NIK)
+        ->whereDate('tgl_presen', now('Asia/Jakarta')->toDateString()) // <-- pakai WIB
+        ->update([
+            'jam_keluar' => now('Asia/Jakarta')->format('H:i:s'), // <-- pakai WIB
         ]);
 
-        return redirect()->route('karyawan.dashboard')->with('success', 'Absen masuk berhasil!');
-    }
+    return redirect()->route('karyawan.dashboard')->with('success', 'Absen keluar berhasil!');
+}
 
-    // =======================
-    // FORM ABSEN KELUAR
-    // =======================
-    public function showFormKeluar()
-    {
-        return view('absensi.keluar');
-    }
 
-    public function presensiKeluar(Request $request)
-    {
-        $karyawan = session('karyawan');
-        if (!$karyawan) {
-            return redirect()->route('login.form');
-        }
 
-        DB::table('presensi')
-            ->where('NIK', $karyawan->NIK)
-            ->whereDate('tgl_presen', now()->toDateString())
-            ->update([
-                'jam_keluar' => now()->toTimeString(),
-                'updated_at' => now(),
-            ]);
+public function showFormMasuk()
+{
+    return view('absensi.masuk'); // pastikan file absensi/masuk.blade.php ada
+}
 
-        return redirect()->route('karyawan.dashboard')->with('success', 'Absen keluar berhasil!');
-    }
+public function showFormKeluar()
+{
+    return view('absensi.keluar'); // pastikan file absensi/keluar.blade.php ada
+}
+
 
     public function profil()
 {
@@ -601,4 +605,35 @@ class PageController extends Controller
         'title'    => 'Profile'
     ]);
 }
+
+
+public function editPresensi($id)
+{
+    $presensi = DB::table('presensi')
+        ->join('karyawan', 'presensi.nik', '=', 'karyawan.NIK')
+        ->leftJoin('departement', 'karyawan.id_divisi', '=', 'departement.id_divisi')
+        ->select(
+            'presensi.*',
+            'karyawan.nama_lengkap',
+            'departement.nama_divisi'
+        )
+        ->where('presensi.id_presen', $id)
+        ->first();
+
+    if (!$presensi) {
+        return redirect()->route('daftarPresensi')->with('error', 'Data presensi tidak ditemukan');
+    }
+
+    return view('editPresensi', compact('presensi'));
+}
+
+public function deletePresensi($id)
+{
+    DB::table('presensi')->where('id_presen', $id)->delete();
+
+    return redirect()->route('daftarPresensi')->with('success', 'Data presensi berhasil dihapus');
+}
+
+
+
 }
