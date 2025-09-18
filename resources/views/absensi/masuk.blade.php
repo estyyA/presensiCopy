@@ -57,15 +57,6 @@ document.addEventListener("DOMContentLoaded", function() {
         warning.innerText = "❌ Absensi masuk hanya bisa dilakukan setelah jam 07:30.";
     }
 
-    // Redirect ke dashboard setelah submit berhasil
-    document.getElementById("formMasuk").addEventListener("submit", function(e) {
-        e.preventDefault();
-        this.submit();
-        setTimeout(() => {
-            window.location.href = "{{ route('karyawan.dashboard') }}";
-        }, 500); // delay biar data sempat tersimpan
-    });
-
     // Ambil lokasi user
     if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(showPosition, showError);
