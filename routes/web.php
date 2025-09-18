@@ -65,7 +65,6 @@ Route::post('/karyawan/upload-foto', [KaryawanController::class, 'uploadFoto'])
 Route::get('/karyawan/dashboard', [PageController::class, 'dashboardKaryawan'])
     ->name('karyawan.dashboard');
 
-
 // Dashboard admin
 Route::get('/dashboard', [PageController::class, 'dashboard'])->name('dashboard');
 
