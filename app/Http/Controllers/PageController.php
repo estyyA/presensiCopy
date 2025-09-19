@@ -15,7 +15,6 @@ use App\Karyawan;
 use App\Akun;
 use App\Department;
 use App\Jabatan;
-use App\Absensi;
 use App\CatatanLaporan;
 
 
