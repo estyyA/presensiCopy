@@ -56,13 +56,6 @@
                 <p class="text-muted">Belum ada data presensi</p>
             @endif
         </div>
-
-        {{-- Logout --}}
-        <div class="text-center mt-3">
-            <a href="{{ route('logout') }}" class="btn btn-outline-danger">
-                <i class="bi bi-box-arrow-right"></i> Logout
-            </a>
-        </div>
     </div>
 </div>
 

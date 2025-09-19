@@ -82,7 +82,8 @@
         <a href="{{ url('/laporan') }}" class="nav-link @if(Request::is('laporan*')) active @endif">
             <i class="fa fa-file-alt mr-2"></i> Laporan
         </a>
-        <a href="{{ url('/Presensi') }}" class="nav-link @if(Request::is('Presensi*')) active @endif">
+        <a href="{{ route('admin.presensi.form') }}"
+        class="nav-link @if(Request::is('admin/presensi*')) active @endif">
             <i class="fa fa-clock mr-2"></i> Presensi
         </a>
 
