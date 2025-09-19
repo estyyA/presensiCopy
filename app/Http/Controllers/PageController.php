@@ -605,4 +605,53 @@ public function showFormKeluar()
         'title'    => 'Profile'
     ]);
 }
+
+// Edit Presensi
+public function editPresensi($id)
+{
+    $presensi = DB::table('presensi')
+        ->join('karyawan', 'presensi.NIK', '=', 'karyawan.NIK')
+        ->select('presensi.*', 'karyawan.nama_lengkap')
+        ->where('presensi.id_presen', $id)
+        ->first();
+
+    if (!$presensi) {
+        return redirect()->route('daftarPresensi')->with('error', 'Data presensi tidak ditemukan.');
+    }
+
+    return view('editPresensi', compact('presensi'));
+}
+
+// Hapus Presensi
+public function deletePresensi($id)
+{
+    $deleted = DB::table('presensi')->where('id_presen', $id)->delete();
+
+    if ($deleted) {
+        return redirect()->route('daftarPresensi')->with('success', 'Presensi berhasil dihapus.');
+    } else {
+        return redirect()->route('daftarPresensi')->with('error', 'Presensi gagal dihapus.');
+    }
+}
+
+
+public function updatePresensi(Request $request, $id)
+{
+    $request->validate([
+        'status' => 'required|in:hadir,sakit,izin,alpha',
+    ]);
+
+    DB::table('presensi')
+        ->where('id_presen', $id)
+        ->update([
+            'status'     => $request->status,
+            // 'updated_at' => now(),
+        ]);
+
+    return redirect()->back()->with('success', 'Status presensi berhasil diupdate!');
+}
+
+
+
+
 }
