@@ -14,17 +14,10 @@
         <h5 class="font-weight-bold mb-3">Filter & Pencarian</h5>
         <form method="GET" action="{{ url()->current() }}" class="filter">
             <div class="form-row align-items-center">
-                {{-- Nama Karyawan: input text biasa --}}
+                {{-- Nama Karyawan --}}
                 <div class="col-md-4 mb-2">
-                    <input
-                        type="text"
-                        name="nama"
-                        class="form-control"
-                        placeholder="Ketik nama karyawan (contoh: 'Resty')"
-                        value="{{ request('nama') }}"
-                    >
+                    <input type="text" name="nama" class="form-control" placeholder="Ketik nama karyawan (contoh: 'Resty')" value="{{ request('nama') }}">
                 </div>
-
                 {{-- Divisi --}}
                 <div class="col-md-3 mb-2">
                     <select name="divisi" class="form-control">
@@ -36,12 +29,10 @@
                         @endforeach
                     </select>
                 </div>
-
                 {{-- Tanggal --}}
                 <div class="col-md-3 mb-2">
                     <input type="date" name="tanggal" class="form-control" value="{{ request('tanggal') }}">
                 </div>
-
                 {{-- Tombol Cari --}}
                 <div class="col-md-2 mb-2">
                     <button type="submit" class="btn btn-purple btn-block">
@@ -61,17 +52,18 @@
             <table class="table table-bordered table-hover table-sm">
                 <thead>
                     <tr>
-                        <th class="text-center bg-purple text-white">No</th>
-                        <th class="text-center bg-purple text-white">NIK</th>
-                        <th class="bg-purple text-white">Nama Karyawan</th>
-                        <th class="text-center bg-purple text-white">Divisi</th>
-                        <th class="text-center bg-purple text-white">Tanggal</th>
-                        <th class="text-center bg-purple text-white">Jam Masuk</th>
-                        <th class="text-center bg-purple text-white">Jam Pulang</th>
-                        <th class="text-center bg-purple text-white">Status Kehadiran</th>
-                        <th class="text-center bg-purple text-white">Aksi</th>
+                        <th class="text-center">No</th>
+                        <th class="text-center">NIK</th>
+                        <th>Nama Karyawan</th>
+                        <th class="text-center">Divisi</th>
+                        <th class="text-center">Tanggal</th>
+                        <th class="text-center">Jam Masuk</th>
+                        <th class="text-center">Jam Keluar</th>
+                        <th class="text-center">Status</th>
+                        <th class="text-center">Aksi</th>
                     </tr>
                 </thead>
+
                 <tbody>
                     @forelse($presensis as $i => $p)
                         <tr>
@@ -94,10 +86,15 @@
                                 @endif
                             </td>
                             <td class="text-center action-btns">
-                                {{-- ganti route jika beda nama, atau hapus jika belum ada --}}
-                                <a href="{{ route('presensi.edit', $p->id_presen) }}" class="btn btn-warning btn-sm" title="Edit">
+                                {{-- Tombol Edit (Modal) --}}
+                                <button type="button"
+                                        class="btn btn-warning btn-sm btn-edit-presensi"
+                                        title="Edit"
+                                        data-presen='@json($p)'>
                                     <i class="fa fa-edit"></i>
-                                </a>
+                                </button>
+
+                                {{-- Tombol Hapus --}}
                                 <form action="{{ route('presensi.destroy', $p->id_presen) }}" method="POST" style="display:inline-block;" onsubmit="return confirm('Yakin ingin menghapus presensi ini?');">
                                     @csrf
                                     @method('DELETE')
@@ -120,6 +117,51 @@
         </div>
     </div>
 </div>
+
+{{-- Modal Edit Presensi --}}
+<div class="modal fade" id="editPresensiModal" tabindex="-1" role="dialog" aria-labelledby="editPresensiLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <form method="POST" id="editPresensiForm">
+            @csrf
+            @method('PUT')
+            <div class="modal-content">
+                <div class="modal-header bg-purple text-white">
+                    <h5 class="modal-title" id="editPresensiLabel">Edit Presensi</h5>
+                    <button type="button" class="close text-white" data-bs-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" name="id_presen" id="id_presen">
+
+                    <div class="mb-3">
+                        <label for="jam_masuk">Jam Masuk</label>
+                        <input type="time" class="form-control" name="jam_masuk" id="jam_masuk" disabled>
+                    </div>
+                    <div class="mb-3">
+                        <label for="jam_keluar">Jam Keluar</label>
+                        <input type="time" class="form-control" name="jam_keluar" id="jam_keluar" disabled>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="status">Status Kehadiran</label>
+                        <select name="status" id="status" class="form-control" required>
+                            <option value="hadir">Hadir</option>
+                            <option value="sakit">Sakit</option>
+                            <option value="izin">Izin</option>
+                            <option value="alpha">Alpha</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                    <button type="submit" class="btn btn-purple">Simpan</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
 @endsection
 
 @push('styles')
@@ -138,4 +180,23 @@
         .action-btns .btn { width: 34px; height: 34px; }
     }
 </style>
+@endpush
+
+@push('scripts')
+<script>
+    // Tombol Edit Presensi
+    $('.btn-edit-presensi').click(function() {
+        let presen = $(this).data('presen');
+        $('#id_presen').val(presen.id_presen);
+        $('#jam_masuk').val(presen.jam_masuk);
+        $('#jam_keluar').val(presen.jam_keluar);
+        $('#status').val(presen.status);
+
+        $('#editPresensiForm').attr('action', '/presensi/' + presen.id_presen);
+
+        $('#editPresensiModal').modal('show');
+    });
+
+</script>
+
 @endpush
