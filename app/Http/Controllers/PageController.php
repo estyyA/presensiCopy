@@ -184,9 +184,12 @@ class PageController extends Controller
         ];
 
         if ($request->hasFile('foto')) {
-            $fotoPath = $request->file('foto')->store('foto', 'public');
-            $dataUpdate['foto'] = $fotoPath;
-        }
+    $foto = $request->file('foto');
+    $namaFile = time() . '_' . $foto->getClientOriginalName();
+    $foto->move(public_path('uploads'), $namaFile);
+    $dataUpdate['foto'] = $namaFile; // simpan nama file ke DB
+    }
+
 
         DB::table('karyawan')->where('NIK', $NIK)->update($dataUpdate);
 
@@ -535,27 +538,29 @@ class PageController extends Controller
     // DASHBOARD KARYAWAN
     // =======================
     public function dashboardKaryawan()
-    {
-        $karyawan = session('karyawan');
-        if (!$karyawan) {
-            return redirect()->route('login.form');
-        }
-
-        $nik = $karyawan->NIK;
-
-        $presensiHariIni = DB::table('presensi')
-            ->where('NIK', $nik)
-            ->whereDate('tgl_presen', now()->toDateString())
-            ->first();
-
-        $riwayat = DB::table('presensi')
-            ->where('NIK', $nik)
-            ->orderBy('tgl_presen', 'desc')
-            ->limit(7)
-            ->get();
-
-        return view('karyawan.dashboard', compact('presensiHariIni', 'riwayat'));
+{
+    $karyawan = session('karyawan'); // ambil dari session
+    if (!$karyawan) {
+        return redirect()->route('login.form');
     }
+
+    $nik = $karyawan->NIK;
+
+    $presensiHariIni = DB::table('presensi')
+        ->where('NIK', $nik)
+        ->whereDate('tgl_presen', now()->toDateString())
+        ->first();
+
+    $riwayat = DB::table('presensi')
+        ->where('NIK', $nik)
+        ->orderBy('tgl_presen', 'desc')
+        ->limit(7)
+        ->get();
+
+    // 🔑 kirim $karyawan ke view
+    return view('karyawan.dashboard', compact('karyawan', 'presensiHariIni', 'riwayat'));
+}
+
 
    // =======================
 // FORM ABSEN MASUK
