@@ -81,6 +81,8 @@
                                     <span class="badge badge-info">Sakit</span>
                                 @elseif(strtolower($p->status) == 'izin')
                                     <span class="badge badge-warning">Izin</span>
+                                @elseif(strtolower($p->status) == 'cuti')
+                                    <span class="badge badge-primary">Cuti</span>
                                 @else
                                     <span class="badge badge-danger">Alpha</span>
                                 @endif
@@ -149,6 +151,7 @@
                             <option value="hadir">Hadir</option>
                             <option value="sakit">Sakit</option>
                             <option value="izin">Izin</option>
+                            <option value="cuti">Cuti</option> {{-- ✅ tambahan --}}
                             <option value="alpha">Alpha</option>
                         </select>
                     </div>
@@ -187,16 +190,20 @@
     // Tombol Edit Presensi
     $('.btn-edit-presensi').click(function() {
         let presen = $(this).data('presen');
+
         $('#id_presen').val(presen.id_presen);
         $('#jam_masuk').val(presen.jam_masuk);
         $('#jam_keluar').val(presen.jam_keluar);
-        $('#status').val(presen.status);
 
+        // Normalisasi status -> lowercase + trim
+        let status = (presen.status || '').toLowerCase().trim();
+        $('#status').val(status);
+
+        // set action form sesuai id presensi
         $('#editPresensiForm').attr('action', '/presensi/' + presen.id_presen);
 
         $('#editPresensiModal').modal('show');
     });
-
 </script>
-
 @endpush
+
