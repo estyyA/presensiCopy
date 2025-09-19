@@ -9,23 +9,22 @@
             <div class="row">
                 <!-- Kolom Foto -->
                 <div class="col-md-4 text-center">
-                    @if($karyawan->foto && file_exists(public_path('storage/'.$karyawan->foto)))
-                    <img src="{{ asset('storage/'.$karyawan->foto) }}"
-                         alt="Foto Karyawan"
-                         class="img-fluid rounded-circle shadow-sm mb-3"
-                         style="max-width: 200px;">
-                @else
-                    <div class="bg-light rounded-circle d-flex align-items-center justify-content-center shadow-sm mb-3"
-                         style="width: 200px; height: 200px; margin: auto;">
-                        <span class="text-muted">Tidak ada foto</span>
-                    </div>
-                @endif
+                    @if($karyawan->foto)
+                        <img src="{{ asset('uploads/' . $karyawan->foto) }}"
+                             alt="Foto {{ $karyawan->nama_lengkap }}"
+                             class="img-fluid rounded-circle shadow-sm mb-3"
+                             style="max-width: 200px; max-height:200px; object-fit:cover;">
+                    @else
+                        <div class="bg-light rounded-circle d-flex align-items-center justify-content-center shadow-sm mb-3"
+                             style="width: 200px; height: 200px; margin: auto;">
+                            <span class="text-muted">Tidak ada foto</span>
+                        </div>
+                    @endif
                     <h4 class="fw-bold">{{ $karyawan->nama_lengkap }}</h4>
                     <p class="text-muted">
                         Jabatan: {{ $karyawan->nama_jabatan ?? '-' }} <br>
                         Role: {{ ucfirst($karyawan->role) }}
                     </p>
-
                 </div>
 
                 <!-- Kolom Detail -->
