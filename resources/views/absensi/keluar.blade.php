@@ -48,14 +48,9 @@ document.addEventListener("DOMContentLoaded", function() {
     let mm = String(now.getMinutes()).padStart(2, '0');
     inputJam.value = `${hh}:${mm}`;
 
-    // Cek apakah sudah lewat jam 15:30
-    if (now.getHours() > 15 || (now.getHours() === 15 && now.getMinutes() >= 30)) {
-        btnKeluar.disabled = false;
-        warning.innerText = "";
-    } else {
-        btnKeluar.disabled = true;
-        warning.innerText = "❌ Absensi keluar hanya bisa dilakukan setelah jam 15:30.";
-    }
+    // Izinkan absen keluar kapan saja (hapus batasan jam 15:30)
+    btnKeluar.disabled = false;
+    warning.innerText = "";
 
     // Ambil lokasi user
     if (navigator.geolocation) {
