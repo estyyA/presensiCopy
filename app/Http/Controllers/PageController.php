@@ -651,7 +651,15 @@ public function updatePresensi(Request $request, $id)
     return redirect()->back()->with('success', 'Status presensi berhasil diupdate!');
 }
 
+public function showPresensiAdmin()
+{
+    $riwayat = DB::table('presensi')
+        ->orderBy('tgl_presen', 'desc')
+        ->take(10) // ambil 10 riwayat terakhir
+        ->get();
 
+    return view('admin.presensi', compact('riwayat'));
+}
 
 
 }
