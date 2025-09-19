@@ -390,29 +390,7 @@ class PageController extends Controller
         return view('PresensiKaryawan');
     }
 
-    public function getData($startDate = null, $endDate = null)
-    {
-        $query = DB::table('presensi')
-            ->join('karyawan', 'presensi.NIK', '=', 'karyawan.NIK')
-            ->leftJoin('departement', 'karyawan.id_divisi', '=', 'departement.id_divisi')
-            ->select(
-                'karyawan.NIK as nik',
-                'karyawan.nama_lengkap as nama',
-                'departement.nama_divisi as divisi',
-                DB::raw('COUNT(DISTINCT presensi.tgl_presen) as total_hari'),
-                DB::raw('SUM(CASE WHEN presensi.status = "hadir" THEN 1 ELSE 0 END) as hadir'),
-                DB::raw('SUM(CASE WHEN presensi.status = "sakit" THEN 1 ELSE 0 END) as sakit'),
-                DB::raw('SUM(CASE WHEN presensi.status = "izin" THEN 1 ELSE 0 END) as izin'),
-                DB::raw('SUM(CASE WHEN presensi.status = "alpha" THEN 1 ELSE 0 END) as alpha')
-            )
-            ->groupBy('karyawan.NIK', 'karyawan.nama_lengkap', 'departement.nama_divisi');
 
-        if ($startDate && $endDate) {
-            $query->whereBetween('presensi.tgl_presen', [$startDate, $endDate]);
-        }
-
-        return $query->get();
-    }
 
  /** ---------------- LAPORAN ---------------- */
  public function laporan(Request $request)
@@ -424,6 +402,31 @@ class PageController extends Controller
 
      return view('laporan', compact('data', 'catatan'));
  }
+
+ private function getData($mulai = null, $sampai = null)
+ {
+     $query = DB::table('karyawan')
+         ->leftJoin('presensi', 'karyawan.nik', '=', 'presensi.nik')
+         ->select(
+             'karyawan.nik',
+             'karyawan.nama_lengkap as nama', // ✅ gunakan nama_lengkap
+             'karyawan.id_divisi as divisi',  // ✅ karena tidak ada kolom divisi, pakai id_divisi
+             DB::raw('COUNT(DISTINCT presensi.tgl_presen) as total_hari'),
+             DB::raw('SUM(CASE WHEN presensi.status = "hadir" THEN 1 ELSE 0 END) as hadir'),
+             DB::raw('SUM(CASE WHEN presensi.status = "sakit" THEN 1 ELSE 0 END) as sakit'),
+             DB::raw('SUM(CASE WHEN presensi.status = "izin" THEN 1 ELSE 0 END) as izin'),
+             DB::raw('SUM(CASE WHEN presensi.status = "cuti" THEN 1 ELSE 0 END) as cuti'),
+             DB::raw('SUM(CASE WHEN presensi.status = "alpha" THEN 1 ELSE 0 END) as alpha')
+         )
+         ->groupBy('karyawan.nik', 'karyawan.nama_lengkap', 'karyawan.id_divisi'); // ✅ sesuaikan kolom
+
+     if ($mulai && $sampai) {
+         $query->whereBetween('presensi.tgl_presen', [$mulai, $sampai]);
+     }
+
+     return $query->get();
+ }
+
 
  public function cetakPdf(Request $request)
  {
@@ -439,46 +442,47 @@ class PageController extends Controller
  }
 
  public function exportExcel(Request $request)
- {
-     $data = $this->getData($request->mulai, $request->sampai);
-     $catatan = CatatanLaporan::pluck('catatan', 'nik')->toArray();
+{
+    $data = $this->getData($request->mulai, $request->sampai);
+    $catatan = CatatanLaporan::pluck('catatan', 'nik')->toArray();
 
-     return Excel::download(new class($data, $catatan) implements \Maatwebsite\Excel\Concerns\FromCollection {
-         private $data;
-         private $catatan;
+    return Excel::download(new class($data, $catatan) implements \Maatwebsite\Excel\Concerns\FromCollection {
+        private $data;
+        private $catatan;
 
-         public function __construct($data, $catatan)
-         {
-             $this->data = $data;
-             $this->catatan = $catatan;
-         }
+        public function __construct($data, $catatan)
+        {
+            $this->data = $data;
+            $this->catatan = $catatan;
+        }
 
-         public function collection()
-         {
-             $header = collect([[
-                 'NIK','Nama','Divisi','Total Hari Kerja',
-                 'Jumlah Hadir','Jumlah Sakit','Jumlah Izin',
-                 'Jumlah Alpha','Catatan'
-             ]]);
+        public function collection()
+        {
+            $header = collect([[
+                'NIK','Nama','Divisi','Total Hari Kerja',
+                'Jumlah Hadir','Jumlah Sakit','Jumlah Izin',
+                'Jumlah Cuti','Jumlah Alpha','Catatan' // ✅ tambah cuti
+            ]]);
 
-             $rows = $this->data->map(function ($row) {
-                 return [
-                     $row->nik,
-                     $row->nama,
-                     $row->divisi ?? '-',
-                     $row->total_hari,
-                     $row->hadir,
-                     $row->sakit,
-                     $row->izin,
-                     $row->alpha,
-                     $this->catatan[$row->nik] ?? '-',
-                 ];
-             });
+            $rows = $this->data->map(function ($row) {
+                return [
+                    $row->nik,
+                    $row->nama,
+                    $row->divisi ?? '-',
+                    $row->total_hari,
+                    $row->hadir,
+                    $row->sakit,
+                    $row->izin,
+                    $row->cuti,   // ✅ tampilkan cuti
+                    $row->alpha,
+                    $this->catatan[$row->nik] ?? '-',
+                ];
+            });
 
-             return $header->merge($rows);
-         }
-     }, 'laporan.xlsx');
- }
+            return $header->merge($rows);
+        }
+    }, 'laporan.xlsx');
+}
 
 
     public function simpanCatatan(Request $request)
