@@ -44,8 +44,8 @@
                                 @if($presensi->jam_masuk)
                                     Masuk: {{ $presensi->jam_masuk }}
                                 @endif
-                                @if($presensi->jam_pulang)
-                                    , Pulang: {{ $presensi->jam_pulang }}
+                                @if($presensi->jam_keluar)
+                                    , Pulang: {{ $presensi->jam_keluar }}
                                 @endif
                             </span>
                             <span>{{ $presensi->status }}</span>
