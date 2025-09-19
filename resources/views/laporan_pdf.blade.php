@@ -40,6 +40,7 @@
                 <th>Jumlah Sakit</th>
                 <th>Jumlah Izin</th>
                 <th>Jumlah Alpha</th>
+                <th>Catatan</th>
             </tr>
         </thead>
         <tbody>
@@ -54,6 +55,7 @@
                     <td>{{ $row->sakit }}</td>
                     <td>{{ $row->izin }}</td>
                     <td>{{ $row->alpha }}</td>
+                    <td>{{ $catatan[$row->nik] ?? '-' }}</td>
                 </tr>
             @endforeach
         </tbody>
