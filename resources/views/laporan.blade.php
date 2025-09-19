@@ -74,6 +74,7 @@
                             <th>Jumlah Hadir</th>
                             <th>Jumlah Sakit</th>
                             <th>Jumlah Izin</th>
+                            <th>Jumlah Cuti</th> {{-- 🔥 Tambah kolom cuti --}}
                             <th>Jumlah Alpha</th>
                             <th>Catatan</th>
                         </tr>
@@ -89,6 +90,7 @@
                                 <td>{{ $row->hadir }}</td>
                                 <td>{{ $row->sakit }}</td>
                                 <td>{{ $row->izin }}</td>
+                                <td>{{ $row->cuti }}</td> {{-- 🔥 Tampilkan jumlah cuti --}}
                                 <td>{{ $row->alpha }}</td>
                                 <td>
                                     <textarea name="catatan[{{ $row->nik }}]"
@@ -99,7 +101,7 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="10" style="color: #777;">Tidak ada data presensi</td>
+                                <td colspan="11" style="color: #777;">Tidak ada data presensi</td>
                             </tr>
                         @endforelse
                     </tbody>
