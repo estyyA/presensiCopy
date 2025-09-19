@@ -20,35 +20,86 @@ use App\CatatanLaporan;
 
 
 
+
 class PageController extends Controller
 {
     /** ---------------- DASHBOARD ---------------- */
     public function dashboard()
     {
-        // Ambil data karyawan dari session
-        $karyawan = session('karyawan');
-
-        // Hitung total karyawan
         $totalKaryawan = DB::table('karyawan')->count();
 
-        // Hitung presensi hari ini
-        $today = now()->toDateString();
-
-        $karyawanMasuk = DB::table('presensi')
-            ->whereDate('tgl_presen', $today)  // ubah ke tgl_presen
+        // ================= Harian =================
+        $harianMasuk = DB::table('presensi')
+            ->whereDate('tgl_presen', Carbon::today())
             ->where('status', 'hadir')
             ->count();
 
-        $karyawanIzin = DB::table('presensi')
-            ->whereDate('tgl_presen', $today)  // ubah ke tgl_presen
-            ->whereIn('status', ['izin', 'cuti'])
+        $harianIzinSakit = DB::table('presensi')
+            ->whereDate('tgl_presen', Carbon::today())
+            ->whereIn('status', ['izin', 'sakit'])
+            ->count();
+
+        $harianCuti = DB::table('presensi')
+            ->whereDate('tgl_presen', Carbon::today())
+            ->where('status', 'cuti')
+            ->count();
+
+        $harianAlpha = DB::table('presensi')
+            ->whereDate('tgl_presen', Carbon::today())
+            ->where('status', 'alpha')
+            ->count();
+
+        // ================= Mingguan =================
+        $mingguanMasuk = DB::table('presensi')
+            ->whereBetween('tgl_presen', [Carbon::now()->startOfWeek(), Carbon::now()->endOfWeek()])
+            ->where('status', 'hadir')
+            ->count();
+
+        $mingguanIzinSakit = DB::table('presensi')
+            ->whereBetween('tgl_presen', [Carbon::now()->startOfWeek(), Carbon::now()->endOfWeek()])
+            ->whereIn('status', ['izin', 'sakit'])
+            ->count();
+
+        $mingguanCuti = DB::table('presensi')
+            ->whereBetween('tgl_presen', [Carbon::now()->startOfWeek(), Carbon::now()->endOfWeek()])
+            ->where('status', 'cuti')
+            ->count();
+
+        $mingguanAlpha = DB::table('presensi')
+            ->whereBetween('tgl_presen', [Carbon::now()->startOfWeek(), Carbon::now()->endOfWeek()])
+            ->where('status', 'alpha')
+            ->count();
+
+        // ================= Bulanan =================
+        $bulananMasuk = DB::table('presensi')
+            ->whereMonth('tgl_presen', Carbon::now()->month)
+            ->whereYear('tgl_presen', Carbon::now()->year)
+            ->where('status', 'hadir')
+            ->count();
+
+        $bulananIzinSakit = DB::table('presensi')
+            ->whereMonth('tgl_presen', Carbon::now()->month)
+            ->whereYear('tgl_presen', Carbon::now()->year)
+            ->whereIn('status', ['izin', 'sakit'])
+            ->count();
+
+        $bulananCuti = DB::table('presensi')
+            ->whereMonth('tgl_presen', Carbon::now()->month)
+            ->whereYear('tgl_presen', Carbon::now()->year)
+            ->where('status', 'cuti')
+            ->count();
+
+        $bulananAlpha = DB::table('presensi')
+            ->whereMonth('tgl_presen', Carbon::now()->month)
+            ->whereYear('tgl_presen', Carbon::now()->year)
+            ->where('status', 'alpha')
             ->count();
 
         return view('dashboard', compact(
-            'karyawan',
             'totalKaryawan',
-            'karyawanMasuk',
-            'karyawanIzin'
+            'harianMasuk', 'harianIzinSakit', 'harianCuti', 'harianAlpha',
+            'mingguanMasuk', 'mingguanIzinSakit', 'mingguanCuti', 'mingguanAlpha',
+            'bulananMasuk', 'bulananIzinSakit', 'bulananCuti', 'bulananAlpha'
         ));
     }
 
@@ -667,7 +718,6 @@ public function editPresensi($id)
 
     return view('editPresensi', compact('presensi'));
 }
-
 // Hapus Presensi
 public function deletePresensi($id)
 {
@@ -684,13 +734,13 @@ public function deletePresensi($id)
 public function updatePresensi(Request $request, $id)
 {
     $request->validate([
-        'status' => 'required|in:hadir,sakit,izin,alpha',
+        'status' => 'required|in:hadir,sakit,izin,cuti,alpha',
     ]);
 
     DB::table('presensi')
         ->where('id_presen', $id)
         ->update([
-            'status'     => $request->status,
+            'status' => strtolower(trim($request->status)), // normalisasi
             // 'updated_at' => now(),
         ]);
 
