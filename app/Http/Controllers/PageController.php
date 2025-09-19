@@ -650,6 +650,7 @@ public function presensiMasuk(Request $request)
         'divisi'        => $karyawan->divisi ?? '-',
         'tgl_presen'    => $tanggal,
         'jam_masuk'     => now('Asia/Jakarta')->format('H:i:s'), // <-- pakai WIB
+        'lokasi_masuk'  => $request->lokasi_masuk ?? null,
         'status'        => 'hadir',
     ]);
 
@@ -671,6 +672,7 @@ public function presensiKeluar(Request $request)
         ->whereDate('tgl_presen', now('Asia/Jakarta')->toDateString()) // <-- pakai WIB
         ->update([
             'jam_keluar' => now('Asia/Jakarta')->format('H:i:s'), // <-- pakai WIB
+            'lokasi_keluar' => $request->lokasi_keluar ?? null,
         ]);
 
     return redirect()->route('karyawan.dashboard')->with('success', 'Absen keluar berhasil!');

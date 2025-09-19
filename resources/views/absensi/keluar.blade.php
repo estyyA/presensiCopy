@@ -22,6 +22,7 @@
             <label for="jam_keluar" class="form-label fw-semibold">Jam Keluar</label>
             <input type="time" name="jam_keluar" id="jam_keluar" class="form-control" required>
         </div>
+        <input type="hidden" name="lokasi_keluar" id="lokasi_keluar">
 
         <!-- Tombol Absen -->
         <button type="submit" id="btnKeluar" class="btn btn-danger btn-lg w-100" disabled>
@@ -64,18 +65,26 @@ function showPosition(position) {
     let lat = position.coords.latitude;
     let lon = position.coords.longitude;
 
+    // Tampilkan peta
     let mapFrame = document.getElementById("map-frame");
     mapFrame.src = `https://www.google.com/maps?q=${lat},${lon}&hl=id&z=17&output=embed`;
 
+    // Ambil alamat (reverse geocoding pakai OpenStreetMap)
     fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}`)
         .then(response => response.json())
         .then(data => {
-            document.getElementById("alamat").innerText = data.display_name || "Alamat tidak ditemukan";
+            let alamat = data.display_name || "Alamat tidak ditemukan";
+            document.getElementById("alamat").innerText = alamat;
+
+            // Simpan alamat + koordinat di input hidden
+            document.getElementById("lokasi_masuk").value = `${alamat} | ${lat},${lon}`;
         })
         .catch(() => {
             document.getElementById("alamat").innerText = "Gagal memuat alamat";
+            document.getElementById("lokasi_masuk").value = `${lat},${lon}`;
         });
 }
+
 
 function showError(error) {
     document.getElementById("alamat").innerText = "Tidak bisa mendapatkan lokasi.";

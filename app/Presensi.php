@@ -14,7 +14,9 @@ class Presensi extends Model
         'NIK',
         'tgl_presen',
         'jam_masuk',
+        'lokasi_masuk',
         'jam_keluar',
+        'lokasi_keluar',
         'status',
     ];
 

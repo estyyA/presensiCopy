@@ -115,20 +115,41 @@ setInterval(updateClock, 1000);
     </div>
 </div>
 
-<!-- Riwayat Presensi -->
+<!-- Tabel Riwayat Presensi -->
 <div class="card p-3">
-    <h6 class="fw-bold">Attendance History</h6>
-    <ul class="list-unstyled mt-2 mb-0">
-        @forelse($riwayat as $item)
-            <li class="d-flex justify-content-between small border-bottom py-2 {{ $item->jam_masuk > '08:30:00' ? 'text-danger' : '' }}">
-                <span>{{ \Carbon\Carbon::parse($item->tgl_presen)->format('D, d F Y') }}</span>
-                <span>{{ $item->jam_masuk ?? '--:--' }} - {{ $item->jam_keluar ?? '--:--' }}</span>
-            </li>
-        @empty
-            <li class="text-muted text-center py-2">Belum ada data presensi</li>
-        @endforelse
-    </ul>
+    <h6 class="fw-bold mb-3">Riwayat Presensi</h6>
+    <div class="table-responsive">
+        <table class="table table-bordered table-striped">
+            <thead class="table-light">
+                <tr>
+                    <th>Tanggal</th>
+                    <th>Jam Masuk</th>
+                    <th>Lokasi Masuk</th>
+                    <th>Jam Keluar</th>
+                    <th>Lokasi Keluar</th>
+                </tr>
+            </thead>
+            <tbody>
+                @forelse($riwayat as $item)
+                    <tr class="{{ $item->jam_masuk > '08:30:00' ? 'bg-primary text-white' : '' }}">
+                        <td>{{ \Carbon\Carbon::parse($item->tgl_presen)->format('D, d F Y') }}</td>
+                        <td>{{ $item->jam_masuk ?? '--:--' }}</td>
+                        <td>{{ $item->lokasi_masuk ?? '-' }}</td>
+                        <td>{{ $item->jam_keluar ?? '--:--' }}</td>
+                        <td>{{ $item->lokasi_keluar ?? '-' }}</td>
+                    </tr>
+                @empty
+                    <tr>
+                        <td colspan="5" class="text-center text-muted">Belum ada data presensi</td>
+                    </tr>
+                @endforelse
+            </tbody>
+        </table>
+    </div>
 </div>
+
+
+
 
 
 <!-- Tombol Logout -->

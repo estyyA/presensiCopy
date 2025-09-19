@@ -1,31 +1,34 @@
-@extends('layout.master')
+@extends('layout.karyawan')
 
 @section('content')
 <div class="d-flex justify-content-center mt-5">
-    <div class="card shadow-lg p-4" style="width: 500px; border-radius: 15px;">
+    <div class="card shadow-lg p-4" style="width: 500px; border-radius: 15px; background-color: #e0f0ff;">
         <h5 class="text-center fw-bold mb-3">Absensi Pulang</h5>
 
         {{-- Peta Lokasi --}}
-        <div class="mb-3">
-            <iframe
-                src="https://www.google.com/maps?q=-7.7707,110.3776&hl=es;z=14&output=embed"
-                width="100%" height="250" style="border-radius: 10px;" allowfullscreen="" loading="lazy">
+        <div class="mb-3" id="map-container">
+            <iframe id="map-frame"
+                width="100%" height="250"
+                style="border-radius: 10px;"
+                allowfullscreen="" loading="lazy">
             </iframe>
             <p class="mt-2">
-                <strong>Lokasi Anda:</strong>
-                Jalan Karangwaru Lor, Karangwaru, Tegalrejo, Yogyakarta, Depok, Yogyakarta, Indonesia
+                <strong>Lokasi Anda:</strong> <span id="alamat">Mencari lokasi...</span>
             </p>
         </div>
 
         {{-- Jam Pulang --}}
-        <form method="POST" action="{{ route('admin.presensi.submit') }}">
+        <form id="formKeluar" method="POST" action="{{ url('/absensi/keluar') }}">
             @csrf
             <div class="mb-3">
                 <label class="form-label">Jam Pulang</label>
-                <input type="text" class="form-control" value="{{ now()->format('H:i A') }}" readonly>
+                <input type="time" name="jam_keluar" id="jam_keluar" class="form-control" required>
             </div>
 
-            <button type="submit" name="tipe" value="keluar" class="btn btn-danger w-100">
+            {{-- Hidden input untuk lokasi --}}
+            <input type="hidden" name="lokasi_keluar" id="lokasi_keluar">
+
+            <button type="submit" id="btnKeluar" class="btn btn-primary w-100">
                 🚪 Absen Pulang
             </button>
         </form>
@@ -35,4 +38,48 @@
         </div>
     </div>
 </div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    let inputJam = document.getElementById("jam_keluar");
+    let now = new Date();
+    let hh = String(now.getHours()).padStart(2, '0');
+    let mm = String(now.getMinutes()).padStart(2, '0');
+    inputJam.value = `${hh}:${mm}`;
+
+    // Ambil lokasi user
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(showPosition, showError);
+    } else {
+        document.getElementById("alamat").innerText = "Geolocation tidak didukung browser.";
+        document.getElementById("lokasi_keluar").value = "Geolocation tidak didukung";
+    }
+});
+
+function showPosition(position) {
+    let lat = position.coords.latitude;
+    let lon = position.coords.longitude;
+
+    // Tampilkan peta
+    document.getElementById("map-frame").src = `https://www.google.com/maps?q=${lat},${lon}&hl=id&z=17&output=embed`;
+
+    // Ambil alamat lengkap (reverse geocoding)
+    fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}`)
+        .then(response => response.json())
+        .then(data => {
+            let alamat = data.display_name || "Alamat tidak ditemukan";
+            document.getElementById("alamat").innerText = alamat;
+            document.getElementById("lokasi_keluar").value = `${alamat} (${lat}, ${lon})`;
+        })
+        .catch(() => {
+            document.getElementById("alamat").innerText = "Gagal memuat alamat";
+            document.getElementById("lokasi_keluar").value = `(${lat}, ${lon})`;
+        });
+}
+
+function showError(error) {
+    document.getElementById("alamat").innerText = "Tidak bisa mendapatkan lokasi.";
+    document.getElementById("lokasi_keluar").value = "Lokasi tidak tersedia";
+}
+</script>
 @endsection
