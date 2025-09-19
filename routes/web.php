@@ -115,3 +115,7 @@ Route::get('/presensi/{id}/edit', [PageController::class, 'editPresensi'])->name
 
 // Hapus Presensi
 Route::delete('/presensi/{id}', [PageController::class, 'deletePresensi'])->name('presensi.destroy');
+
+// Edit Presensi sudah ada GET untuk modal, tambahkan PUT untuk update
+Route::put('/presensi/{id}', [PageController::class, 'updatePresensi'])->name('presensi.update');
+
