@@ -16,6 +16,7 @@ use App\Akun;
 use App\Department;
 use App\Jabatan;
 use App\Absensi;
+use App\CatatanLaporan;
 
 
 
@@ -352,51 +353,91 @@ class PageController extends Controller
         return $query->get();
     }
 
+ /** ---------------- LAPORAN ---------------- */
+ public function laporan(Request $request)
+ {
+     $data = $this->getData($request->mulai, $request->sampai);
 
-    public function laporan(Request $request)
+     // Ambil catatan yang sudah ada berdasarkan NIK
+     $catatan = CatatanLaporan::pluck('catatan', 'nik')->toArray();
+
+     return view('laporan', compact('data', 'catatan'));
+ }
+
+ public function cetakPdf(Request $request)
+ {
+     $data = $this->getData($request->mulai, $request->sampai);
+     $catatan = CatatanLaporan::pluck('catatan', 'nik')->toArray();
+
+     $pdf  = PDF::loadView('laporan_pdf', [
+         'data'    => $data,
+         'catatan' => $catatan
+     ]);
+
+     return $pdf->download('laporan.pdf');
+ }
+
+ public function exportExcel(Request $request)
+ {
+     $data = $this->getData($request->mulai, $request->sampai);
+     $catatan = CatatanLaporan::pluck('catatan', 'nik')->toArray();
+
+     return Excel::download(new class($data, $catatan) implements \Maatwebsite\Excel\Concerns\FromCollection {
+         private $data;
+         private $catatan;
+
+         public function __construct($data, $catatan)
+         {
+             $this->data = $data;
+             $this->catatan = $catatan;
+         }
+
+         public function collection()
+         {
+             $header = collect([[
+                 'NIK','Nama','Divisi','Total Hari Kerja',
+                 'Jumlah Hadir','Jumlah Sakit','Jumlah Izin',
+                 'Jumlah Alpha','Catatan'
+             ]]);
+
+             $rows = $this->data->map(function ($row) {
+                 return [
+                     $row->nik,
+                     $row->nama,
+                     $row->divisi ?? '-',
+                     $row->total_hari,
+                     $row->hadir,
+                     $row->sakit,
+                     $row->izin,
+                     $row->alpha,
+                     $this->catatan[$row->nik] ?? '-',
+                 ];
+             });
+
+             return $header->merge($rows);
+         }
+     }, 'laporan.xlsx');
+ }
+
+
+    public function simpanCatatan(Request $request)
     {
-        $data = $this->getData($request->mulai, $request->sampai);
-        return view('laporan', compact('data'));
-    }
+        try {
+            $catatan = $request->input('catatan', []);
 
-    public function cetakPdf()
-    {
-        $data = $this->getData();
-        $pdf  = PDF::loadView('laporan_pdf', ['data' => $data]);
-        return $pdf->download('laporan.pdf');
-    }
-
-    public function exportExcel()
-    {
-        $data = $this->getData();
-
-        return Excel::download(new class($data) implements \Maatwebsite\Excel\Concerns\FromCollection {
-            private $data;
-
-            public function __construct($data)
-            {
-                $this->data = $data;
+            foreach ($catatan as $nik => $teks) {
+                if (!empty($teks)) {
+                    DB::table('catatan_laporan')->updateOrInsert(
+                        ['nik' => $nik],
+                        ['catatan' => $teks, 'updated_at' => now()]
+                    );
+                }
             }
 
-            public function collection()
-            {
-                $header = collect([['NIK','Nama','Divisi','Total Hari Kerja','Jumlah Hadir','Jumlah Sakit','Jumlah Cuti']]);
-
-                $rows = $this->data->map(function ($row) {
-                    return [
-                        $row['nik'],
-                        $row['nama'],
-                        $row['divisi'],
-                        0,
-                        $row['hadir'],
-                        $row['sakit'],
-                        $row['cuti'],
-                    ];
-                });
-
-                return $header->merge($rows);
-            }
-        }, 'laporan.xlsx');
+            return redirect()->route('laporan')->with('success', 'Catatan berhasil disimpan!');
+        } catch (\Exception $e) {
+            return redirect()->route('laporan')->with('error', 'Gagal menyimpan catatan: ' . $e->getMessage());
+        }
     }
 
     /** ---------------- LOGOUT ---------------- */
