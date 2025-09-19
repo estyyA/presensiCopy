@@ -74,19 +74,24 @@ document.getElementById('inputFoto').addEventListener('change', function(e) {
 function updateClock() {
     let now = new Date();
 
-    // Format waktu (hh:mm AM/PM)
+    // Format waktu (hh:mm:ss AM/PM)
     let hours = now.getHours();
     let minutes = now.getMinutes();
+    let seconds = now.getSeconds();
     let ampm = hours >= 12 ? 'PM' : 'AM';
     hours = hours % 12 || 12;
-    let timeString = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')} ${ampm}`;
 
+    let timeString = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')} ${ampm}`;
     document.getElementById('liveClock').textContent = timeString;
 
-    // Format tanggal (Wed, 17 September 2025)
+    // Format tanggal (Fri, 19 September 2025)
     let options = { weekday: 'short', year: 'numeric', month: 'long', day: 'numeric' };
     document.getElementById('liveDate').textContent = now.toLocaleDateString('en-US', options);
 }
+
+updateClock();
+setInterval(updateClock, 1000);
+
 
 updateClock();
 setInterval(updateClock, 1000);
@@ -123,6 +128,7 @@ setInterval(updateClock, 1000);
         @endforelse
     </ul>
 </div>
+
 
 <!-- Tombol Logout -->
 <form action="{{ route('logout') }}" method="POST" class="mt-3">
