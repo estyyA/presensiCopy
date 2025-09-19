@@ -42,8 +42,6 @@ Route::post('/login', [PageController::class, 'processLogin'])->name('login.proc
 Route::post('/logout', [PageController::class, 'logout'])->name('logout');
 Route::post('/logout', [PageController::class, 'logoutUser'])->name('logout');
 
-
-
 // Dashboard & halaman utama
 Route::get('/dashboard', [PageController::class, 'dashboard']);
 });
@@ -51,8 +49,6 @@ Route::get('/daftarPresensi', [PageController::class, 'daftarPresensi']);
 Route::get('/daftarKaryawan', [PageController::class, 'daftarKaryawan'])->name('daftar.karyawan');
 Route::get('/laporan', [PageController::class, 'laporan'])->name('laporan');
 
-// simpan catatan laporan (POST)
-Route::post('/laporan/simpan-catatan', [PageController::class, 'simpanCatatan'])->name('laporan.simpanCatatan');
 
 // Presensi Karyawan
 Route::get('/PresensiKaryawan', [PageController::class, 'PresensiKaryawan']);
@@ -87,8 +83,6 @@ Route::get('/absensi/masuk', function () {
     return view('absensi.masuk');
 })->name('absensi.masuk');
 
-
-
 // Form absen masuk & keluar
 
 // Form Absen Masuk
@@ -99,11 +93,16 @@ Route::post('/absensi/masuk', [PageController::class, 'presensiMasuk'])->name('a
 Route::get('/absensi/keluar', [PageController::class, 'showFormKeluar'])->name('absensi.formKeluar');
 Route::post('/absensi/keluar', [PageController::class, 'presensiKeluar'])->name('absensi.keluar');
 
+// GET untuk halaman laporan
+Route::get('/laporan', [PageController::class, 'laporan'])->name('laporan');
 
+// POST untuk simpan catatan
+Route::post('/laporan/simpan-catatan', [PageController::class, 'simpanCatatan'])->name('laporan.simpanCatatan');
 
-// Laporan (PDF & Excel)
-Route::get('/laporan/pdf', [PageController::class, 'cetakPdf'])->name('laporan.cetakPdf');
-Route::get('/laporan/excel', [PageController::class, 'exportExcel'])->name('laporan.exportExcel');
+// (opsional kalau ada)
+Route::get('/laporan/cetak-pdf', [PageController::class, 'cetakPdf'])->name('laporan.cetakPdf');
+Route::get('/laporan/export-excel', [PageController::class, 'exportExcel'])->name('laporan.exportExcel');
+
 
 // CRUD Karyawan (admin)
 Route::get('/karyawan/create', [PageController::class, 'createKaryawan'])->name('karyawan.create');
@@ -118,9 +117,6 @@ Route::get('/karyawan/{nik}/detail', [PageController::class, 'showKaryawan'])->n
 Route::get('/profil', [PageController::class, 'profil'])->name('profil');
 
 Route::get('/profil', [PageController::class, 'profil'])->name('profil');
-
-//
-
 
 // Edit Presensi
 Route::get('/presensi/{id}/edit', [PageController::class, 'editPresensi'])->name('presensi.edit');

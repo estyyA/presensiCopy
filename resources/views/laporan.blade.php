@@ -7,13 +7,32 @@
     <h3 class="font-weight-bold">Laporan</h3>
 </div>
 
+{{-- 🔔 Notifikasi --}}
+@if(session('success'))
+    <div class="alert alert-success alert-dismissible fade show auto-close" role="alert">
+        <i class="fa fa-check-circle mr-2"></i> {{ session('success') }}
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+@endif
+
+@if(session('error'))
+    <div class="alert alert-danger alert-dismissible fade show auto-close" role="alert">
+        <i class="fa fa-exclamation-circle mr-2"></i> {{ session('error') }}
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+@endif
+
 {{-- Filter & Pencarian --}}
 <div class="card shadow-sm mb-4">
     <div class="card-body">
         <h5 class="font-weight-bold mb-3">Filter dan Pencarian</h5>
 
-        {{-- Form Filter --}}
-        <form method="GET" action="{{ route('laporan') }}" class="form-inline">
+        {{-- ✅ Form Filter GET --}}
+        <form method="GET" action="{{ route('laporan') }}" class="form-inline mb-0">
             <label class="mr-2">Mulai Tanggal</label>
             <input type="date" name="mulai" class="form-control mr-3" value="{{ request('mulai') }}">
 
@@ -22,7 +41,7 @@
 
             <button type="submit" class="btn btn-primary mr-2">Tampilkan</button>
 
-            {{-- Export PDF & Excel tetap ada --}}
+            {{-- Export PDF & Excel --}}
             <a href="{{ route('laporan.cetakPdf', ['mulai' => request('mulai'), 'sampai' => request('sampai')]) }}"
                class="btn btn-danger mr-2" target="_blank">
                 <i class="fa fa-file-pdf mr-1"></i> Export PDF
@@ -40,7 +59,9 @@
     <div class="card-body">
         <h5 class="font-weight-bold mb-3">Tabel Data Presensi</h5>
         <div class="table-responsive">
-            <form method="POST" action="#">
+
+            {{-- ✅ Form POST untuk simpan catatan --}}
+            <form method="POST" action="{{ route('laporan.simpanCatatan') }}">
                 @csrf
                 <table class="table table-bordered table-hover">
                     <thead class="thead-light text-center">
@@ -70,7 +91,10 @@
                                 <td>{{ $row->izin }}</td>
                                 <td>{{ $row->alpha }}</td>
                                 <td>
-                                    <textarea name="catatan[{{ $row->nik }}]" class="form-control" rows="2" placeholder="Opsional..."></textarea>
+                                    <textarea name="catatan[{{ $row->nik }}]"
+                                              class="form-control"
+                                              rows="2"
+                                              placeholder="Opsional...">{{ $catatan[$row->nik] ?? '' }}</textarea>
                                 </td>
                             </tr>
                         @empty
@@ -79,7 +103,6 @@
                             </tr>
                         @endforelse
                     </tbody>
-
                 </table>
 
                 {{-- Tombol Simpan Catatan --}}
@@ -92,6 +115,7 @@
         </div>
     </div>
 </div>
+
 @endsection
 
 @push('styles')
@@ -104,4 +128,17 @@
         margin: 0 3px;
     }
 </style>
+@endpush
+
+@push('scripts')
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        setTimeout(function() {
+            let alerts = document.querySelectorAll('.alert.auto-close');
+            alerts.forEach(function(alert) {
+                $(alert).alert('close');
+            });
+        }, 3000); // Auto-close setelah 3 detik
+    });
+</script>
 @endpush
