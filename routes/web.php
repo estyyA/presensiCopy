@@ -131,3 +131,8 @@ Route::delete('/presensi/{id}', [PageController::class, 'deletePresensi'])->name
 // Edit Presensi sudah ada GET untuk modal, tambahkan PUT untuk update
 Route::put('/presensi/{id}', [PageController::class, 'updatePresensi'])->name('presensi.update');
 
+Route::resource('presensi', PageController::class);
+
+// ganti baris lama (tanpa ->name(...)) jadi seperti ini:
+Route::get('/daftarPresensi', [PageController::class, 'daftarPresensi'])->name('daftarPresensi');
+
