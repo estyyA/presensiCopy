@@ -747,17 +747,16 @@ public function deletePresensi($id)
 public function updatePresensi(Request $request, $id)
 {
     $request->validate([
-        'status' => 'required|in:hadir,sakit,izin,alpha',
+        'status' => 'required|in:hadir,sakit,izin,cuti,alpha',
     ]);
 
     DB::table('presensi')
         ->where('id_presen', $id)
         ->update([
-            'status'     => $request->status,
-            // 'updated_at' => now(),
+            'status' => $request->status,
         ]);
 
-    return redirect()->back()->with('success', 'Status presensi berhasil diupdate!');
+    return redirect()->back()->with('success', 'Status presensi berhasil diperbarui!');
 }
 
 // =======================
