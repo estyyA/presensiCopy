@@ -118,41 +118,51 @@ setInterval(updateClock, 1000);
 <!-- Tabel Riwayat Presensi -->
 <div class="card p-3">
     <h6 class="fw-bold mb-3">Riwayat Presensi</h6>
-    <div class="table-responsive">
-        <table class="table table-bordered table-striped">
-            <thead class="table-light">
-                <tr>
-                    <th>Tanggal</th>
-                    <th>Jam Masuk</th>
-                    <th>Lokasi Masuk</th>
-                    <th>Jam Keluar</th>
-                    <th>Lokasi Keluar</th>
-                    <th>Status</th>
+    <form method="GET" action="{{ route('riwayat.index') }}">
+    <label for="tanggalMulai">Dari:</label>
+    <input type="date" name="tanggalMulai" value="{{ request('tanggalMulai') }}">
+
+    <label for="tanggalAkhir">Sampai:</label>
+    <input type="date" name="tanggalAkhir" value="{{ request('tanggalAkhir') }}">
+
+    <button type="submit">Filter</button>
+</form>
+
+<div class="table-responsive">
+    <table class="table table-bordered table-striped">
+        <thead class="table-light">
+            <tr>
+                <th>Tanggal</th>
+                <th>Jam Masuk</th>
+                <th>Lokasi Masuk</th>
+                <th>Jam Keluar</th>
+                <th>Lokasi Keluar</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            @forelse($riwayat as $item)
+                <tr class="{{ $item->jam_masuk > '08:30:00' ? 'bg-primary text-white' : '' }}">
+                    <td>{{ \Carbon\Carbon::parse($item->tgl_presen)->format('D, d F Y') }}</td>
+                    <td>{{ $item->jam_masuk ?? '--:--' }}</td>
+                    <td>{{ $item->lokasi_masuk ?? '-' }}</td>
+                    <td>{{ $item->jam_keluar ?? '--:--' }}</td>
+                    <td>{{ $item->lokasi_keluar ?? '-' }}</td>
+                    <td>
+                        <span class="fw-semibold text-secondary">
+                            {{ $item->status ?? '-' }}
+                        </span>
+                    </td>
                 </tr>
-            </thead>
-            <tbody>
-                @forelse($riwayat as $item)
-                    <tr class="{{ $item->jam_masuk > '08:30:00' ? 'bg-primary text-white' : '' }}">
-                        <td>{{ \Carbon\Carbon::parse($item->tgl_presen)->format('D, d F Y') }}</td>
-                        <td>{{ $item->jam_masuk ?? '--:--' }}</td>
-                        <td>{{ $item->lokasi_masuk ?? '-' }}</td>
-                        <td>{{ $item->jam_keluar ?? '--:--' }}</td>
-                        <td>{{ $item->lokasi_keluar ?? '-' }}</td>
-                        < <td>
-                            <span class="fw-semibold text-secondary">
-                                {{ $item->status ?? '-' }}
-                            </span>
-                        </td>
-                    </tr>
-                @empty
-                    <tr>
-                        <td colspan="5" class="text-center text-muted">Belum ada data presensi</td>
-                    </tr>
-                @endforelse
-            </tbody>
-        </table>
-    </div>
+            @empty
+                <tr>
+                    <td colspan="6" class="text-center text-muted">Belum ada data presensi</td>
+                </tr>
+            @endforelse
+        </tbody>
+    </table>
 </div>
+
 
 
 

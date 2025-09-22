@@ -52,6 +52,8 @@ Route::get('/laporan', [PageController::class, 'laporan'])->name('laporan');
 
 // Presensi Karyawan
 Route::get('/PresensiKaryawan', [PageController::class, 'PresensiKaryawan']);
+Route::get('/riwayat', [PageController::class, 'riwayat'])->name('riwayat.index');
+
 
 // Karyawan
 Route::post('/karyawan/upload-foto', [KaryawanController::class, 'uploadFoto'])

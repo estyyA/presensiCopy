@@ -1,9 +1,10 @@
 @extends('layout.master')
 
 @section('content')
-<div class="d-flex justify-content-center mt-4">
-    <div class="card shadow-lg p-4" style="width: 500px; border-radius: 20px;">
 
+<div style="overflow-y: auto; max-height: 80vh;"> <!-- Hanya konten ini yang bisa digeser -->
+    <div class="d-flex justify-content-center mt-4 mb-4">
+        <div class="card shadow-lg p-4" style="width: 800px; border-radius: 20px;">
         {{-- Bagian Profil --}}
         <div class="text-center mb-4"
              style="background: linear-gradient(90deg, #4a90e2, #357ABD); border-radius: 15px; padding: 20px;">
@@ -27,42 +28,59 @@
         </div>
 
         {{-- Tombol Masuk & Keluar --}}
-        <div class="d-flex justify-content-center gap-3 mb-4">
-            <a href="{{ route('admin.Masuk') }}" class="btn btn-primary btn-lg px-4">
-                Masuk
-            </a>
-            <a href="{{ route('admin.Keluar') }}" class="btn btn-danger btn-lg px-4">
-                Keluar
-            </a>
-        </div>
+        <div class="d-flex justify-content-between mt-3">
+    @if(!$presensiHariIni)
+        <!-- Belum absen sama sekali -->
+        <a href="{{ route('admin.Masuk') }}" class="btn btn-primary btn-lg">Masuk</a>
+        <button class="btn btn-danger btn-lg" disabled>Keluar</button>
+    @elseif(!$presensiHariIni->jam_keluar)
+        <!-- Sudah Masuk, Belum Keluar -->
+        <button class="btn btn-primary btn-lg" disabled>Masuk</button>
+        <a href="{{ route('admin.Keluar') }}" class="btn btn-danger btn-lg">Keluar</a>
+    @else
+        <!-- Sudah Masuk & Keluar -->
+        <p class="text-success w-100 fw-bold">Anda sudah absen masuk & keluar hari ini ✅</p>
+    @endif
+</div>
 
-        {{-- Riwayat Presensi --}}
-        <div>
-            <h6 class="fw-bold mb-3">Attendance History</h6>
-            @if(isset($riwayat) && $riwayat->isNotEmpty())
-                <ul class="list-group">
-                    @foreach($riwayat as $presensi)
-                        <li class="list-group-item d-flex justify-content-between">
-                            <span>
-                                {{ $presensi->tgl_presen }} —
-                                @if($presensi->jam_masuk)
-                                    Masuk: {{ $presensi->jam_masuk }}
-                                @endif
-                                @if($presensi->jam_keluar)
-                                    , Pulang: {{ $presensi->jam_keluar }}
-                                @endif
-                            </span>
-                            <span class="fw-semibold text-secondary">
-                                {{ $presensi->status }}
-                            </span>
-                        </li>
-                    @endforeach
-                </ul>
-            @else
-                <p class="text-muted">Belum ada data presensi</p>
-            @endif
-        </div>
-    </div>
+
+<!-- Tabel Riwayat Presensi -->
+
+    <h6 class="fw-bold mb-3">Riwayat Presensi</h6>
+
+<div class="table-responsive" style="max-height: 400px; overflow-y: auto;">
+    <table class="table table-bordered table-striped">
+        <thead class="table-light">
+            <tr>
+                <th>Tanggal</th>
+                <th>Jam Masuk</th>
+                <th>Lokasi Masuk</th>
+                <th>Jam Keluar</th>
+                <th>Lokasi Keluar</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            @forelse($riwayat as $item)
+                <tr class="{{ $item->jam_masuk > '08:30:00' ? 'bg-primary text-white' : '' }}">
+                    <td>{{ \Carbon\Carbon::parse($item->tgl_presen)->format('D, d F Y') }}</td>
+                    <td>{{ $item->jam_masuk ?? '--:--' }}</td>
+                    <td>{{ $item->lokasi_masuk ?? '-' }}</td>
+                    <td>{{ $item->jam_keluar ?? '--:--' }}</td>
+                    <td>{{ $item->lokasi_keluar ?? '-' }}</td>
+                    <td>
+                        <span class="fw-semibold text-secondary">
+                            {{ $item->status ?? '-' }}
+                        </span>
+                    </td>
+                </tr>
+            @empty
+                <tr>
+                    <td colspan="6" class="text-center text-muted">Belum ada data presensi</td>
+                </tr>
+            @endforelse
+        </tbody>
+    </table>
 </div>
 
 {{-- Jam Otomatis --}}
