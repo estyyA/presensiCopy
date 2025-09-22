@@ -128,16 +128,3 @@ Route::delete('/presensi/{id}', [PageController::class, 'deletePresensi'])->name
 // Daftar Presensi
 Route::get('/daftarPresensi', [PageController::class, 'daftarPresensi'])->name('daftarPresensi');
 
-<<<<<<< Updated upstream
-=======
-
-//test MailTrap
-Route::get('/test-email', function () {
-    \Mail::raw('Ini email uji coba dari Laravel 6', function ($message) {
-        $message->to('emailkaryawan@example.com') // ganti dengan email tujuan
-                ->subject('Tes Kirim Email dari Laravel 6');
-    });
-
-    return 'Email test sudah dikirim ke Mailtrap!';
-});
->>>>>>> Stashed changes
