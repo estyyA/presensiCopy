@@ -760,15 +760,87 @@ public function updatePresensi(Request $request, $id)
     return redirect()->back()->with('success', 'Status presensi berhasil diupdate!');
 }
 
+// =======================
+// PRESENSI ADMIN
+// =======================
+
+// Halaman utama presensi (riwayat)
 public function showPresensiAdmin()
 {
     $riwayat = DB::table('presensi')
         ->orderBy('tgl_presen', 'desc')
-        ->take(10) // ambil 10 riwayat terakhir
+        ->take(10)
         ->get();
 
     return view('admin.presensi', compact('riwayat'));
 }
+
+// FORM MASUK
+public function formMasuk()
+{
+    return view('admin.Masuk'); // tampilkan Masuk.blade.php
+}
+
+// SIMPAN MASUK
+public function storeMasuk(Request $request)
+{
+    $admin = session('admin');
+    if (!$admin) {
+        return redirect()->route('admin.presensi.form');
+
+    }
+
+    $tanggal = now('Asia/Jakarta')->toDateString();
+
+    $sudahAbsen = DB::table('presensi')
+        ->where('NIK', $admin->NIK)
+        ->whereDate('tgl_presen', $tanggal)
+        ->exists();
+
+    if ($sudahAbsen) {
+        return redirect()->route('admin.presensi.form')
+            ->with('warning', 'Anda sudah absen masuk hari ini!');
+    }
+
+    DB::table('presensi')->insert([
+        'NIK'           => $admin->NIK,
+        'nama_karyawan' => $admin->nama_lengkap,
+        'divisi'        => $admin->divisi ?? '-',
+        'tgl_presen'    => $tanggal,
+        'jam_masuk'     => now('Asia/Jakarta')->format('H:i:s'),
+        'lokasi_masuk'  => $request->lokasi_masuk ?? null,
+        'status'        => 'hadir',
+        'role'          => 'admin',
+    ]);
+
+    return redirect()->route('admin.presensi.form')->with('success', 'Absen masuk berhasil!');
+}
+
+// FORM KELUAR
+public function formKeluar()
+{
+    return view('admin.Keluar'); // tampilkan Keluar.blade.php
+}
+
+// SIMPAN KELUAR
+public function storeKeluar(Request $request)
+{
+    $admin = session('admin');
+    if (!$admin) {
+        return redirect()->route('admin.presensi.form');
+    }
+
+    DB::table('presensi')
+        ->where('NIK', $admin->NIK)
+        ->whereDate('tgl_presen', now('Asia/Jakarta')->toDateString())
+        ->update([
+            'jam_keluar'    => now('Asia/Jakarta')->format('H:i:s'),
+            'lokasi_keluar' => $request->lokasi_keluar ?? null,
+        ]);
+
+    return redirect()->route('admin.presensi.form')->with('success', 'Absen keluar berhasil!');
+}
+
 
 
 }
