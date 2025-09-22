@@ -4,26 +4,29 @@
 
 @section('content')
 <div class="mb-4">
-    <h3 class="font-weight-bold">Data Presensi</h3>
+    <h3 class="font-weight-bold text-purple">📊 Data Presensi</h3>
     <p class="text-muted">PT Madubaru</p>
 </div>
 
-{{-- Filter & Pencarian --}}
-<div class="card shadow-sm mb-4">
+{{-- 🔍 Filter & Pencarian --}}
+<div class="card shadow-sm border-0 mb-4">
     <div class="card-body">
-        <h5 class="font-weight-bold mb-3">Filter & Pencarian</h5>
+        <h5 class="font-weight-bold mb-3 text-purple">Filter & Pencarian</h5>
         <form method="GET" action="{{ url()->current() }}" class="filter">
             <div class="form-row align-items-center">
-                {{-- Nama Karyawan --}}
+                {{-- Nama --}}
                 <div class="col-md-4 mb-2">
-                    <input type="text" name="nama" class="form-control" placeholder="Ketik nama karyawan (contoh: 'Resty')" value="{{ request('nama') }}">
+                    <input type="text" name="nama" class="form-control"
+                           placeholder="🔎 Cari nama karyawan..."
+                           value="{{ request('nama') }}">
                 </div>
                 {{-- Divisi --}}
                 <div class="col-md-3 mb-2">
                     <select name="divisi" class="form-control">
-                        <option value="">Pilih Divisi</option>
+                        <option value="">🏢 Semua Divisi</option>
                         @foreach($departements as $dept)
-                            <option value="{{ $dept->id_divisi }}" {{ request('divisi') == $dept->id_divisi ? 'selected' : '' }}>
+                            <option value="{{ $dept->id_divisi }}"
+                                {{ request('divisi') == $dept->id_divisi ? 'selected' : '' }}>
                                 {{ $dept->nama_divisi }}
                             </option>
                         @endforeach
@@ -44,74 +47,70 @@
     </div>
 </div>
 
-{{-- Data Presensi --}}
-<div class="card shadow-sm">
+{{-- 📋 Data Presensi --}}
+<div class="card shadow-sm border-0">
     <div class="card-body">
-        <h5 class="font-weight-bold mb-3">Data Presensi Karyawan</h5>
+        <h5 class="font-weight-bold mb-3 text-purple">Data Presensi Karyawan</h5>
         <div class="table-responsive">
-            <table class="table table-bordered table-hover table-sm">
+            <table class="table table-bordered table-striped text-center">
                 <thead>
-                    <tr>
-                        <th class="text-center">No</th>
-                        <th class="text-center">NIK</th>
+                    <tr style="background:#3f71dc; color:#ffffff; text-align:center;">
+                        <th>No</th>
+                        <th>NIK</th>
                         <th>Nama Karyawan</th>
-                        <th class="text-center">Divisi</th>
-                        <th class="text-center">Tanggal</th>
-                        <th class="text-center">Jam Masuk</th>
-                        <th class="text-center">Jam Keluar</th>
-                        <th class="text-center">Status</th>
-                        <th class="text-center">Aksi</th>
+                        <th>Divisi</th>
+                        <th>Tanggal</th>
+                        <th>Jam Masuk</th>
+                        <th>Jam Keluar</th>
+                        <th>Status</th>
+                        <th>Aksi</th>
                     </tr>
                 </thead>
-
                 <tbody>
                     @forelse($presensis as $i => $p)
                         <tr>
-                            <td class="text-center">{{ $presensis->firstItem() + $i }}</td>
-                            <td class="text-center">{{ $p->NIK }}</td>
+                            <td>{{ $presensis->firstItem() + $i }}</td>
+                            <td>{{ $p->NIK }}</td>
                             <td>{{ $p->nama_lengkap }}</td>
-                            <td class="text-center">{{ $p->nama_divisi ?? '-' }}</td>
-                            <td class="text-center">{{ \Carbon\Carbon::parse($p->tgl_presen)->format('d/m/Y') }}</td>
-                            <td class="text-center">{{ $p->jam_masuk ?? '-' }}</td>
-                            <td class="text-center">{{ $p->jam_keluar ?? '-' }}</td>
-                            <td class="text-center">
-                                @if(strtolower($p->status) == 'hadir')
-                                    <span class="badge badge-success">Hadir</span>
-                                @elseif(strtolower($p->status) == 'sakit')
-                                    <span class="badge badge-info">Sakit</span>
-                                @elseif(strtolower($p->status) == 'izin')
-                                    <span class="badge badge-warning">Izin</span>
-                                @elseif(strtolower($p->status) == 'cuti')
-                                    <span class="badge badge-primary">Cuti</span>
-                                @else
-                                    <span class="badge badge-danger">Alpha</span>
-                                @endif
+                            <td>{{ $p->nama_divisi ?? '-' }}</td>
+                            <td>{{ \Carbon\Carbon::parse($p->tgl_presen)->format('d/m/Y') }}</td>
+                            <td>{{ $p->jam_masuk ?? '-' }}</td>
+                            <td>{{ $p->jam_keluar ?? '-' }}</td>
+                            <td>
+                                @switch(strtolower($p->status))
+                                    @case('hadir') <span class="badge badge-success px-3 py-1">Hadir</span> @break
+                                    @case('sakit') <span class="badge badge-info px-3 py-1">Sakit</span> @break
+                                    @case('izin') <span class="badge badge-warning px-3 py-1">Izin</span> @break
+                                    @case('cuti') <span class="badge badge-primary px-3 py-1">Cuti</span> @break
+                                    @default <span class="badge badge-danger px-3 py-1">Alpha</span>
+                                @endswitch
                             </td>
-                            <td class="text-center action-btns">
-                                {{-- Tombol Edit (Modal) --}}
+                            <td>
                                 <button type="button"
                                         class="btn btn-warning btn-sm btn-edit-presensi"
                                         title="Edit"
                                         data-presen='@json($p)'>
                                     <i class="fa fa-edit"></i>
                                 </button>
-
-                                {{-- Tombol Hapus --}}
-                                <form action="{{ route('presensi.destroy', $p->id_presen) }}" method="POST" style="display:inline-block;" onsubmit="return confirm('Yakin ingin menghapus presensi ini?');">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button class="btn btn-danger btn-sm" title="Hapus"><i class="fa fa-trash"></i></button>
+                                <form action="{{ route('presensi.destroy', $p->id_presen) }}"
+                                      method="POST" class="d-inline"
+                                      onsubmit="return confirm('Yakin ingin menghapus data ini?');">
+                                    @csrf @method('DELETE')
+                                    <button class="btn btn-danger btn-sm" title="Hapus">
+                                        <i class="fa fa-trash"></i>
+                                    </button>
                                 </form>
                             </td>
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="9" class="text-center text-muted">Belum ada data presensi</td>
+                            <td colspan="9" class="text-center text-muted">⚠️ Belum ada data presensi</td>
                         </tr>
                     @endforelse
                 </tbody>
             </table>
         </div>
+
 
         {{-- Pagination --}}
         <div class="d-flex justify-content-center mt-3">
@@ -120,17 +119,17 @@
     </div>
 </div>
 
-{{-- Modal Edit Presensi --}}
+{{-- ✏️ Modal Edit Presensi --}}
 <div class="modal fade" id="editPresensiModal" tabindex="-1" role="dialog" aria-labelledby="editPresensiLabel" aria-hidden="true">
     <div class="modal-dialog" role="document">
         <form method="POST" id="editPresensiForm">
             @csrf
             @method('PUT')
-            <div class="modal-content">
+            <div class="modal-content rounded-lg">
                 <div class="modal-header bg-purple text-white">
-                    <h5 class="modal-title" id="editPresensiLabel">Edit Presensi</h5>
-                    <button type="button" class="close text-white" data-bs-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
+                    <h5 class="modal-title">Edit Presensi</h5>
+                    <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
+                        <span>&times;</span>
                     </button>
                 </div>
                 <div class="modal-body">
@@ -144,50 +143,43 @@
                         <label for="jam_keluar">Jam Keluar</label>
                         <input type="time" class="form-control" name="jam_keluar" id="jam_keluar" disabled>
                     </div>
-
                     <div class="mb-3">
                         <label for="status">Status Kehadiran</label>
                         <select name="status" id="status" class="form-control" required>
                             <option value="hadir">Hadir</option>
                             <option value="sakit">Sakit</option>
                             <option value="izin">Izin</option>
-                            <option value="cuti">Cuti</option> {{-- ✅ tambahan --}}
+                            <option value="cuti">Cuti</option>
                             <option value="alpha">Alpha</option>
                         </select>
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Batal</button>
+                    <button type="button" class="btn btn-light border" data-dismiss="modal">Batal</button>
                     <button type="submit" class="btn btn-purple">Simpan</button>
                 </div>
             </div>
         </form>
     </div>
 </div>
-
 @endsection
 
 @push('styles')
 <style>
-    .bg-purple { background-color: #6f42c1 !important; color: #fff !important; }
+    .bg-purple { background-color: #6f42c1 !important; }
+    .text-purple { color: #6f42c1 !important; }
     .btn-purple { background-color: #6f42c1 !important; color: #fff !important; border: none; }
     .btn-purple:hover { background-color: #59309a !important; }
     .filter .form-control, .filter .btn { height: 44px; }
-    .action-btns .btn { width: 38px; height: 38px; padding: 0; display: inline-flex; align-items: center; justify-content: center; border-radius: 6px; margin-left: 4px; }
-    .card .table td, .card .table th { vertical-align: middle; }
-    .table-responsive { overflow-x: auto; }
-    .filter .form-control::placeholder { color: #999; }
-    .page-link { border-radius: 6px !important; margin: 0 3px; }
-    @media (max-width: 576px) {
-        .filter .form-control, .filter .btn { height: 42px; }
-        .action-btns .btn { width: 34px; height: 34px; }
-    }
+    .action-btns .btn { width: 36px; height: 36px; border-radius: 8px; display: inline-flex; align-items: center; justify-content: center; margin: 2px; }
+    .card .table th { font-weight: 600; }
+    .badge { font-size: 0.85rem; }
 </style>
 @endpush
 
 @push('scripts')
 <script>
-    // Tombol Edit Presensi
+    // Tombol Edit
     $('.btn-edit-presensi').click(function() {
         let presen = $(this).data('presen');
 
@@ -195,15 +187,11 @@
         $('#jam_masuk').val(presen.jam_masuk);
         $('#jam_keluar').val(presen.jam_keluar);
 
-        // Normalisasi status -> lowercase + trim
         let status = (presen.status || '').toLowerCase().trim();
         $('#status').val(status);
 
-        // set action form sesuai id presensi
         $('#editPresensiForm').attr('action', '/presensi/' + presen.id_presen);
-
         $('#editPresensiModal').modal('show');
     });
 </script>
 @endpush
-
