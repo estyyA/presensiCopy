@@ -69,7 +69,7 @@ function showPosition(position) {
     let mapFrame = document.getElementById("map-frame");
     mapFrame.src = `https://www.google.com/maps?q=${lat},${lon}&hl=id&z=17&output=embed`;
 
-    // Ambil alamat (reverse geocoding pakai OpenStreetMap)
+    // Ambil alamat
     fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}`)
         .then(response => response.json())
         .then(data => {
@@ -77,12 +77,13 @@ function showPosition(position) {
             document.getElementById("alamat").innerText = alamat;
 
             // Simpan alamat + koordinat di input hidden
-            document.getElementById("lokasi_masuk").value = `${alamat} | ${lat},${lon}`;
+            document.getElementById("lokasi_keluar").value = `${alamat} | ${lat},${lon}`;
         })
         .catch(() => {
             document.getElementById("alamat").innerText = "Gagal memuat alamat";
-            document.getElementById("lokasi_masuk").value = `${lat},${lon}`;
+            document.getElementById("lokasi_keluar").value = `${lat},${lon}`;
         });
+
 }
 
 
