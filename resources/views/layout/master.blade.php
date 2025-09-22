@@ -11,6 +11,9 @@
     {{-- FontAwesome --}}
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
+    {{-- Select2 CSS --}}
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+
     <style>
         body {
             background-color: #f9f7f7;
@@ -86,38 +89,41 @@
         class="nav-link @if(Request::is('admin/presensi*')) active @endif">
             <i class="fa fa-clock mr-2"></i> Presensi
         </a>
-
-
+        <li class="nav-item">
+            <a class="nav-link" href="{{ route('cuti.index') }}">
+                <i class="fa fa-calendar-check"></i>
+                <span>Data Cuti</span>
+            </a>
+        </li>
     </div>
 
     {{-- Main Content --}}
     <div class="flex-fill">
-{{-- Topbar --}}
-<div class="topbar">
-    <div class="dropdown">
-        <a class="d-flex align-items-center text-dark text-decoration-none dropdown-toggle"
-           href="#" id="userDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-           <span class="mr-2">
-            {{ session('karyawan')->nama_lengkap ?? 'Guest' }}
-        </span>
-        <img src="https://ui-avatars.com/api/?name={{ urlencode(session('karyawan')->nama_lengkap ?? 'User') }}&background=0D8ABC&color=fff"
-             class="rounded-circle" width="35" height="35" alt="avatar">
-        </a>
-        <div class="dropdown-menu dropdown-menu-right shadow" aria-labelledby="userDropdown">
-            <a class="dropdown-item" href="{{ route('profil') }}">
-                <i class="fa fa-user"></i> Profil
-            </a>
-            <div class="dropdown-divider"></div>
-            <form action="{{ route('logout') }}" method="POST" class="m-0">
-                @csrf
-                <button type="submit" class="dropdown-item text-danger">
-                    <i class="fa fa-sign-out-alt mr-2"></i> Logout
-                </button>
-            </form>
+        {{-- Topbar --}}
+        <div class="topbar">
+            <div class="dropdown">
+                <a class="d-flex align-items-center text-dark text-decoration-none dropdown-toggle"
+                   href="#" id="userDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                   <span class="mr-2">
+                    {{ session('karyawan')->nama_lengkap ?? 'Guest' }}
+                </span>
+                <img src="https://ui-avatars.com/api/?name={{ urlencode(session('karyawan')->nama_lengkap ?? 'User') }}&background=0D8ABC&color=fff"
+                     class="rounded-circle" width="35" height="35" alt="avatar">
+                </a>
+                <div class="dropdown-menu dropdown-menu-right shadow" aria-labelledby="userDropdown">
+                    <a class="dropdown-item" href="{{ route('profil') }}">
+                        <i class="fa fa-user"></i> Profil
+                    </a>
+                    <div class="dropdown-divider"></div>
+                    <form action="{{ route('logout') }}" method="POST" class="m-0">
+                        @csrf
+                        <button type="submit" class="dropdown-item text-danger">
+                            <i class="fa fa-sign-out-alt mr-2"></i> Logout
+                        </button>
+                    </form>
+                </div>
+            </div>
         </div>
-    </div>
-</div>
-
 
         {{-- Content --}}
         <div class="content">
@@ -132,6 +138,21 @@
 
 {{-- Chart.js --}}
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+{{-- Select2 JS --}}
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
+<script>
+    $(document).ready(function() {
+        // inisialisasi select2 untuk semua select dengan class .select2
+        $('.select2').select2({
+            placeholder: "-- Cari Karyawan --",
+            allowClear: true,
+            width: '100%'
+        });
+    });
+</script>
+
 @stack('scripts')
 
 </body>
