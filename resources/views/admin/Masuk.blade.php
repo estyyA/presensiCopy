@@ -18,7 +18,7 @@
         </div>
 
         {{-- Jam Masuk --}}
-        <form method="POST" action="{{ route('admin.presensi.submit') }}">
+        <form method="POST" action="{{ route('admin.storeMasuk') }}">
             @csrf
             <div class="mb-3">
                 <label class="form-label">Jam Masuk</label>
