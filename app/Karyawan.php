@@ -21,7 +21,7 @@ class Karyawan extends Model
         'tgl_lahir',
         'alamat',
         'role',
-        'status', 
+        'status',
     ];
 
     // Relasi ke Departement
@@ -47,5 +47,10 @@ class Karyawan extends Model
     {
         return $this->hasOne(Akun::class, 'NIK', 'NIK');
     }
+
+    // 🔥 Relasi ke Cuti
+    public function cuti()
+    {
+        return $this->hasMany(Cuti::class, 'nik', 'NIK');
+    }
 }
-//jadi gini
