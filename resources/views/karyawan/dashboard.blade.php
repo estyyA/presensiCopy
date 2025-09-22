@@ -127,6 +127,7 @@ setInterval(updateClock, 1000);
                     <th>Lokasi Masuk</th>
                     <th>Jam Keluar</th>
                     <th>Lokasi Keluar</th>
+                    <th>Status</th>
                 </tr>
             </thead>
             <tbody>
@@ -137,6 +138,11 @@ setInterval(updateClock, 1000);
                         <td>{{ $item->lokasi_masuk ?? '-' }}</td>
                         <td>{{ $item->jam_keluar ?? '--:--' }}</td>
                         <td>{{ $item->lokasi_keluar ?? '-' }}</td>
+                        < <td>
+                            <span class="fw-semibold text-secondary">
+                                {{ $item->status ?? '-' }}
+                            </span>
+                        </td>
                     </tr>
                 @empty
                     <tr>
