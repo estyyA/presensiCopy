@@ -16,30 +16,60 @@
 
     <style>
         body {
-            background-color: #f9f7f7;
+            background-color: #f4f6f9;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
+        /* === SIDEBAR === */
         .sidebar {
-            height: 100vh;
+            min-height: 100vh;
             background: linear-gradient(180deg, #0d47a1, #001f54);
             color: white;
-            padding: 20px;
+            padding: 20px 15px;
+            transition: all 0.3s ease;
+            position: sticky;
+            top: 0;
+        }
+        .sidebar .brand {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 25px;
+        }
+        .sidebar .brand img {
+            width: 50px;
+            margin-right: 10px;
+        }
+        .sidebar .brand span {
+            font-weight: bold;
+            font-size: 18px;
+            color: #fff;
         }
         .sidebar .nav-link {
             color: #dcdcdc;
-            margin: 8px 0;
+            margin: 6px 0;
             font-weight: 500;
+            padding: 10px 12px;
+            border-radius: 8px;
+            transition: all 0.2s;
+        }
+        .sidebar .nav-link:hover {
+            background: rgba(255, 255, 255, 0.15);
+            color: #fff;
+            transform: translateX(5px);
         }
         .sidebar .nav-link.active {
-            background: rgba(255, 255, 255, 0.2);
-            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.25);
+            color: #fff;
         }
         .sidebar h6 {
-            margin-top: 20px;
-            font-size: 14px;
+            margin: 15px 0 8px;
+            font-size: 12px;
             text-transform: uppercase;
             color: #aaa;
+            letter-spacing: 1px;
         }
+
+        /* === TOPBAR === */
         .topbar {
             height: 60px;
             background: #fff;
@@ -48,19 +78,59 @@
             display: flex;
             align-items: center;
             justify-content: flex-end;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
         }
-        .content {
-            padding: 20px;
-        }
-        .card-stat {
-            border-radius: 12px;
-            text-align: center;
-            padding: 20px;
+        .topbar .dropdown-toggle {
             font-weight: 600;
+        }
+        .topbar img {
+            border: 2px solid #eee;
+        }
+
+        /* === CONTENT === */
+        .content {
+            padding: 25px;
+            animation: fadeIn 0.3s ease-in-out;
+        }
+
+        /* === CARD STATS === */
+        .card-stat {
+            border-radius: 14px;
+            text-align: center;
+            padding: 25px 15px;
+            font-weight: 600;
+            transition: all 0.2s;
+            background: #fff;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+        .card-stat:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
         }
         .card-stat i {
             font-size: 28px;
             margin-bottom: 10px;
+            color: #0d47a1;
+        }
+
+        /* Scrollbar Custom */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(0,0,0,0.2);
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(0,0,0,0.3);
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(5px); }
+            to { opacity: 1; transform: translateY(0); }
         }
     </style>
 </head>
@@ -69,10 +139,12 @@
 <div class="d-flex">
     {{-- Sidebar --}}
     <div class="sidebar d-flex flex-column">
-        <div class="text-center mb-4">
-            <img src="{{ asset('img/logo.png') }}" alt="Logo" width="100">
+        <div class="brand">
+            <img src="{{ asset('img/logo.png') }}" alt="Logo">
+            <span>PT Madubaru</span>
         </div>
-        <h6>MASTER MENU</h6>
+
+        <h6>Master Menu</h6>
         <a href="{{ url('/dashboard') }}" class="nav-link @if(Request::is('dashboard')) active @endif">
             <i class="fa fa-home mr-2"></i> Dashboard
         </a>
@@ -85,16 +157,12 @@
         <a href="{{ url('/laporan') }}" class="nav-link @if(Request::is('laporan*')) active @endif">
             <i class="fa fa-file-alt mr-2"></i> Laporan
         </a>
-        <a href="{{ route('admin.presensi.form') }}"
-        class="nav-link @if(Request::is('admin/presensi*')) active @endif">
+        <a href="{{ route('admin.presensi.form') }}" class="nav-link @if(Request::is('admin/presensi*')) active @endif">
             <i class="fa fa-clock mr-2"></i> Presensi
         </a>
-        <li class="nav-item">
-            <a class="nav-link" href="{{ route('cuti.index') }}">
-                <i class="fa fa-calendar-check"></i>
-                <span>Data Cuti</span>
-            </a>
-        </li>
+        <a href="{{ route('cuti.index') }}" class="nav-link @if(Request::is('cuti*')) active @endif">
+            <i class="fa fa-calendar-check mr-2"></i> Data Cuti
+        </a>
     </div>
 
     {{-- Main Content --}}
@@ -112,7 +180,7 @@
                 </a>
                 <div class="dropdown-menu dropdown-menu-right shadow" aria-labelledby="userDropdown">
                     <a class="dropdown-item" href="{{ route('profil') }}">
-                        <i class="fa fa-user"></i> Profil
+                        <i class="fa fa-user mr-2"></i> Profil
                     </a>
                     <div class="dropdown-divider"></div>
                     <form action="{{ route('logout') }}" method="POST" class="m-0">
@@ -144,7 +212,6 @@
 
 <script>
     $(document).ready(function() {
-        // inisialisasi select2 untuk semua select dengan class .select2
         $('.select2').select2({
             placeholder: "-- Cari Karyawan --",
             allowClear: true,
