@@ -553,38 +553,43 @@ class PageController extends Controller
         return view('auth.reset-password', ['token' => $token]);
     }
 
-    public function resetPassword(Request $request)
-    {
-        $request->validate([
-            'email' => 'required|email',
-            'password' => 'required|min:6|confirmed',
-            'token' => 'required'
-        ]);
+   public function resetPassword(Request $request)
+{
+    $request->validate([
+        'email' => 'required|email|exists:karyawan,email',
+        'password' => 'required|min:6|confirmed',
+        'token' => 'required'
+    ]);
 
-        $reset = DB::table('password_resets')
-            ->where('email', $request->email)
-            ->where('token', $request->token)
-            ->first();
+    $reset = DB::table('password_resets')
+        ->where('email', $request->email)
+        ->where('token', $request->token)
+        ->first();
 
-        if (!$reset) {
-            return back()->withErrors(['email' => 'Token tidak valid atau sudah kadaluarsa.']);
-        }
-
-        // update password di tabel akun (pakai NIK dari karyawan)
-        $karyawan = DB::table('karyawan')->where('email', $request->email)->first();
-        if (!$karyawan) {
-            return back()->withErrors(['email' => 'Karyawan tidak ditemukan.']);
-        }
-
-        DB::table('akun')->where('NIK', $karyawan->NIK)->update([
-            'password' => Hash::make($request->password)
-        ]);
-
-        // hapus token biar tidak bisa dipakai lagi
-        DB::table('password_resets')->where('email', $request->email)->delete();
-
-        return redirect()->route('login.form')->with('success', 'Password berhasil direset. Silakan login.');
+    if (!$reset) {
+        return back()->withErrors(['email' => 'Token tidak valid.']);
     }
+
+    // cek expired (60 menit)
+    if (Carbon::parse($reset->created_at)->addMinutes(60)->isPast()) {
+        return back()->withErrors(['email' => 'Token sudah kadaluarsa.']);
+    }
+
+    // update password di akun
+    $karyawan = DB::table('karyawan')->where('email', $request->email)->first();
+    if (!$karyawan) {
+        return back()->withErrors(['email' => 'Karyawan tidak ditemukan.']);
+    }
+
+    DB::table('akun')->where('NIK', $karyawan->NIK)->update([
+        'password' => Hash::make($request->password)
+    ]);
+
+    DB::table('password_resets')->where('email', $request->email)->delete();
+
+    return redirect()->route('login.form')->with('success', 'Password berhasil direset. Silakan login.');
+}
+
 
     public function logoutUser(Request $request)
 {
