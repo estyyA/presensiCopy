@@ -132,3 +132,4 @@ Route::resource('presensi', PageController::class);
 // ganti baris lama (tanpa ->name(...)) jadi seperti ini:
 Route::get('/daftarPresensi', [PageController::class, 'daftarPresensi'])->name('daftarPresensi');
 
+//
