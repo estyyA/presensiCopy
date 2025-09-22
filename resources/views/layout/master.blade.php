@@ -160,9 +160,12 @@
         <a href="{{ route('admin.presensi.form') }}" class="nav-link @if(Request::is('admin/presensi*')) active @endif">
             <i class="fa fa-clock mr-2"></i> Presensi
         </a>
-        <a href="{{ route('cuti.index') }}" class="nav-link @if(Request::is('cuti*')) active @endif">
-            <i class="fa fa-calendar-check mr-2"></i> Data Cuti
-        </a>
+        <li class="nav-item">
+            <a class="nav-link" href="{{ route('cuti.index') }}">
+                <i class="fa fa-calendar-check"></i>
+                <span>Data Cuti</span>
+            </a>
+        </li>
     </div>
 
     {{-- Main Content --}}
