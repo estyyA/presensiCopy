@@ -28,20 +28,21 @@
         </div>
 
         {{-- Tombol Masuk & Keluar --}}
-        <div class="d-flex justify-content-between mt-3">
+<div class="d-flex justify-content-center mt-3">
     @if(!$presensiHariIni)
         <!-- Belum absen sama sekali -->
-        <a href="{{ route('admin.Masuk') }}" class="btn btn-primary btn-lg">Masuk</a>
-        <button class="btn btn-danger btn-lg" disabled>Keluar</button>
+        <a href="{{ route('admin.Masuk') }}" class="btn btn-primary btn-lg mx-2">Masuk</a>
+        <button class="btn btn-danger btn-lg mx-2" disabled>Keluar</button>
     @elseif(!$presensiHariIni->jam_keluar)
         <!-- Sudah Masuk, Belum Keluar -->
-        <button class="btn btn-primary btn-lg" disabled>Masuk</button>
-        <a href="{{ route('admin.Keluar') }}" class="btn btn-danger btn-lg">Keluar</a>
+        <button class="btn btn-primary btn-lg mx-2" disabled>Masuk</button>
+        <a href="{{ route('admin.Keluar') }}" class="btn btn-danger btn-lg mx-2">Keluar</a>
     @else
         <!-- Sudah Masuk & Keluar -->
-        <p class="text-success w-100 fw-bold">Anda sudah absen masuk & keluar hari ini ✅</p>
+        <p class="text-success fw-bold text-center w-100">Anda sudah absen masuk & keluar hari ini ✅</p>
     @endif
 </div>
+
 
 
 <!-- Tabel Riwayat Presensi -->
