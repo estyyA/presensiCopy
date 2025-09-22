@@ -11,30 +11,34 @@
                  alt="Foto Admin"
                  class="rounded-circle border border-3 border-white mb-2"
                  width="100" height="100">
-            <h4 class="text-white mb-0">{{ session('karyawan')->nama_lengkap ?? 'Admin' }}</h4>
-            <small class="text-light">{{ session('karyawan')->nama_divisi ?? 'Administrator' }}</small>
+            <h4 class="text-white mb-0">
+                {{ session('karyawan')->nama_lengkap ?? 'Admin' }}
+            </h4>
+            <small class="text-light">
+                {{ session('karyawan')->nama_divisi ?? 'Administrator' }}
+            </small>
         </div>
 
         {{-- Live Attendance --}}
         <div class="text-center mb-4">
             <h6 class="fw-bold">Live Attendance</h6>
             <h2 id="clock" class="text-primary fw-bold"></h2>
-            <p>{{ \Carbon\Carbon::now()->format('l, F d, Y') }}</p>
+            <p class="text-muted mb-0">{{ \Carbon\Carbon::now()->format('l, F d, Y') }}</p>
         </div>
 
-        {{-- Form Presensi --}}
-<div class="d-flex justify-content-between">
-    {{-- Tombol Masuk --}}
-    <a href="{{ route('absensi.masuk') }}" class="btn btn-primary btn-lg px-4">Masuk</a>
-
-    {{-- Tombol Keluar --}}
-    <a href="{{ route('absensi.keluar') }}" class="btn btn-danger btn-lg px-4">Keluar</a>
-</div>
-
+        {{-- Tombol Masuk & Keluar --}}
+        <div class="d-flex justify-content-center gap-3 mb-4">
+            <a href="{{ route('admin.Masuk') }}" class="btn btn-primary btn-lg px-4">
+                Masuk
+            </a>
+            <a href="{{ route('admin.Keluar') }}" class="btn btn-danger btn-lg px-4">
+                Keluar
+            </a>
+        </div>
 
         {{-- Riwayat Presensi --}}
-        <div class="mt-4">
-            <h6 class="fw-bold">Attendance History</h6>
+        <div>
+            <h6 class="fw-bold mb-3">Attendance History</h6>
             @if(isset($riwayat) && $riwayat->isNotEmpty())
                 <ul class="list-group">
                     @foreach($riwayat as $presensi)
@@ -48,7 +52,9 @@
                                     , Pulang: {{ $presensi->jam_keluar }}
                                 @endif
                             </span>
-                            <span>{{ $presensi->status }}</span>
+                            <span class="fw-semibold text-secondary">
+                                {{ $presensi->status }}
+                            </span>
                         </li>
                     @endforeach
                 </ul>
