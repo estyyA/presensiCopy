@@ -129,14 +129,11 @@ Route::delete('/presensi/{id}', [PageController::class, 'deletePresensi'])->name
 Route::get('/daftarPresensi', [PageController::class, 'daftarPresensi'])->name('daftarPresensi');
 
 
+// Daftar cuti (sudah termasuk form tambah cuti di halaman yang sama)
+Route::get('/cuti', 'PageController@cuti')->name('cuti.index');
 
-//test MailTrap
-Route::get('/test-email', function () {
-    \Mail::raw('Ini email uji coba dari Laravel 6', function ($message) {
-        $message->to('emailkaryawan@example.com') // ganti dengan email tujuan
-                ->subject('Tes Kirim Email dari Laravel 6');
-    });
+// Simpan cuti
+Route::post('/cuti', 'PageController@cutiStore')->name('cuti.store');
 
-    return 'Email test sudah dikirim ke Mailtrap!';
-});
-
+// Hapus cuti
+Route::delete('/cuti/{id}', 'PageController@cutiDelete')->name('cuti.delete');
