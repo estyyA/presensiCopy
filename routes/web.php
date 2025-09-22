@@ -64,18 +64,16 @@ Route::get('/karyawan/dashboard', [PageController::class, 'dashboardKaryawan'])
 
 // Dashboard admin
 Route::get('/dashboard', [PageController::class, 'dashboard'])->name('dashboard');
-// Presensi Admin
+// Halaman utama presensi
 Route::get('/admin/presensi', [PageController::class, 'showPresensiAdmin'])->name('admin.presensi.form');
-Route::post('/admin/presensi', [PageController::class, 'submitPresensiAdmin'])->name('admin.presensi.submit');
-// Halaman form absensi masuk
-Route::get('/absensi/masuk', [PageController::class, 'masuk'])->name('absensi.masuk');
-// Simpan absen masuk
-Route::post('/absensi/masuk', [PageController::class, 'storeMasuk'])->name('absensi.storeMasuk');
 
-// Halaman form absensi keluar
-Route::get('/absensi/keluar', [PageController::class, 'keluar'])->name('absensi.keluar');
-// Simpan absen keluar
-Route::post('/absensi/keluar', [PageController::class, 'storeKeluar'])->name('absensi.storeKeluar');
+// Halaman form absensi masuk
+Route::get('/admin/Masuk', [PageController::class, 'formMasuk'])->name('admin.Masuk');
+// Simpan absen masuk
+Route::post('/admin/Masuk', [PageController::class, 'storeMasuk'])->name('admin.storeMasuk');
+Route::get('/admin/Keluar', [PageController::class, 'formKeluar'])->name('admin.Keluar');
+Route::post('/admin/Keluar', [PageController::class, 'storeKeluar'])->name('admin.storeKeluar');
+
 
 // Karyawan
 // Absensi masuk & keluar
