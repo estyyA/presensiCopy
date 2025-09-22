@@ -18,7 +18,7 @@
         </div>
 
         {{-- Jam Pulang --}}
-        <form id="formKeluar" method="POST" action="{{ url('/absensi/keluar') }}">
+        <form id="formKeluar" method="POST" action="{{ url('/admin/Keluar') }}">
             @csrf
             <div class="mb-3">
                 <label class="form-label">Jam Pulang</label>
