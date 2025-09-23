@@ -98,6 +98,9 @@ Route::middleware(['role:admin'])->group(function () {
     Route::get('/cuti', 'PageController@cuti')->name('cuti.index');
     Route::post('/cuti', 'PageController@cutiStore')->name('cuti.store');
     Route::delete('/cuti/{id}', 'PageController@cutiDelete')->name('cuti.delete');
+
+    // Profil
+    Route::get('/profil', [PageController::class, 'profil'])->name('profil');
 });
 
 
@@ -125,6 +128,5 @@ Route::middleware(['role:karyawan'])->group(function () {
 
 
 
-    // Profil
-    Route::get('/profil', [PageController::class, 'profil'])->name('profil');
+
 });
