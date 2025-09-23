@@ -816,11 +816,13 @@ public function showPresensiAdmin()
 
     $nik = $admin->NIK;
     $riwayat = DB::table('presensi')
+        ->where('NIK', $admin->NIK)
         ->orderBy('tgl_presen', 'desc')
         ->take(10)
         ->get();
 
     $presensiHariIni = DB::table('presensi')
+        ->where('NIK', $admin->NIK)
         ->whereDate('tgl_presen', now('Asia/Jakarta')->toDateString())
         ->first();
 
