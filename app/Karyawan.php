@@ -17,6 +17,8 @@ class Karyawan extends Model
         'id_divisi',
         'id_jabatan',
         'nama_lengkap',
+        'username',
+        'password',   // harus ada
         'no_hp',
         'tgl_lahir',
         'alamat',

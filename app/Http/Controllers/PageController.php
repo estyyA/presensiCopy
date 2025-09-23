@@ -213,7 +213,7 @@ class PageController extends Controller
     return view('daftarKaryawan', compact('karyawan', 'departements'));
 }
 
-
+/** ---------------- DATA KARYAWAN ---------------- */
     public function createKaryawan()
     {
         return view('createKaryawan');
@@ -229,6 +229,7 @@ class PageController extends Controller
             'password'     => Hash::make($request->password),
             'no_hp'        => $request->no_hp,
             'status'       => $request->status,
+            'role'         => 'karyawan', // 👈 FIXED
         ]);
 
         return redirect('/daftarKaryawan')->with('success', 'Karyawan berhasil ditambahkan.');
@@ -246,23 +247,22 @@ class PageController extends Controller
     public function updateKaryawan(Request $request, $NIK)
     {
         $dataUpdate = [
-            'username'  => $request->username,
-            'no_hp'     => $request->no_hp,
-            'tgl_lahir' => $request->tgl_lahir,
-            'alamat'    => $request->alamat,
-            'id_divisi' => $request->id_divisi,
-            'id_jabatan'=> $request->id_jabatan,
-            'role'      => $request->role,
-            'status'    => $request->status,
+            'username'   => $request->username,
+            'no_hp'      => $request->no_hp,
+            'tgl_lahir'  => $request->tgl_lahir,
+            'alamat'     => $request->alamat,
+            'id_divisi'  => $request->id_divisi,
+            'id_jabatan' => $request->id_jabatan,
+            'status'     => $request->status,
+            'role'       => 'karyawan', // 👈 dipaksa tetap karyawan
         ];
 
         if ($request->hasFile('foto')) {
-    $foto = $request->file('foto');
-    $namaFile = time() . '_' . $foto->getClientOriginalName();
-    $foto->move(public_path('uploads'), $namaFile);
-    $dataUpdate['foto'] = $namaFile; // simpan nama file ke DB
-    }
-
+            $foto = $request->file('foto');
+            $namaFile = time() . '_' . $foto->getClientOriginalName();
+            $foto->move(public_path('uploads'), $namaFile);
+            $dataUpdate['foto'] = $namaFile;
+        }
 
         DB::table('karyawan')->where('NIK', $NIK)->update($dataUpdate);
 
@@ -296,46 +296,43 @@ class PageController extends Controller
     }
 
     public function processLogin(Request $request)
-{
-    $request->validate([
-        'username' => 'required',
-        'password' => 'required',
-    ]);
+    {
+        $request->validate([
+            'username' => 'required',
+            'password' => 'required',
+        ]);
 
-    // Cari akun
-    $akun = DB::table('akun')
-        ->where('username', $request->username)
+        // Ambil akun + role karyawan
+        $akun = DB::table('akun')
+        ->join('karyawan', 'akun.NIK', '=', 'karyawan.NIK')
+        ->where('akun.username', $request->username)
+        ->select(
+            'akun.username',
+            'akun.password',
+            'karyawan.NIK',
+            'karyawan.role',
+            'karyawan.nama_lengkap',
+            'karyawan.id_divisi',
+            'karyawan.id_jabatan',
+            'karyawan.foto' // ✅ tambahkan ini
+        )
         ->first();
 
-    if (!$akun || !Hash::check($request->password, $akun->password)) {
-        return back()->withErrors(['login' => 'Username atau password salah.']);
-    }
+        if (!$akun || !Hash::check($request->password, $akun->password)) {
+            return back()->withErrors(['login' => 'Username atau password salah.']);
+        }
 
-    // Ambil data karyawan (beserta role, divisi, dll)
-    $karyawan = DB::table('karyawan')
-        ->leftJoin('departement', 'karyawan.id_divisi', '=', 'departement.id_divisi')
-        ->where('karyawan.NIK', $akun->NIK)
-        ->select('karyawan.*', 'departement.nama_divisi')
-        ->first();
+        // Simpan ke session (selalu satu key saja)
+        session(['karyawan' => $akun]);
 
-    if (!$karyawan) {
-        return back()->withErrors(['login' => 'Data karyawan tidak ditemukan.']);
-    }
+        // Redirect sesuai role
+        if ($akun->role === 'admin') {
+            return redirect()->route('dashboard')->with('success', 'Login berhasil sebagai Admin');
+        }
 
-    // Simpan ke session
-    session([
-        'username' => $akun->username,
-        'role'     => $karyawan->role,   // sekarang ambil role dari tabel karyawan
-        'karyawan' => $karyawan,
-    ]);
-
-    // Redirect sesuai role
-    if ($karyawan->role === 'admin') {
-        return redirect()->route('dashboard')->with('success', 'Login berhasil sebagai Admin');
-    } else {
         return redirect()->route('karyawan.dashboard')->with('success', 'Login berhasil sebagai Karyawan');
     }
-}
+
 
 
     /** ---------------- REGISTER ---------------- */
@@ -637,28 +634,36 @@ class PageController extends Controller
     // DASHBOARD KARYAWAN
     // =======================
     public function dashboardKaryawan()
-{
-    $karyawan = session('karyawan'); // ambil dari session
-    if (!$karyawan) {
-        return redirect()->route('login.form');
+    {
+        $sessionKaryawan = session('karyawan');
+
+        if (!$sessionKaryawan) {
+            return redirect()->route('login.form');
+        }
+
+        // Ambil data lengkap dari DB (termasuk foto)
+        $karyawan = DB::table('karyawan')
+            ->leftJoin('departement', 'karyawan.id_divisi', '=', 'departement.id_divisi')
+            ->leftJoin('jabatan', 'karyawan.id_jabatan', '=', 'jabatan.id_jabatan')
+            ->select('karyawan.*', 'departement.nama_divisi', 'jabatan.nama_jabatan')
+            ->where('karyawan.NIK', $sessionKaryawan->NIK)
+            ->first();
+
+        // Presensi hari ini
+        $presensiHariIni = DB::table('presensi')
+            ->where('NIK', $karyawan->NIK)
+            ->whereDate('tgl_presen', now()->toDateString())
+            ->first();
+
+        // Riwayat presensi 7 hari terakhir
+        $riwayat = DB::table('presensi')
+            ->where('NIK', $karyawan->NIK)
+            ->orderBy('tgl_presen', 'desc')
+            ->limit(7)
+            ->get();
+
+        return view('karyawan.dashboard', compact('karyawan', 'presensiHariIni', 'riwayat'));
     }
-
-    $nik = $karyawan->NIK;
-
-    $presensiHariIni = DB::table('presensi')
-        ->where('NIK', $nik)
-        ->whereDate('tgl_presen', now()->toDateString())
-        ->first();
-
-    $riwayat = DB::table('presensi')
-        ->where('NIK', $nik)
-        ->orderBy('tgl_presen', 'desc')
-        ->limit(7)
-        ->get();
-
-    // 🔑 kirim $karyawan ke view
-    return view('karyawan.dashboard', compact('karyawan', 'presensiHariIni', 'riwayat'));
-}
 
 
    // =======================

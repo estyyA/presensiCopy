@@ -84,13 +84,8 @@
                                 <label for="id_jabatan">Jabatan</label>
                             </div>
 
-                            <div class="form-floating mb-3">
-                                <select name="role" class="form-select shadow-sm">
-                                    <option value="admin" {{ $karyawan->role == 'admin' ? 'selected' : '' }}>Admin</option>
-                                    <option value="karyawan" {{ $karyawan->role == 'karyawan' ? 'selected' : '' }}>Karyawan</option>
-                                </select>
-                                <label for="role">Role</label>
-                            </div>
+                            {{-- Role disembunyikan, default karyawan --}}
+                            <input type="hidden" name="role" value="karyawan">
 
                             <div class="form-floating mb-3">
                                 <select name="status" class="form-select shadow-sm">
