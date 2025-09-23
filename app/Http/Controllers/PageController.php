@@ -804,6 +804,12 @@ public function updatePresensi(Request $request, $id)
 // Halaman utama presensi (riwayat)
 public function showPresensiAdmin()
 {
+    $admin = session('karyawan');
+    if (!$admin || $admin->role !== 'admin') {
+        return redirect()->route('login.form');
+    }
+
+    $nik = $admin->NIK;
     $riwayat = DB::table('presensi')
         ->orderBy('tgl_presen', 'desc')
         ->take(10)
@@ -813,7 +819,7 @@ public function showPresensiAdmin()
         ->whereDate('tgl_presen', now('Asia/Jakarta')->toDateString())
         ->first();
 
-    return view('admin.presensi', compact('riwayat', 'presensiHariIni'));
+    return view('admin.presensi', compact('admin','riwayat', 'presensiHariIni'));
 }
 
 // FORM MASUK
@@ -825,11 +831,12 @@ public function formMasuk()
 // SIMPAN MASUK
 public function storeMasuk(Request $request)
 {
-    $admin = session('admin');
-    if (!$admin) {
-        return redirect()->route('admin.presensi.form');
-
+   $admin = session('karyawan');
+    if (!$admin || $admin->role !== 'admin') {
+        return redirect()->route('login.form');
     }
+
+    $nik = $admin->NIK;
 
     $tanggal = now('Asia/Jakarta')->toDateString();
 
@@ -851,7 +858,6 @@ public function storeMasuk(Request $request)
         'jam_masuk'     => now('Asia/Jakarta')->format('H:i:s'),
         'lokasi_masuk'  => $request->lokasi_masuk ?? null,
         'status'        => 'hadir',
-        'role'          => 'admin',
     ]);
 
     return redirect()->route('admin.presensi.form')->with('success', 'Absen masuk berhasil!');
@@ -866,10 +872,12 @@ public function formKeluar()
 // SIMPAN KELUAR
 public function storeKeluar(Request $request)
 {
-    $admin = session('admin');
-    if (!$admin) {
-        return redirect()->route('admin.presensi.form');
+    $admin = session('karyawan');
+    if (!$admin || $admin->role !== 'admin') {
+        return redirect()->route('login.form');
     }
+
+    $nik = $admin->NIK;
 
     DB::table('presensi')
         ->where('NIK', $admin->NIK)
@@ -919,35 +927,7 @@ public function cutiDelete($id)
 
     return redirect()->route('cuti.index')->with('success', '🗑️ Data cuti berhasil dihapus');
 }
-//Riwayat Presensi Karyawan
 
-  public function dashboardAdmin(Request $request)
-{
-    $admin = session('admin');
-    if (!$admin) {
-        return redirect()->route('login.form');
-    }
-
-    $nik = $admin->NIK;
-
-    // Cek presensi hari ini
-    $presensiHariIni = DB::table('presensi')
-        ->where('NIK', $nik)
-        ->whereDate('tgl_presen', now()->toDateString())
-        ->first();
-
-    // Riwayat presensi
-    $query = DB::table('presensi')
-        ->where('NIK', $nik);
-
-    if ($request->filled('tanggalMulai') && $request->filled('tanggalAkhir')) {
-        $query->whereBetween('tgl_presen', [$request->tanggalMulai, $request->tanggalAkhir]);
-    }
-
-    $riwayat = $query->orderBy('tgl_presen', 'desc')->get();
-
-    return view('karyawan.dashboard', compact('admin', 'presensiHariIni', 'riwayat'));
-}
 
 
 

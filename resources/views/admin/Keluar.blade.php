@@ -1,18 +1,17 @@
-@extends('layout.karyawan')
+@extends('layout.master')
 
 @section('content')
-<div class="d-flex justify-content-center mt-5">
-    <div class="card shadow-lg p-4" style="width: 500px; border-radius: 15px; background-color: #e0f0ff;">
-        <h5 class="text-center fw-bold mb-3">Absensi Pulang</h5>
+<div class="card p-3">
+    <h5 class="mb-3 text-center fw-bold">Absensi Keluar</h5>
 
         {{-- Peta Lokasi --}}
         <div class="mb-3" id="map-container">
             <iframe id="map-frame"
                 width="100%" height="250"
-                style="border-radius: 10px;"
+                style="border:0; border-radius:10px;"
                 allowfullscreen="" loading="lazy">
             </iframe>
-            <p class="mt-2">
+            <p class="mt-2 small fw-semibold">
                 <strong>Lokasi Anda:</strong> <span id="alamat">Mencari lokasi...</span>
             </p>
         </div>
@@ -28,8 +27,8 @@
             {{-- Hidden input untuk lokasi --}}
             <input type="hidden" name="lokasi_keluar" id="lokasi_keluar">
 
-            <button type="submit" id="btnKeluar" class="btn btn-primary w-100">
-                🚪 Absen Pulang
+            <button type="submit" id="btnKeluar" class="btn btn-success btn-lg w-100 text-center">
+                <i class="bi bi-check-circle"></i>Absen Pulang
             </button>
         </form>
 
