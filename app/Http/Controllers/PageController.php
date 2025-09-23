@@ -338,7 +338,10 @@ class PageController extends Controller
     /** ---------------- REGISTER ---------------- */
     public function showRegister()
     {
-        return view('register');
+        $departements = Department::all();
+        $jabatans = Jabatan::all();
+
+        return view('register', compact('departements', 'jabatans'));
     }
 
     public function processRegister(Request $request)

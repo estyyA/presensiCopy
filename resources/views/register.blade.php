@@ -191,17 +191,19 @@
                             <i class="bi bi-diagram-3 input-icon"></i>
                             <select name="id_divisi" class="form-select" required>
                                 <option value="">--Pilih Divisi--</option>
-                                <option value="1">SDM</option>
-                                <option value="2">Keuangan</option>
-                                <option value="3">Keamanan</option>
+                                @foreach($departements as $dept)
+                                    <option value="{{ $dept->id_divisi }}">{{ $dept->nama_divisi }}</option>
+                                @endforeach
                             </select>
                         </div>
+
                         <div class="form-group mb-3">
                             <i class="bi bi-briefcase input-icon"></i>
                             <select name="id_jabatan" class="form-select" required>
                                 <option value="">--Pilih Jabatan--</option>
-                                <option value="1">Kepala Divisi</option>
-                                <option value="2">Staff</option>
+                                @foreach($jabatans as $jab)
+                                    <option value="{{ $jab->id_jabatan }}">{{ $jab->nama_jabatan }}</option>
+                                @endforeach
                             </select>
                         </div>
                         <div class="form-group mb-3">
