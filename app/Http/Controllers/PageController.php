@@ -311,14 +311,12 @@ class PageController extends Controller
         return back()->withErrors(['login' => 'Username atau password salah.']);
     }
 
-    // Ambil data karyawan + nama_divisi + nama_jabatan
+    // Ambil data karyawan (beserta role, divisi, dll)
     $karyawan = DB::table('karyawan')
-    ->leftJoin('departement', 'karyawan.id_divisi', '=', 'departement.id_divisi')
-    ->where('karyawan.NIK', $akun->NIK)
-    ->select('karyawan.*', 'departement.nama_divisi')
-    ->first();
-
-
+        ->leftJoin('departement', 'karyawan.id_divisi', '=', 'departement.id_divisi')
+        ->where('karyawan.NIK', $akun->NIK)
+        ->select('karyawan.*', 'departement.nama_divisi')
+        ->first();
 
     if (!$karyawan) {
         return back()->withErrors(['login' => 'Data karyawan tidak ditemukan.']);
@@ -327,7 +325,7 @@ class PageController extends Controller
     // Simpan ke session
     session([
         'username' => $akun->username,
-        'role'     => $karyawan->role,   // role dari tabel karyawan
+        'role'     => $karyawan->role,   // sekarang ambil role dari tabel karyawan
         'karyawan' => $karyawan,
     ]);
 
@@ -338,6 +336,7 @@ class PageController extends Controller
         return redirect()->route('karyawan.dashboard')->with('success', 'Login berhasil sebagai Karyawan');
     }
 }
+
 
     /** ---------------- REGISTER ---------------- */
     public function showRegister()
