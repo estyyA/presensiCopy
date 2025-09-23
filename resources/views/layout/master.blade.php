@@ -16,8 +16,18 @@
 
     <style>
         body {
-            background-color: #f4f6f9;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        background-color: #f4f6f9; /* abu muda atau ganti sesuai selera */
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        display: flex;
+        min-height: 100vh;
+        flex-direction: column;
+        margin: 0; /* pastikan tidak ada jarak default */
+    }
+
+
+        .main-wrapper {
+            display: flex;
+            flex: 1;
         }
         /* === SIDEBAR === */
         .sidebar {
@@ -92,8 +102,23 @@
 
         /* === CONTENT === */
         .content {
-            padding: 25px;
-            animation: fadeIn 0.3s ease-in-out;
+            padding: 25px;   /* bisa dikurangi kalau kepanjangan */
+            background: #fff;
+            width: 100%;     /* isi selebar body */
+            margin: 0;       /* hilangin gap */
+            box-sizing: border-box;
+        }
+
+        /* === FOOTER === */
+        footer {
+            background: #fff;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            border-top: 1px solid #ffffff;
+            padding: 10px;
+            text-align: center;
+            font-size: 14px;
+            color: #666;
+
         }
 
         /* === CARD STATS === */
@@ -136,7 +161,7 @@
 </head>
 <body>
 
-<div class="d-flex">
+<div class="main-wrapper">
     {{-- Sidebar --}}
     <div class="sidebar d-flex flex-column">
         <div class="brand">
@@ -169,7 +194,7 @@
     </div>
 
     {{-- Main Content --}}
-    <div class="flex-fill">
+    <div class="flex-fill d-flex flex-column">
         {{-- Topbar --}}
         <div class="topbar">
             <div class="dropdown">
@@ -197,9 +222,14 @@
         </div>
 
         {{-- Content --}}
-        <div class="content">
+        <div class="content flex-fill">
             @yield('content')
         </div>
+
+        {{-- Footer --}}
+        <footer>
+            <small>© {{ date('Y') }} PT Madubaru - Sistem Presensi Develop By Asya, Esty, Esra, Sugi, Yayan</small>
+        </footer>
     </div>
 </div>
 
