@@ -664,18 +664,20 @@ public function exportExcel(Request $request)
         );
 
         // kirim email (sementara pakai teks sederhana)
-        Mail::raw("Klik link berikut untuk reset password: " . url('/reset-password/' . $token), function ($message) use ($request) {
-            $message->to($request->email);
-            $message->subject('Reset Password');
-        });
+       Mail::raw("Klik link berikut untuk reset password: " . url('/reset-password/' . $token . '?email=' . $request->email), function ($message) use ($request) {
+        $message->to($request->email);
+        $message->subject('Reset Password');
+     });
+
 
         return back()->with('success', 'Link reset password sudah dikirim ke email.');
     }
 
-    public function showResetForm($token)
-    {
-        return view('auth.reset-password', ['token' => $token]);
-    }
+   public function showResetForm(Request $request, $token)
+{
+    $email = $request->query('email'); // ambil dari ?email=...
+    return view('auth.reset-password', compact('token', 'email'));
+}
 
    public function resetPassword(Request $request)
 {
