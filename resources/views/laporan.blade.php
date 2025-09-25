@@ -122,7 +122,12 @@
                             <th>Izin</th>
                             <th>Cuti</th>
                             <th>Alpha</th>
-                            <th>Total Jam Kerja</th>
+
+                            {{-- ✅ Tampilkan kolom Total Jam hanya jika kategori = hadir --}}
+                            @if(request('kategori') == 'hadir')
+                                <th>Total Jam Kerja</th>
+                            @endif
+
                             <th>Catatan</th>
                         </tr>
                     </thead>
@@ -140,26 +145,28 @@
                                 <td><span class="badge badge-primary px-3">{{ $row->cuti }}</span></td>
                                 <td><span class="badge badge-danger px-3">{{ $row->alpha }}</span></td>
 
-                                {{-- ✅ Perbaikan Total Jam Kerja --}}
-                                <td>
-                                    @php
-                                        $totalMenit = (int) ($row->total_menit ?? 0);
-                                        $jam = intdiv($totalMenit, 60);
-                                        $menit = $totalMenit % 60;
-                                    @endphp
+                                {{-- ✅ Tampilkan jam hanya untuk kategori hadir --}}
+                                @if(request('kategori') == 'hadir')
+                                    <td>
+                                        @php
+                                            $totalMenit = (int) ($row->total_menit ?? 0);
+                                            $jam = intdiv($totalMenit, 60);
+                                            $menit = $totalMenit % 60;
+                                        @endphp
 
-                                    <span class="badge badge-secondary px-3">
-                                        @if($jam > 0 && $menit > 0)
-                                            {{ $jam }} Jam {{ $menit }} Menit
-                                        @elseif($jam > 0)
-                                            {{ $jam }} Jam
-                                        @elseif($menit > 0)
-                                            {{ $menit }} Menit
-                                        @else
-                                            0 Menit
-                                        @endif
-                                    </span>
-                                </td>
+                                        <span class="badge badge-secondary px-3">
+                                            @if($jam > 0 && $menit > 0)
+                                                {{ $jam }} Jam {{ $menit }} Menit
+                                            @elseif($jam > 0)
+                                                {{ $jam }} Jam
+                                            @elseif($menit > 0)
+                                                {{ $menit }} Menit
+                                            @else
+                                                0 Menit
+                                            @endif
+                                        </span>
+                                    </td>
+                                @endif
 
                                 <td>
                                     <textarea name="catatan[{{ $row->nik }}]"
@@ -170,10 +177,13 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="12" class="text-muted">⚠️ Tidak ada data presensi</td>
+                                <td colspan="{{ request('kategori') == 'hadir' ? 12 : 11 }}" class="text-muted">
+                                    ⚠️ Tidak ada data presensi
+                                </td>
                             </tr>
                         @endforelse
                     </tbody>
+
 
                 </table>
 
