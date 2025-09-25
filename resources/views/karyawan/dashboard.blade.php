@@ -121,88 +121,92 @@ setInterval(updateClock, 1000);
     </div>
 </div>
 
-<!-- Tabel Riwayat Presensi -->
-<div class="card shadow-lg border-0 mb-4">
-    <div class="card-body">
-        <h5 class="fw-bold mb-4 text-purple">
-            <i class="bi bi-funnel-fill me-2"></i> Filter Presensi
-        </h5>
+    <!-- Card Filter & Tabel Riwayat Presensi -->
+    <div class="card shadow-lg border-0 mb-4 rounded-4">
+        <div class="card-body">
+    <!-- Filter Presensi -->
+    <h5 class="fw-bold mb-3 text-purple">
+        <i class="bi bi-funnel-fill me-2"></i> Filter Presensi
+    </h5>
 
-        <form method="GET" action="{{ route('karyawan.dashboard') }}">
-            <div class="row g-3 align-items-end">
-                <!-- Input Mulai -->
-                <div class="col-md-4">
-                    <label class="form-label fw-semibold">Mulai</label>
-                    <input type="date" name="mulai" class="form-control shadow-sm"
-                           value="{{ request('mulai') }}">
-                </div>
-
-                <!-- Input Sampai -->
-                <div class="col-md-4">
-                    <label class="form-label fw-semibold">Sampai</label>
-                    <input type="date" name="sampai" class="form-control shadow-sm"
-                           value="{{ request('sampai') }}">
-                </div>
-
-                <!-- Tombol -->
-                <div class="col-md-4 d-flex">
-                    <button type="submit" class="btn btn-purple ms-auto px-4 shadow-sm">
-                        <i class="fa fa-search me-1"></i> Tampilkan
-                    </button>
-                </div>
+    <form method="GET" action="{{ route('karyawan.dashboard') }}">
+        <div class="d-flex align-items-end gap-3 flex-wrap">
+            <!-- Input Mulai -->
+            <div>
+                <label class="form-label fw-semibold">Mulai</label>
+                <input type="date" name="mulai"
+                    class="form-control form-control-sm shadow-sm rounded"
+                    style="width: 115px;"
+                    value="{{ request('mulai') }}">
             </div>
-        </form>
-    </div>
 
-<div class="table-responsive">
-    <table class="table table-bordered table-striped">
-        <thead class="table-light">
-            <tr>
-                <th>Tanggal</th>
-                <th>Jam Masuk</th>
-                <th>Lokasi Masuk</th>
-                <th>Jam Keluar</th>
-                <th>Lokasi Keluar</th>
-                <th>Status</th>
-            </tr>
-        </thead>
-        <tbody>
-            @forelse($riwayat as $item)
-                <tr class="{{ $item->jam_masuk > '07:30:00' ? 'bg-primary text-white' : '' }}">
-                    <td>{{ \Carbon\Carbon::parse($item->tgl_presen)->format('D, d F Y') }}</td>
-                    <td>{{ $item->jam_masuk ?? '--:--' }}</td>
-                    <td>{{ $item->lokasi_masuk ?? '-' }}</td>
-                    <td>{{ $item->jam_keluar ?? '--:--' }}</td>
-                    <td>{{ $item->lokasi_keluar ?? '-' }}</td>
-                    <td>
-                        <span class="fw-semibold text-secondary">
-                            {{ $item->status ?? '-' }}
-                        </span>
-                    </td>
-                </tr>
-            @empty
+            <!-- Input Sampai -->
+            <div>
+                <label class="form-label fw-semibold">Sampai</label>
+                <input type="date" name="sampai"
+                    class="form-control form-control-sm shadow-sm rounded"
+                    style="width: 115px;"
+                    value="{{ request('sampai') }}">
+            </div>
+
+            <!-- Tombol -->
+            <div class="ms-auto">
+                <button type="submit"
+                        class="btn btn-purple btn-sm shadow-sm rounded-circle d-flex align-items-center justify-content-center"
+                        style="width: 35px; height: 35px;"
+                        title="Tampilkan">
+                    <i class="bi bi-search"></i>
+                </button>
+
+            </div>
+        </div>
+    </form>
+
+    <!-- Tabel -->
+    <div class="table-responsive mt-4">
+        <table class="table table-bordered table-striped shadow-sm rounded-4 overflow-hidden">
+            <thead class="table-secondary">
                 <tr>
-                    <td colspan="6" class="text-center text-muted">Belum ada data presensi</td>
+                    <th>Tanggal</th>
+                    <th>Jam Masuk</th>
+                    <th>Lokasi Masuk</th>
+                    <th>Jam Keluar</th>
+                    <th>Lokasi Keluar</th>
+                    <th>Status</th>
                 </tr>
-            @endforelse
-        </tbody>
-    </table>
+            </thead>
+            <tbody>
+                @forelse($riwayat as $item)
+                    <tr class="{{ $item->jam_masuk > '07:30:00' ? 'bg-primary text-white' : '' }}">
+                        <td>{{ \Carbon\Carbon::parse($item->tgl_presen)->format('D, d F Y') }}</td>
+                        <td>{{ $item->jam_masuk ?? '--:--' }}</td>
+                        <td>{{ $item->lokasi_masuk ?? '-' }}</td>
+                        <td>{{ $item->jam_keluar ?? '--:--' }}</td>
+                        <td>{{ $item->lokasi_keluar ?? '-' }}</td>
+                        <td>
+                            <span class="fw-semibold text-secondary">
+                                {{ $item->status ?? '-' }}
+                            </span>
+                        </td>
+                    </tr>
+                @empty
+                    <tr>
+                        <td colspan="6" class="text-center text-muted">Belum ada data presensi</td>
+                    </tr>
+                @endforelse
+            </tbody>
+        </table>
+    </div>
 </div>
-</div>
-
-
-
-
-
 
 <!-- Tombol Logout -->
-<form action="{{ route('logout') }}" method="POST" class="mt-4 d-flex justify-content-end">
-    @csrf
-    <button type="submit" class="btn btn-danger btn-lg px-4 rounded-pill shadow-sm d-flex align-items-center justify-content-center gap-2" style="transition: 0.3s;">
-        <i class="bi bi-box-arrow-right"></i>
-        <span>Logout</span>
-    </button>
-</form>
+    <form action="{{ route('logout') }}" method="POST" class="mt-4 d-flex justify-content-end">
+        @csrf
+        <button type="submit" class="btn btn-danger btn-lg px-4 rounded-pill shadow-sm d-flex align-items-center justify-content-center gap-2" style="transition: 0.3s;">
+            <i class="bi bi-box-arrow-right"></i>
+            <span>Logout</span>
+        </button>
+    </form>
 
 {{-- @if(session('success'))
 <div class="alert alert-success alert-dismissible fade show" role="alert">
