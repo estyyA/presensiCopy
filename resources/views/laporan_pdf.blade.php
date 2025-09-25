@@ -39,8 +39,9 @@
                 <th>Jumlah Hadir</th>
                 <th>Jumlah Sakit</th>
                 <th>Jumlah Izin</th>
-                <th>Jumlah Cuti</th> {{-- ✅ tambahan --}}
+                <th>Jumlah Cuti</th>
                 <th>Jumlah Alpha</th>
+                <th>Total Jam Kerja</th> {{-- ✅ tambahan --}}
                 <th>Catatan</th>
             </tr>
         </thead>
@@ -55,8 +56,9 @@
                     <td>{{ $row->hadir }}</td>
                     <td>{{ $row->sakit }}</td>
                     <td>{{ $row->izin }}</td>
-                    <td>{{ $row->cuti }}</td> {{-- ✅ tampilkan cuti --}}
+                    <td>{{ $row->cuti }}</td>
                     <td>{{ $row->alpha }}</td>
+                    <td>{{ $row->total_jam ?? 0 }} </td> {{-- ✅ tampilkan total jam --}}
                     <td>{{ $catatan[$row->nik] ?? '-' }}</td>
                 </tr>
             @endforeach

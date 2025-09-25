@@ -46,12 +46,12 @@
                 <i class="fa fa-search mr-1"></i> Tampilkan
             </button>
 
-            <a href="{{ route('laporan.cetakPdf', ['mulai' => request('mulai'), 'sampai' => request('sampai')]) }}"
+            <a href="{{ route('laporan.cetakPdf', ['mulai' => request('mulai'), 'sampai' => request('sampai'), 'kategori' => request('kategori')]) }}"
                class="btn btn-danger mr-2 mb-2" target="_blank">
                 <i class="fa fa-file-pdf mr-1"></i> PDF
             </a>
 
-            <a href="{{ route('laporan.exportExcel', ['mulai' => request('mulai'), 'sampai' => request('sampai')]) }}"
+            <a href="{{ route('laporan.exportExcel', ['mulai' => request('mulai'), 'sampai' => request('sampai'), 'kategori' => request('kategori')]) }}"
                class="btn btn-success mb-2">
                 <i class="fa fa-file-excel mr-1"></i> Excel
             </a>
@@ -59,10 +59,53 @@
     </div>
 </div>
 
+{{-- 📌 Menu Kategori Laporan --}}
+<div class="card shadow-sm border-0 mb-4">
+    <div class="card-body">
+        <h5 class="font-weight-bold mb-3 text-purple">📌 Pilih Kategori Laporan</h5>
+        <ul class="nav nav-pills mb-3">
+            <li class="nav-item">
+                <a class="nav-link {{ request('kategori')=='hadir' ? 'active bg-purple text-white' : '' }}"
+                   href="{{ route('laporan', array_merge(request()->all(), ['kategori'=>'hadir'])) }}">
+                   Hadir
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link {{ request('kategori')=='izin' ? 'active bg-purple text-white' : '' }}"
+                   href="{{ route('laporan', array_merge(request()->all(), ['kategori'=>'izin'])) }}">
+                   Izin
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link {{ request('kategori')=='sakit' ? 'active bg-purple text-white' : '' }}"
+                   href="{{ route('laporan', array_merge(request()->all(), ['kategori'=>'sakit'])) }}">
+                   Sakit
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link {{ request('kategori')=='cuti' ? 'active bg-purple text-white' : '' }}"
+                   href="{{ route('laporan', array_merge(request()->all(), ['kategori'=>'cuti'])) }}">
+                   Cuti
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link {{ request('kategori')=='alpha' ? 'active bg-purple text-white' : '' }}"
+                   href="{{ route('laporan', array_merge(request()->all(), ['kategori'=>'alpha'])) }}">
+                   Alpha
+                </a>
+            </li>
+        </ul>
+    </div>
+</div>
+
 {{-- 📋 Data Presensi --}}
 <div class="card shadow-sm border-0">
     <div class="card-body">
-        <h5 class="font-weight-bold mb-3 text-purple">📑 Rekapitulasi Presensi</h5>
+        <h5 class="font-weight-bold mb-3 text-purple">📑 Rekapitulasi Presensi
+            @if(request('kategori'))
+                - {{ ucfirst(request('kategori')) }}
+            @endif
+        </h5>
         <div class="table-responsive">
             <form method="POST" action="{{ route('laporan.simpanCatatan') }}">
                 @csrf
@@ -79,6 +122,7 @@
                             <th>Izin</th>
                             <th>Cuti</th>
                             <th>Alpha</th>
+                            <th>Total Jam Kerja</th>
                             <th>Catatan</th>
                         </tr>
                     </thead>
@@ -95,6 +139,28 @@
                                 <td><span class="badge badge-warning px-3">{{ $row->izin }}</span></td>
                                 <td><span class="badge badge-primary px-3">{{ $row->cuti }}</span></td>
                                 <td><span class="badge badge-danger px-3">{{ $row->alpha }}</span></td>
+
+                                {{-- ✅ Perbaikan Total Jam Kerja --}}
+                                <td>
+                                    @php
+                                        $totalMenit = (int) ($row->total_menit ?? 0);
+                                        $jam = intdiv($totalMenit, 60);
+                                        $menit = $totalMenit % 60;
+                                    @endphp
+
+                                    <span class="badge badge-secondary px-3">
+                                        @if($jam > 0 && $menit > 0)
+                                            {{ $jam }} Jam {{ $menit }} Menit
+                                        @elseif($jam > 0)
+                                            {{ $jam }} Jam
+                                        @elseif($menit > 0)
+                                            {{ $menit }} Menit
+                                        @else
+                                            0 Menit
+                                        @endif
+                                    </span>
+                                </td>
+
                                 <td>
                                     <textarea name="catatan[{{ $row->nik }}]"
                                               class="form-control rounded"
@@ -104,10 +170,11 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="11" class="text-muted">⚠️ Tidak ada data presensi</td>
+                                <td colspan="12" class="text-muted">⚠️ Tidak ada data presensi</td>
                             </tr>
                         @endforelse
                     </tbody>
+
                 </table>
 
                 {{-- Tombol Simpan --}}
@@ -120,6 +187,7 @@
         </div>
     </div>
 </div>
+
 @endsection
 
 @push('styles')
@@ -130,6 +198,7 @@
     .btn-purple:hover { background-color: #59309a; }
     .badge { font-size: 0.85rem; }
     textarea { resize: none; }
+    .nav-pills .nav-link { border-radius: 6px; }
 </style>
 @endpush
 
