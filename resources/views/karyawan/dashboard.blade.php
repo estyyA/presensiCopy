@@ -126,7 +126,7 @@ setInterval(updateClock, 1000);
         <div class="card-body">
     <!-- Filter Presensi -->
     <h5 class="fw-bold mb-3 text-purple">
-        <i class="bi bi-funnel-fill me-2"></i> Filter Presensi
+        <i class="bi-calendar-check-fill me-2"></i> Riwayat Presensi
     </h5>
 
     <form method="GET" action="{{ route('karyawan.dashboard') }}">
@@ -197,9 +197,7 @@ setInterval(updateClock, 1000);
             </tbody>
         </table>
     </div>
-</div>
-
-<!-- Tombol Logout -->
+    <!-- Tombol Logout -->
     <form action="{{ route('logout') }}" method="POST" class="mt-4 d-flex justify-content-end">
         @csrf
         <button type="submit" class="btn btn-danger btn-lg px-4 rounded-pill shadow-sm d-flex align-items-center justify-content-center gap-2" style="transition: 0.3s;">
@@ -207,6 +205,9 @@ setInterval(updateClock, 1000);
             <span>Logout</span>
         </button>
     </form>
+</div>
+
+
 
 {{-- @if(session('success'))
 <div class="alert alert-success alert-dismissible fade show" role="alert">
