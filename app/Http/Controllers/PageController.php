@@ -636,7 +636,7 @@ class PageController extends Controller
 // =======================
     // DASHBOARD KARYAWAN
     // =======================
-    public function dashboardKaryawan()
+    public function dashboardKaryawan(Request $request)
     {
         $sessionKaryawan = session('karyawan');
 
@@ -661,9 +661,17 @@ class PageController extends Controller
         // Riwayat presensi 7 hari terakhir
         $riwayat = DB::table('presensi')
             ->where('NIK', $karyawan->NIK)
-            ->orderBy('tgl_presen', 'desc')
-            ->limit(7)
-            ->get();
+            ->orderBy('tgl_presen', 'desc');
+
+        // Cek apakah ada filter tanggal
+        if ($request->filled('mulai') && $request->filled('sampai')) {
+            $riwayat->whereBetween('tgl_presen', [$request->mulai, $request->sampai]);
+        } else {
+            // Default: tampilkan 7 hari terakhir
+            $riwayat->limit(7);
+        }
+
+        $riwayat = $riwayat->get();
 
         return view('karyawan.dashboard', compact('karyawan', 'presensiHariIni', 'riwayat'));
     }

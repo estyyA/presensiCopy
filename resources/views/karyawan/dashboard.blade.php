@@ -1,6 +1,12 @@
 @extends('layout.karyawan')
 
 @section('content')
+<style>
+    .btn-danger:hover {
+        background-color: #c82333 !important;
+        transform: scale(1.05);
+    }
+</style>
 
 <!-- Card Profil Karyawan -->
 <div class="card profile-card p-3 mb-3 text-center">
@@ -116,17 +122,37 @@ setInterval(updateClock, 1000);
 </div>
 
 <!-- Tabel Riwayat Presensi -->
-<div class="card p-3">
-    <h6 class="fw-bold mb-3">Riwayat Presensi</h6>
-    <form method="GET" action="{{ route('riwayat.index') }}">
-    <label for="tanggalMulai">Dari:</label>
-    <input type="date" name="tanggalMulai" value="{{ request('tanggalMulai') }}">
+<div class="card shadow-lg border-0 mb-4">
+    <div class="card-body">
+        <h5 class="fw-bold mb-4 text-purple">
+            <i class="bi bi-funnel-fill me-2"></i> Filter Presensi
+        </h5>
 
-    <label for="tanggalAkhir">Sampai:</label>
-    <input type="date" name="tanggalAkhir" value="{{ request('tanggalAkhir') }}">
+        <form method="GET" action="{{ route('karyawan.dashboard') }}">
+            <div class="row g-3 align-items-end">
+                <!-- Input Mulai -->
+                <div class="col-md-4">
+                    <label class="form-label fw-semibold">Mulai</label>
+                    <input type="date" name="mulai" class="form-control shadow-sm"
+                           value="{{ request('mulai') }}">
+                </div>
 
-    <button type="submit">Filter</button>
-</form>
+                <!-- Input Sampai -->
+                <div class="col-md-4">
+                    <label class="form-label fw-semibold">Sampai</label>
+                    <input type="date" name="sampai" class="form-control shadow-sm"
+                           value="{{ request('sampai') }}">
+                </div>
+
+                <!-- Tombol -->
+                <div class="col-md-4 d-flex">
+                    <button type="submit" class="btn btn-purple ms-auto px-4 shadow-sm">
+                        <i class="fa fa-search me-1"></i> Tampilkan
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
 
 <div class="table-responsive">
     <table class="table table-bordered table-striped">
@@ -142,7 +168,7 @@ setInterval(updateClock, 1000);
         </thead>
         <tbody>
             @forelse($riwayat as $item)
-                <tr class="{{ $item->jam_masuk > '08:30:00' ? 'bg-primary text-white' : '' }}">
+                <tr class="{{ $item->jam_masuk > '07:30:00' ? 'bg-primary text-white' : '' }}">
                     <td>{{ \Carbon\Carbon::parse($item->tgl_presen)->format('D, d F Y') }}</td>
                     <td>{{ $item->jam_masuk ?? '--:--' }}</td>
                     <td>{{ $item->lokasi_masuk ?? '-' }}</td>
@@ -162,6 +188,7 @@ setInterval(updateClock, 1000);
         </tbody>
     </table>
 </div>
+</div>
 
 
 
@@ -169,10 +196,11 @@ setInterval(updateClock, 1000);
 
 
 <!-- Tombol Logout -->
-<form action="{{ route('logout') }}" method="POST" class="mt-3">
+<form action="{{ route('logout') }}" method="POST" class="mt-4 d-flex justify-content-end">
     @csrf
-    <button type="submit" class="btn btn-outline-danger btn-sm">
-        <i class="bi bi-box-arrow-right"></i> Logout
+    <button type="submit" class="btn btn-danger btn-lg px-4 rounded-pill shadow-sm d-flex align-items-center justify-content-center gap-2" style="transition: 0.3s;">
+        <i class="bi bi-box-arrow-right"></i>
+        <span>Logout</span>
     </button>
 </form>
 
