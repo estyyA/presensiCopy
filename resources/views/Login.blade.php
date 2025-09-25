@@ -66,7 +66,7 @@
     <p>PG - PS MADUKISMO</p>
 
     <div class="login-card">
-        <h5><i class="bi bi-box-arrow-in-right me-2"></i>Login Admin</h5>
+        <h5><i class="bi bi-box-arrow-in-right me-2"></i>Login</h5>
         <form action="{{ route('login.process') }}" method="POST">
             @csrf
             <!-- Username -->
