@@ -9,28 +9,41 @@ use Illuminate\Support\Facades\Auth;
 class KaryawanController extends Controller
 {
     public function uploadFoto(Request $request)
-    {
-        $request->validate([
-            'fotoBase64' => 'required|string',
-        ]);
+{
+    $request->validate([
+        'fotoBase64' => 'required|string',
+    ]);
 
-        $user = (object) ['foto' => 'img/profile.png']; // dummy user
-        $folder = public_path('img');
-
-        // Hapus foto lama jika ada dan bukan default
-        if(!empty($user->foto) && file_exists(public_path($user->foto))){
-            unlink(public_path($user->foto));
-        }
-
-        // Decode base64 dan simpan file baru
-        $data = $request->fotoBase64;
-        list($type, $data) = explode(';', $data);
-        list(, $data) = explode(',', $data);
-        $data = base64_decode($data);
-
-        $namaFile = 'profile.png'; // selalu timpa file lama
-        file_put_contents($folder.'/'.$namaFile, $data);
-
-        return back()->with('success', 'Foto berhasil diupdate!');
+    $karyawan = session('karyawan'); // ambil dari session
+    if (!$karyawan) {
+        return back()->withErrors(['auth' => 'User tidak ditemukan, silakan login ulang.']);
     }
+
+    // Decode base64
+    $data = $request->fotoBase64;
+    list($type, $data) = explode(';', $data);
+    list(, $data) = explode(',', $data);
+    $data = base64_decode($data);
+
+    // Simpan dengan nama unik berdasarkan NIK
+    $namaFile = 'foto_' . $karyawan->NIK . '_' . time() . '.png';
+    $folder = public_path('uploads');
+    if (!file_exists($folder)) {
+        mkdir($folder, 0777, true);
+    }
+
+    file_put_contents($folder . '/' . $namaFile, $data);
+
+    // Update database
+    \DB::table('karyawan')
+        ->where('NIK', $karyawan->NIK)
+        ->update(['foto' => $namaFile]);
+
+    // Refresh session
+    $karyawanBaru = \DB::table('karyawan')->where('NIK', $karyawan->NIK)->first();
+    session(['karyawan' => $karyawanBaru]);
+
+    return back()->with('success', 'Foto berhasil diperbarui!');
+}
+
 }
