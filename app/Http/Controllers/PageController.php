@@ -449,7 +449,14 @@ class PageController extends Controller
          )
          ->get();
 
-     $catatan = CatatanLaporan::pluck('catatan', 'nik');
+
+     // Filter sesuai kategori (hadir, izin, sakit, cuti, alpha)
+     $data = $rekap->filter(function ($row) use ($kategori) {
+         return $row->{$kategori} > 0;
+     });
+
+     // Catatan dummy (sementara kosong, bisa ambil dari tabel lain)
+     $catatan = [];
 
      return view('laporan', compact('data', 'catatan'));
  }

@@ -42,9 +42,9 @@
                 <div class="card p-4">
                     <div class="card-header">🔑 Lupa Password</div>
                     <div class="card-body">
-                        @if (session('status'))
+                        @if (session('success'))
                             <div class="alert alert-success">
-                                {{ session('status') }}
+                                {{ session('success') }}
                             </div>
                         @endif
 
