@@ -449,7 +449,7 @@ class PageController extends Controller
      });
 
      // Catatan dummy (sementara kosong, bisa ambil dari tabel lain)
-     $catatan = [];
+       $catatan = DB::table('catatan_laporan')->pluck('catatan', 'nik')->toArray();
 
      return view('laporan', [
          'data' => $data,
