@@ -15,7 +15,7 @@
 <img src="{{ url('storage/'.$karyawan->foto) }}"
      alt="Foto Karyawan"
      class="rounded-circle"
-     width="100"
+     width="90" height="90"
      alt="Foto Karyawan"
      style="object-fit: cover;">
 
