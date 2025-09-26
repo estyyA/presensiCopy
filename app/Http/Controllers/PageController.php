@@ -359,13 +359,16 @@ class PageController extends Controller
         'tgl_lahir'   => 'required|date',
         'alamat'      => 'required|string',
         'role'        => 'required|string',
-        'foto'        => 'nullable|image|max:2048',
+        'foto'        => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
     ]);
 
-    $fotoName = null;
+  // default foto kosong
+    $fotoPath = null;
+
+    // kalau ada file yang diupload
     if ($request->hasFile('foto')) {
-        $fotoName = time() . '.' . $request->foto->extension();
-        $request->foto->move(public_path('uploads'), $fotoName);
+        // simpan ke storage/app/public/foto
+        $fotoPath = $request->file('foto')->store('foto', 'public');
     }
 
     // Simpan data ke tabel karyawan (tambahkan status default = Aktif)
@@ -380,7 +383,7 @@ class PageController extends Controller
         'tgl_lahir'    => $request->tgl_lahir,
         'alamat'       => $request->alamat,
         'role'         => $request->role,
-        'foto'         => $fotoName,
+        'foto'         => $fotoPath,
         'status'       => 'Aktif', // <- tambahkan ini
         // 'created_at'   => now(),
         // 'updated_at'   => now(),
