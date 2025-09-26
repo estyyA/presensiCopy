@@ -118,7 +118,28 @@
                                 <td>{{ $row->nama }}</td>
                                 <td>{{ $row->divisi ?? '-' }}</td>
                                 <td>{{ $row->jabatan ?? '-' }}</td>
-                                <td><span class="badge badge-dark px-3">{{ $row->total_hari ?? 0 }}</span></td>
+
+                                {{-- ✅ Total Hari sesuai kategori --}}
+                                <td>
+                                    @php
+                                        $kategori = request('kategori');
+                                        $totalHari = 0;
+
+                                        if ($kategori == 'hadir') {
+                                            $totalHari = $row->hadir ?? 0;
+                                        } elseif ($kategori == 'sakit') {
+                                            $totalHari = $row->sakit ?? 0;
+                                        } elseif ($kategori == 'izin') {
+                                            $totalHari = $row->izin ?? 0;
+                                        } elseif ($kategori == 'cuti') {
+                                            $totalHari = $row->cuti ?? 0;
+                                        } elseif ($kategori == 'alpha') {
+                                            $totalHari = $row->alpha ?? 0;
+                                        }
+                                    @endphp
+                                    <span class="badge badge-dark px-3">{{ $totalHari }}</span>
+                                </td>
+
                                 <td><span class="badge badge-success px-3">{{ $row->hadir ?? 0 }}</span></td>
                                 <td><span class="badge badge-info px-3">{{ $row->sakit ?? 0 }}</span></td>
                                 <td><span class="badge badge-warning px-3">{{ $row->izin ?? 0 }}</span></td>
@@ -163,6 +184,7 @@
                             </tr>
                         @endforelse
                     </tbody>
+
                 </table>
 
                 {{-- Tombol Simpan --}}
