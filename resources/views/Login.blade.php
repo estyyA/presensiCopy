@@ -67,6 +67,24 @@
 
     <div class="login-card">
         <h5><i class="bi bi-box-arrow-in-right me-2"></i>Login</h5>
+
+        {{-- Notifikasi --}}
+    @if ($errors->has('login'))
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="bi bi-exclamation-triangle-fill me-2"></i>
+            {{ $errors->first('login') }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    @endif
+
+    @if (session('success'))
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="bi bi-check-circle-fill me-2"></i>
+            {{ session('success') }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    @endif
+
         <form action="{{ route('login.process') }}" method="POST">
             @csrf
             <!-- Username -->
