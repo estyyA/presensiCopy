@@ -12,13 +12,13 @@
 <div class="card profile-card p-3 mb-3 text-center">
     <div class="d-flex flex-column align-items-center position-relative">
 
-<!-- Foto Profil -->
-<img id="previewFoto"
-     src="{{ $karyawan->foto ? asset('uploads/'.$karyawan->foto) : asset('img/profile.png') }}"
-     class="rounded-circle mb-2"
-     width="90" height="90"
+<img src="{{ url('storage/'.$karyawan->foto) }}"
+     alt="Foto Karyawan"
+     class="rounded-circle"
+     width="100"
      alt="Foto Karyawan"
      style="object-fit: cover;">
+
 
 
         <!-- Tombol Edit Foto -->
