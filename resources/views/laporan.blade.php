@@ -64,36 +64,14 @@
     <div class="card-body">
         <h5 class="font-weight-bold mb-3 text-purple">📌 Pilih Kategori Laporan</h5>
         <ul class="nav nav-pills mb-3">
-            <li class="nav-item">
-                <a class="nav-link {{ request('kategori')=='hadir' ? 'active bg-purple text-white' : '' }}"
-                   href="{{ route('laporan', array_merge(request()->all(), ['kategori'=>'hadir'])) }}">
-                   Hadir
-                </a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link {{ request('kategori')=='izin' ? 'active bg-purple text-white' : '' }}"
-                   href="{{ route('laporan', array_merge(request()->all(), ['kategori'=>'izin'])) }}">
-                   Izin
-                </a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link {{ request('kategori')=='sakit' ? 'active bg-purple text-white' : '' }}"
-                   href="{{ route('laporan', array_merge(request()->all(), ['kategori'=>'sakit'])) }}">
-                   Sakit
-                </a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link {{ request('kategori')=='cuti' ? 'active bg-purple text-white' : '' }}"
-                   href="{{ route('laporan', array_merge(request()->all(), ['kategori'=>'cuti'])) }}">
-                   Cuti
-                </a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link {{ request('kategori')=='alpha' ? 'active bg-purple text-white' : '' }}"
-                   href="{{ route('laporan', array_merge(request()->all(), ['kategori'=>'alpha'])) }}">
-                   Alpha
-                </a>
-            </li>
+            @foreach(['hadir','izin','sakit','cuti','alpha'] as $kategori)
+                <li class="nav-item">
+                    <a class="nav-link {{ request('kategori')==$kategori ? 'active bg-purple text-white' : '' }}"
+                       href="{{ route('laporan', array_merge(request()->all(), ['kategori'=>$kategori])) }}">
+                       {{ ucfirst($kategori) }}
+                    </a>
+                </li>
+            @endforeach
         </ul>
     </div>
 </div>
@@ -116,6 +94,7 @@
                             <th>NIK</th>
                             <th>Nama</th>
                             <th>Divisi</th>
+                            <th>Jabatan</th>
                             <th>Total Hari</th>
                             <th>Hadir</th>
                             <th>Sakit</th>
@@ -123,7 +102,7 @@
                             <th>Cuti</th>
                             <th>Alpha</th>
 
-                            {{-- ✅ Tampilkan kolom Total Jam hanya jika kategori = hadir --}}
+                            {{-- ✅ Kolom Jam Kerja hanya tampil jika kategori = hadir --}}
                             @if(request('kategori') == 'hadir')
                                 <th>Total Jam Kerja</th>
                             @endif
@@ -138,14 +117,15 @@
                                 <td>{{ $row->nik }}</td>
                                 <td>{{ $row->nama }}</td>
                                 <td>{{ $row->divisi ?? '-' }}</td>
-                                <td><span class="badge badge-dark px-3">{{ $row->total_hari }}</span></td>
-                                <td><span class="badge badge-success px-3">{{ $row->hadir }}</span></td>
-                                <td><span class="badge badge-info px-3">{{ $row->sakit }}</span></td>
-                                <td><span class="badge badge-warning px-3">{{ $row->izin }}</span></td>
-                                <td><span class="badge badge-primary px-3">{{ $row->cuti }}</span></td>
-                                <td><span class="badge badge-danger px-3">{{ $row->alpha }}</span></td>
+                                <td>{{ $row->jabatan ?? '-' }}</td>
+                                <td><span class="badge badge-dark px-3">{{ $row->total_hari ?? 0 }}</span></td>
+                                <td><span class="badge badge-success px-3">{{ $row->hadir ?? 0 }}</span></td>
+                                <td><span class="badge badge-info px-3">{{ $row->sakit ?? 0 }}</span></td>
+                                <td><span class="badge badge-warning px-3">{{ $row->izin ?? 0 }}</span></td>
+                                <td><span class="badge badge-primary px-3">{{ $row->cuti ?? 0 }}</span></td>
+                                <td><span class="badge badge-danger px-3">{{ $row->alpha ?? 0 }}</span></td>
 
-                                {{-- ✅ Tampilkan jam hanya untuk kategori hadir --}}
+                                {{-- ✅ Tampilkan jam kerja hanya untuk kategori hadir --}}
                                 @if(request('kategori') == 'hadir')
                                     <td>
                                         @php
@@ -177,14 +157,12 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="{{ request('kategori') == 'hadir' ? 12 : 11 }}" class="text-muted">
+                                <td colspan="{{ request('kategori') == 'hadir' ? 13 : 12 }}" class="text-muted">
                                     ⚠️ Tidak ada data presensi
                                 </td>
                             </tr>
                         @endforelse
                     </tbody>
-
-
                 </table>
 
                 {{-- Tombol Simpan --}}
@@ -197,7 +175,6 @@
         </div>
     </div>
 </div>
-
 @endsection
 
 @push('styles')

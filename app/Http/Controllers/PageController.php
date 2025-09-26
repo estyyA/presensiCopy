@@ -413,84 +413,66 @@ class PageController extends Controller
  /** ---------------- LAPORAN ---------------- */
  public function laporan(Request $request)
  {
-     $kategori = $request->get('kategori', 'hadir');
-     $mulai = $request->get('mulai', date('Y-m-01'));
-     $sampai = $request->get('sampai', date('Y-m-t'));
+     $mulai = $request->mulai;
+     $sampai = $request->sampai;
+     $kategori = $request->kategori;
 
-     // Total hari kerja dalam rentang tanggal
-     $totalHari = DB::table('presensi')
-         ->whereBetween('tgl_presen', [$mulai, $sampai])
-         ->select(DB::raw('COUNT(DISTINCT tgl_presen) as jml'))
-         ->first()->jml ?? 0;
-
-     // Rekap per karyawan
-     $rekap = DB::table('karyawan')
-         ->leftJoin('presensi', function ($join) use ($mulai, $sampai) {
-             $join->on('karyawan.NIK', '=', 'presensi.NIK')
-                  ->whereBetween('tgl_presen', [$mulai, $sampai]);
-         })
+     $data = DB::table('karyawan')
+         ->leftJoin('presensi', 'karyawan.NIK', '=', 'presensi.nik')
+         ->leftJoin('departement', 'karyawan.id_divisi', '=', 'departement.id_divisi')
+         ->leftJoin('jabatan', 'karyawan.id_jabatan', '=', 'jabatan.id_jabatan')
          ->select(
-            'karyawan.NIK as nik',
-            'karyawan.nama_lengkap as nama',   // ✅ pakai nama_lengkap
-            'karyawan.id_divisi as divisi',    // kalau mau divisi, sementara pake id_divisi
-            DB::raw("$totalHari as total_hari"),
-            DB::raw("SUM(CASE WHEN presensi.status = 'Hadir' THEN 1 ELSE 0 END) as hadir"),
-            DB::raw("SUM(CASE WHEN presensi.status = 'Sakit' THEN 1 ELSE 0 END) as sakit"),
-            DB::raw("SUM(CASE WHEN presensi.status = 'Izin' THEN 1 ELSE 0 END) as izin"),
-            DB::raw("SUM(CASE WHEN presensi.status = 'Cuti' THEN 1 ELSE 0 END) as cuti"),
-            DB::raw("($totalHari
-                      - SUM(CASE WHEN presensi.status IN ('Hadir','Sakit','Izin','Cuti')
-                                 THEN 1 ELSE 0 END)) as alpha")
-        )
-        ->groupBy('karyawan.NIK', 'karyawan.nama_lengkap', 'karyawan.id_divisi')
-        ->get();
+             'karyawan.NIK as nik',
+             'karyawan.nama_lengkap as nama',
+             'departement.nama_divisi as divisi',
+             'jabatan.nama_jabatan as jabatan',
+             DB::raw('COUNT(*) as total_hari'),
+             DB::raw("SUM(CASE WHEN presensi.status = 'hadir' THEN 1 ELSE 0 END) as hadir"),
+             DB::raw("SUM(CASE WHEN presensi.status = 'sakit' THEN 1 ELSE 0 END) as sakit"),
+             DB::raw("SUM(CASE WHEN presensi.status = 'izin' THEN 1 ELSE 0 END) as izin"),
+             DB::raw("SUM(CASE WHEN presensi.status = 'cuti' THEN 1 ELSE 0 END) as cuti"),
+             DB::raw("SUM(CASE WHEN presensi.status = 'alpha' THEN 1 ELSE 0 END) as alpha"),
+             DB::raw("SUM(
+                 CASE WHEN presensi.jam_masuk IS NOT NULL AND presensi.jam_keluar IS NOT NULL
+                      THEN TIME_TO_SEC(TIMEDIFF(presensi.jam_keluar, presensi.jam_masuk)) / 60
+                      ELSE 0 END
+             ) as total_menit")
+         )
+         ->when($mulai && $sampai, function ($q) use ($mulai, $sampai) {
+             return $q->whereBetween('presensi.tgl_presen', [$mulai, $sampai]);
+         })
+         ->when($kategori && $kategori != 'semua', function ($q) use ($kategori) {
+             return $q->where('presensi.status', $kategori);
+         }) // ✅ filter kategori
+         ->groupBy(
+             'karyawan.NIK',
+             'karyawan.nama_lengkap',
+             'departement.nama_divisi',
+             'jabatan.nama_jabatan'
+         )
+         ->get();
 
+     $catatan = CatatanLaporan::pluck('catatan', 'nik');
 
-     // Filter sesuai kategori (hadir, izin, sakit, cuti, alpha)
-     $data = $rekap->filter(function ($row) use ($kategori) {
-         return $row->{$kategori} > 0;
-     });
-
-     // Catatan dummy (sementara kosong, bisa ambil dari tabel lain)
-       $catatan = DB::table('catatan_laporan')->pluck('catatan', 'nik')->toArray();
-
-     return view('laporan', [
-         'data' => $data,
-         'catatan' => $catatan,
-         'kategori' => $kategori,
-         'mulai' => $mulai,
-         'sampai' => $sampai,
-     ]);
+     return view('laporan', compact('data', 'catatan'));
  }
-
 
  private function getData($mulai = null, $sampai = null)
  {
-     $rangeTanggal = collect();
-     if ($mulai && $sampai) {
-         $periode = new \DatePeriod(
-             new \DateTime($mulai),
-             new \DateInterval('P1D'),
-             (new \DateTime($sampai))->modify('+1 day')
-         );
-         foreach ($periode as $dt) {
-             $rangeTanggal->push($dt->format('Y-m-d'));
-         }
-     }
-
-     // Presensi
+     // Ambil data presensi
      $presensi = DB::table('presensi')
          ->select(
              'NIK as nik',
              'tgl_presen as tanggal',
              'status',
+             // ✅ Simpan total dalam MENIT
              DB::raw('TIMESTAMPDIFF(MINUTE, jam_masuk, jam_keluar) as durasi_menit')
          )
          ->when($mulai && $sampai, function ($q) use ($mulai, $sampai) {
              $q->whereBetween('tgl_presen', [$mulai, $sampai]);
          });
 
-     // Cuti
+     // Ambil data cuti
      $cuti = DB::table('cuti')
          ->select(
              'nik',
@@ -505,53 +487,10 @@ class PageController extends Controller
              });
          });
 
-     // Gabungan awal
+     // Gabungkan presensi + cuti
      $all = $presensi->unionAll($cuti);
 
-     // Ambil semua karyawan
-     $karyawan = DB::table('karyawan')->pluck('NIK');
-
-     // Generate ALPHA otomatis
-     $alpha = collect();
-     foreach ($karyawan as $nik) {
-         foreach ($rangeTanggal as $tgl) {
-             $cek = DB::table('presensi')
-                 ->where('NIK', $nik)
-                 ->whereDate('tgl_presen', $tgl)
-                 ->exists();
-
-             $cekCuti = DB::table('cuti')
-                 ->where('nik', $nik)
-                 ->whereDate('tanggal_mulai', '<=', $tgl)
-                 ->whereDate('tanggal_selesai', '>=', $tgl)
-                 ->exists();
-
-             if (!$cek && !$cekCuti) {
-                 $alpha->push([
-                     'nik' => $nik,
-                     'tanggal' => $tgl,
-                     'status' => 'alpha',
-                     'durasi_menit' => 0
-                 ]);
-             }
-         }
-     }
-
-     // Convert alpha ke query builder
-     $alphaQuery = DB::table(DB::raw('(
-         SELECT NULL as nik, NULL as tanggal, NULL as status, 0 as durasi_menit
-     ) as dummy'))->whereRaw('1=0'); // dummy kosong
-
-     if ($alpha->count() > 0) {
-         $alphaQuery = DB::table(DB::raw('(' . collect($alpha)->map(function ($row) {
-             return "SELECT '{$row['nik']}' as nik, '{$row['tanggal']}' as tanggal, '{$row['status']}' as status, {$row['durasi_menit']} as durasi_menit";
-         })->implode(" UNION ALL ") . ') as t'));
-     }
-
-     // Gabung semua (presensi + cuti + alpha)
-     $all = $all->unionAll($alphaQuery);
-
-     // Rekap akhir
+     // Hitung rekap
      $query = DB::table(DB::raw("({$all->toSql()}) as logs"))
          ->mergeBindings($all)
          ->join('karyawan', 'logs.nik', '=', 'karyawan.NIK')
@@ -566,13 +505,13 @@ class PageController extends Controller
              DB::raw('SUM(CASE WHEN logs.status = "izin" THEN 1 ELSE 0 END) as izin'),
              DB::raw('SUM(CASE WHEN logs.status = "cuti" THEN 1 ELSE 0 END) as cuti'),
              DB::raw('SUM(CASE WHEN logs.status = "alpha" THEN 1 ELSE 0 END) as alpha'),
+             // ✅ Total jam kerja dalam menit
              DB::raw('SUM(CASE WHEN logs.status = "hadir" AND logs.durasi_menit IS NOT NULL THEN logs.durasi_menit ELSE 0 END) as total_menit')
          )
          ->get();
 
      return $query;
  }
-
 
 
 

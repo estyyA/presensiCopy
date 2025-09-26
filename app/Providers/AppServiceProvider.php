@@ -23,6 +23,9 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        //
+        if ($this->app->environment('local')) {
+        // Force root URL sesuai domain yang dipakai di request
+        URL::forceRootUrl(request()->getSchemeAndHttpHost());
+    }
     }
 }
