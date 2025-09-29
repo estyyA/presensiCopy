@@ -17,7 +17,7 @@
                 <!-- Kolom Foto -->
                 <div class="col-md-4 text-center mb-4 mb-md-0">
                     @if($karyawan->foto)
-                        <img src="{{ asset('uploads/' . $karyawan->foto) }}"
+                        <img src="{{ asset('storage/' . $karyawan->foto) }}"
                              alt="Foto {{ $karyawan->nama_lengkap }}"
                              class="rounded-circle shadow-lg border border-3 border-white mb-3"
                              style="width: 200px; height: 200px; object-fit: cover;">
