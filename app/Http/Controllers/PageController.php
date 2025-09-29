@@ -430,45 +430,59 @@ class PageController extends Controller
              $q->whereBetween('tgl_presen', [$mulai, $sampai]);
          });
 
-     // Ambil data cuti
-     $cuti = DB::table('cuti')
-         ->select(
-             'nik',
-             'tanggal_mulai as tanggal',
-             DB::raw('"cuti" as status'),
-             DB::raw('0 as durasi_menit')
-         )
-         ->when($mulai && $sampai, function ($q) use ($mulai, $sampai) {
-             $q->where(function ($sub) use ($mulai, $sampai) {
-                 $sub->whereBetween('tanggal_mulai', [$mulai, $sampai])
-                     ->orWhereBetween('tanggal_selesai', [$mulai, $sampai]);
-             });
-         });
+// Ambil data cuti
+$cuti = DB::table('cuti')
+    ->select(
+        'nik',
+        DB::raw('tanggal_mulai as tanggal'),
+        DB::raw('"cuti" as status'),
+        DB::raw('0 as durasi_menit'),
+        DB::raw('DATEDIFF(tanggal_selesai, tanggal_mulai) + 1 as durasi_hari')
+    )
+    ->when($mulai && $sampai, function ($q) use ($mulai, $sampai) {
+        $q->where(function ($sub) use ($mulai, $sampai) {
+            $sub->whereBetween('tanggal_mulai', [$mulai, $sampai])
+                ->orWhereBetween('tanggal_selesai', [$mulai, $sampai]);
+        });
+    });
 
-     // Gabungkan presensi + cuti
-     $all = $presensi->unionAll($cuti);
+// Ambil data presensi (durasi dihitung dari jam_masuk - jam_keluar)
+$presensi = DB::table('presensi')
+    ->select(
+        'nik',
+        DB::raw('tgl_presen as tanggal'),
+        'status',
+        DB::raw('TIMESTAMPDIFF(MINUTE, jam_masuk, jam_keluar) as durasi_menit'),
+        DB::raw('1 as durasi_hari')
+    )
+    ->when($mulai && $sampai, function ($q) use ($mulai, $sampai) {
+        $q->whereBetween('tgl_presen', [$mulai, $sampai]);
+    });
 
-     // Hitung rekap awal
-     $data = DB::table(DB::raw("({$all->toSql()}) as logs"))
-         ->mergeBindings($all)
-         ->join('karyawan', 'logs.nik', '=', 'karyawan.NIK')
-         ->leftJoin('departement', 'karyawan.id_divisi', '=', 'departement.id_divisi')
-         ->leftJoin('jabatan', 'karyawan.id_jabatan', '=', 'jabatan.id_jabatan')
-         ->groupBy('karyawan.NIK', 'karyawan.nama_lengkap', 'departement.nama_divisi', 'jabatan.nama_jabatan')
-         ->select(
-             'karyawan.NIK as nik',
-             'karyawan.nama_lengkap as nama',
-             'departement.nama_divisi as divisi',
-             'jabatan.nama_jabatan as jabatan',
-             DB::raw('COUNT(DISTINCT logs.tanggal) as total_hari'),
-             DB::raw('SUM(CASE WHEN logs.status = "hadir" THEN 1 ELSE 0 END) as hadir'),
-             DB::raw('SUM(CASE WHEN logs.status = "sakit" THEN 1 ELSE 0 END) as sakit'),
-             DB::raw('SUM(CASE WHEN logs.status = "izin" THEN 1 ELSE 0 END) as izin'),
-             DB::raw('SUM(CASE WHEN logs.status = "cuti" THEN 1 ELSE 0 END) as cuti'),
-             DB::raw('SUM(CASE WHEN logs.status = "hadir" AND logs.durasi_menit IS NOT NULL
-                           THEN logs.durasi_menit ELSE 0 END) as total_menit')
-         )
-         ->get();
+// Gabungkan presensi + cuti
+$all = $presensi->unionAll($cuti);
+
+// Hitung rekap
+$data = DB::table(DB::raw("({$all->toSql()}) as logs"))
+    ->mergeBindings($all)
+    ->join('karyawan', 'logs.nik', '=', 'karyawan.NIK')
+    ->leftJoin('departement', 'karyawan.id_divisi', '=', 'departement.id_divisi')
+    ->leftJoin('jabatan', 'karyawan.id_jabatan', '=', 'jabatan.id_jabatan')
+    ->groupBy('karyawan.NIK', 'karyawan.nama_lengkap', 'departement.nama_divisi', 'jabatan.nama_jabatan')
+    ->select(
+        'karyawan.NIK as nik',
+        'karyawan.nama_lengkap as nama',
+        'departement.nama_divisi as divisi',
+        'jabatan.nama_jabatan as jabatan',
+        DB::raw('COUNT(DISTINCT logs.tanggal) as total_hari'),
+        DB::raw('SUM(CASE WHEN logs.status = "hadir" THEN 1 ELSE 0 END) as hadir'),
+        DB::raw('SUM(CASE WHEN logs.status = "sakit" THEN 1 ELSE 0 END) as sakit'),
+        DB::raw('SUM(CASE WHEN logs.status = "izin" THEN 1 ELSE 0 END) as izin'),
+        DB::raw('SUM(CASE WHEN logs.status = "cuti" THEN logs.durasi_hari ELSE 0 END) as cuti'),
+        DB::raw('SUM(CASE WHEN logs.status = "hadir" THEN logs.durasi_menit ELSE 0 END) as total_menit')
+    )
+    ->get();
+
 
      // Hitung total hari kerja (bisa exclude weekend kalau mau)
      $totalHari = 0;
