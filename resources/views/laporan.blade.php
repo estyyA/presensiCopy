@@ -96,15 +96,19 @@
                             <th>Divisi</th>
                             <th>Jabatan</th>
                             <th>Total Hari</th>
-                            <th>Hadir</th>
-                            <th>Sakit</th>
-                            <th>Izin</th>
-                            <th>Cuti</th>
-                            <th>Alpha</th>
 
-                            {{-- ✅ Kolom Jam Kerja hanya tampil jika kategori = hadir --}}
+                            {{-- ✅ Tampilkan hanya kolom sesuai kategori --}}
                             @if(request('kategori') == 'hadir')
+                                <th>Hadir</th>
                                 <th>Total Jam Kerja</th>
+                            @elseif(request('kategori') == 'sakit')
+                                <th>Sakit</th>
+                            @elseif(request('kategori') == 'izin')
+                                <th>Izin</th>
+                            @elseif(request('kategori') == 'cuti')
+                                <th>Cuti</th>
+                            @elseif(request('kategori') == 'alpha')
+                                <th>Alpha</th>
                             @endif
 
                             <th>Catatan</th>
@@ -140,21 +144,15 @@
                                     <span class="badge badge-dark px-3">{{ $totalHari }}</span>
                                 </td>
 
-                                <td><span class="badge badge-success px-3">{{ $row->hadir ?? 0 }}</span></td>
-                                <td><span class="badge badge-info px-3">{{ $row->sakit ?? 0 }}</span></td>
-                                <td><span class="badge badge-warning px-3">{{ $row->izin ?? 0 }}</span></td>
-                                <td><span class="badge badge-primary px-3">{{ $row->cuti ?? 0 }}</span></td>
-                                <td><span class="badge badge-danger px-3">{{ $row->alpha ?? 0 }}</span></td>
-
-                                {{-- ✅ Tampilkan jam kerja hanya untuk kategori hadir --}}
+                                {{-- ✅ Tampilkan kolom sesuai kategori --}}
                                 @if(request('kategori') == 'hadir')
+                                    <td><span class="badge badge-success px-3">{{ $row->hadir ?? 0 }}</span></td>
                                     <td>
                                         @php
                                             $totalMenit = (int) ($row->total_menit ?? 0);
                                             $jam = intdiv($totalMenit, 60);
                                             $menit = $totalMenit % 60;
                                         @endphp
-
                                         <span class="badge badge-secondary px-3">
                                             @if($jam > 0 && $menit > 0)
                                                 {{ $jam }} Jam {{ $menit }} Menit
@@ -167,6 +165,14 @@
                                             @endif
                                         </span>
                                     </td>
+                                @elseif(request('kategori') == 'sakit')
+                                    <td><span class="badge badge-info px-3">{{ $row->sakit ?? 0 }}</span></td>
+                                @elseif(request('kategori') == 'izin')
+                                    <td><span class="badge badge-warning px-3">{{ $row->izin ?? 0 }}</span></td>
+                                @elseif(request('kategori') == 'cuti')
+                                    <td><span class="badge badge-primary px-3">{{ $row->cuti ?? 0 }}</span></td>
+                                @elseif(request('kategori') == 'alpha')
+                                    <td><span class="badge badge-danger px-3">{{ $row->alpha ?? 0 }}</span></td>
                                 @endif
 
                                 <td>
@@ -178,7 +184,7 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="{{ request('kategori') == 'hadir' ? 13 : 12 }}" class="text-muted">
+                                <td colspan="{{ request('kategori') == 'hadir' ? 9 : 8 }}" class="text-muted">
                                     ⚠️ Tidak ada data presensi
                                 </td>
                             </tr>
