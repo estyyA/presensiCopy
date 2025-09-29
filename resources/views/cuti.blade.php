@@ -4,7 +4,7 @@
 
 @section('content')
 <div class="mb-4">
-    <h3 class="font-weight-bold text-purple">📅 Data Cuti</h3>
+    <h3 class="font-weight-bold text-purple">📅 Input Cuti</h3>
     <p class="text-muted">PT Madubaru</p>
 </div>
 

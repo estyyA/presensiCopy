@@ -188,7 +188,7 @@
         <li class="nav-item">
             <a class="nav-link" href="{{ route('cuti.index') }}">
                 <i class="fa fa-calendar-check"></i>
-                <span>Data Cuti</span>
+                <span>Input Cuti</span>
             </a>
         </li>
     </div>
