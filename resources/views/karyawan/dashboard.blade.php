@@ -13,11 +13,14 @@
     <div class="d-flex flex-column align-items-center position-relative">
         <!-- Foto Profil -->
         <img id="previewFoto"
-             src="{{ $karyawan->foto ? asset('uploads/'.$karyawan->foto) : asset('img/profile.png') }}"
-             class="rounded-circle mb-2"
-             width="90" height="90"
-             alt="Foto Karyawan"
-             style="object-fit: cover;">
+     src="{{ $karyawan->foto
+            ? asset('storage/'.$karyawan->foto)
+            : asset('img/profile.png') }}"
+     class="rounded-circle mb-2"
+     width="90" height="90"
+     alt="Foto Karyawan"
+     style="object-fit: cover;">
+
 
         <!-- Tombol Edit Foto -->
         <input type="file" id="inputFoto" class="d-none" accept="image/*">
@@ -27,8 +30,9 @@
             <i class="bi bi-pencil-fill"></i>
         </label>
 
-        <h6 class="mb-0 mt-2">{{ session('karyawan')->nama_lengkap ?? $karyawan->nama_lengkap ?? 'Nama Karyawan' }}</h6>
-        <small class="text-muted">{{ session('karyawan')->nama_divisi ?? $karyawan->nama_divisi ?? 'Divisi' }}</small>
+        <!-- Nama & Divisi -->
+        <h6 class="mb-0 mt-2">{{ $karyawan->nama_lengkap ?? 'Nama Karyawan' }}</h6>
+        <small class="text-muted">{{ $karyawan->nama_divisi ?? 'Divisi' }}</small>
     </div>
 </div>
 
@@ -80,8 +84,6 @@ document.getElementById('inputFoto').addEventListener('change', function(e) {
 <script>
 function updateClock() {
     let now = new Date();
-
-    // Format waktu (hh:mm:ss AM/PM)
     let hours = now.getHours();
     let minutes = now.getMinutes();
     let seconds = now.getSeconds();
@@ -91,7 +93,6 @@ function updateClock() {
     let timeString = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')} ${ampm}`;
     document.getElementById('liveClock').textContent = timeString;
 
-    // Format tanggal (Fri, 19 September 2025)
     let options = { weekday: 'short', year: 'numeric', month: 'long', day: 'numeric' };
     document.getElementById('liveDate').textContent = now.toLocaleDateString('en-US', options);
 }
@@ -102,31 +103,26 @@ setInterval(updateClock, 1000);
 
     <div class="d-flex justify-content-between mt-3">
         @if(!$presensiHariIni)
-            <!-- Belum Absen Masuk -->
             <a href="{{ route('absensi.formMasuk') }}" class="btn btn-primary btn-lg">Masuk</a>
             <button class="btn btn-danger btn-lg" disabled>Keluar</button>
         @elseif(!$presensiHariIni->jam_keluar)
-            <!-- Sudah Masuk, Belum Keluar -->
             <button class="btn btn-primary btn-lg" disabled>Masuk</button>
             <a href="{{ route('absensi.formKeluar') }}" class="btn btn-danger btn-lg">Keluar</a>
         @else
-            <!-- Sudah Masuk & Keluar -->
             <p class="text-success w-100 fw-bold">Anda sudah absen masuk & keluar hari ini ✅</p>
         @endif
     </div>
 </div>
 
-<!-- Card Filter & Tabel Riwayat Presensi -->
+<!-- Card Riwayat Presensi -->
 <div class="card shadow-lg border-0 mb-4 rounded-4">
     <div class="card-body">
-        <!-- Filter Presensi -->
         <h5 class="fw-bold mb-3 text-purple">
             <i class="bi-calendar-check-fill me-2"></i> Riwayat Presensi
         </h5>
 
         <form method="GET" action="{{ route('karyawan.dashboard') }}">
             <div class="d-flex align-items-end gap-3 flex-wrap">
-                <!-- Input Mulai -->
                 <div>
                     <label class="form-label fw-semibold">Mulai</label>
                     <input type="date" name="mulai"
@@ -134,8 +130,6 @@ setInterval(updateClock, 1000);
                            style="width: 115px;"
                            value="{{ request('mulai') }}">
                 </div>
-
-                <!-- Input Sampai -->
                 <div>
                     <label class="form-label fw-semibold">Sampai</label>
                     <input type="date" name="sampai"
@@ -143,8 +137,6 @@ setInterval(updateClock, 1000);
                            style="width: 115px;"
                            value="{{ request('sampai') }}">
                 </div>
-
-                <!-- Tombol -->
                 <div class="ms-auto">
                     <button type="submit"
                             class="btn btn-purple btn-sm shadow-sm rounded-circle d-flex align-items-center justify-content-center"
@@ -156,7 +148,6 @@ setInterval(updateClock, 1000);
             </div>
         </form>
 
-        <!-- Tabel -->
         <div class="table-responsive mt-4">
             <table class="table table-bordered table-striped shadow-sm rounded-4 overflow-hidden">
                 <thead class="table-secondary">
@@ -201,14 +192,5 @@ setInterval(updateClock, 1000);
             </button>
         </form>
     </div>
-
-    {{--
-    @if(session('success'))
-        <div class="alert alert-success alert-dismissible fade show" role="alert">
-            {{ session('success') }}
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        </div>
-    @endif
-    --}}
 </div>
 @endsection

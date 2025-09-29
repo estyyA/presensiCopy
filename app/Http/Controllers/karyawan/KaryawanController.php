@@ -8,13 +8,13 @@ use Illuminate\Support\Facades\Auth;
 
 class KaryawanController extends Controller
 {
-    public function uploadFoto(Request $request)
+   public function uploadFoto(Request $request)
 {
     $request->validate([
         'fotoBase64' => 'required|string',
     ]);
 
-    $karyawan = session('karyawan'); // ambil dari session
+    $karyawan = session('karyawan');
     if (!$karyawan) {
         return back()->withErrors(['auth' => 'User tidak ditemukan, silakan login ulang.']);
     }
@@ -25,25 +25,36 @@ class KaryawanController extends Controller
     list(, $data) = explode(',', $data);
     $data = base64_decode($data);
 
-    // Simpan dengan nama unik berdasarkan NIK
+    // Simpan dengan nama unik
     $namaFile = 'foto_' . $karyawan->NIK . '_' . time() . '.png';
-    $folder = public_path('uploads');
-    if (!file_exists($folder)) {
-        mkdir($folder, 0777, true);
+    $path = storage_path('app/public/foto');
+    if (!file_exists($path)) {
+        mkdir($path, 0777, true);
     }
 
-    file_put_contents($folder . '/' . $namaFile, $data);
+    file_put_contents($path . '/' . $namaFile, $data);
 
-    // Update database
+    // Update database → simpan RELATIVE PATH
     \DB::table('karyawan')
         ->where('NIK', $karyawan->NIK)
-        ->update(['foto' => $namaFile]);
+        ->update(['foto' => 'foto/' . $namaFile]);
 
-    // Refresh session
-    $karyawanBaru = \DB::table('karyawan')->where('NIK', $karyawan->NIK)->first();
+    // Refresh session (join lengkap)
+    $karyawanBaru = \DB::table('karyawan')
+        ->leftJoin('departement', 'karyawan.id_divisi', '=', 'departement.id_divisi')
+        ->leftJoin('jabatan', 'karyawan.id_jabatan', '=', 'jabatan.id_jabatan')
+        ->where('karyawan.NIK', $karyawan->NIK)
+        ->select(
+            'karyawan.*',
+            'departement.nama_divisi',
+            'jabatan.nama_jabatan'
+        )
+        ->first();
+
     session(['karyawan' => $karyawanBaru]);
 
     return back()->with('success', 'Foto berhasil diperbarui!');
 }
+
 
 }

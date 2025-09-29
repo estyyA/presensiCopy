@@ -26,104 +26,116 @@ class PageController extends Controller
 {
     /** ---------------- DASHBOARD ---------------- */
     public function dashboard()
-    {
-        $totalKaryawan = DB::table('karyawan')->count();
+{
+    $totalKaryawan = DB::table('karyawan')->count();
 
-        $today = Carbon::today();
-        $startWeek = Carbon::now()->startOfWeek();
-        $endWeek   = Carbon::now()->endOfWeek();
-        $startMonth = Carbon::now()->startOfMonth();
-        $endMonth   = Carbon::now()->endOfMonth();
+    $today = Carbon::today();
+    $startWeek = Carbon::now()->startOfWeek();
+    $endWeek   = Carbon::now()->endOfWeek();
+    $startMonth = Carbon::now()->startOfMonth();
+    $endMonth   = Carbon::now()->endOfMonth();
 
-        /** ================= Harian ================= */
-        $harianMasuk = DB::table('presensi')
-            ->whereDate('tgl_presen', $today)
-            ->where('status', 'hadir')
-            ->count();
+    /** ================= Harian ================= */
+    $harianMasuk = DB::table('presensi')
+        ->whereDate('tgl_presen', $today)
+        ->where('status', 'hadir')
+        ->count();
 
-        $harianIzin = DB::table('presensi')
-            ->whereDate('tgl_presen', $today)
-            ->where('status', 'izin')
-            ->count();
+    $harianIzin = DB::table('presensi')
+        ->whereDate('tgl_presen', $today)
+        ->where('status', 'izin')
+        ->count();
 
-        $harianSakit = DB::table('presensi')
-            ->whereDate('tgl_presen', $today)
-            ->where('status', 'sakit')
-            ->count();
+    $harianSakit = DB::table('presensi')
+        ->whereDate('tgl_presen', $today)
+        ->where('status', 'sakit')
+        ->count();
 
-        // 🔹 Cuti dibaca dari tabel cuti
-        $harianCuti = DB::table('cuti')
-            ->whereDate('tanggal_mulai', '<=', $today)
-            ->whereDate('tanggal_selesai', '>=', $today)
-            ->count();
+    // 🔹 Cuti dibaca dari tabel cuti
+    $harianCuti = DB::table('cuti')
+        ->whereDate('tanggal_mulai', '<=', $today)
+        ->whereDate('tanggal_selesai', '>=', $today)
+        ->count();
 
-        $harianAlpha = $totalKaryawan - ($harianMasuk + $harianIzin + $harianSakit + $harianCuti);
+    $harianAlpha = $totalKaryawan - ($harianMasuk + $harianIzin + $harianSakit + $harianCuti);
 
-        /** ================= Mingguan ================= */
-        $mingguanMasuk = DB::table('presensi')
-            ->whereBetween('tgl_presen', [$startWeek, $endWeek])
-            ->where('status', 'hadir')
-            ->count();
+    /** ================= Mingguan ================= */
+    $mingguanMasuk = DB::table('presensi')
+        ->whereBetween('tgl_presen', [$startWeek, $endWeek])
+        ->where('status', 'hadir')
+        ->count();
 
-        $mingguanIzin = DB::table('presensi')
-            ->whereBetween('tgl_presen', [$startWeek, $endWeek])
-            ->where('status', 'izin')
-            ->count();
+    $mingguanIzin = DB::table('presensi')
+        ->whereBetween('tgl_presen', [$startWeek, $endWeek])
+        ->where('status', 'izin')
+        ->count();
 
-        $mingguanSakit = DB::table('presensi')
-            ->whereBetween('tgl_presen', [$startWeek, $endWeek])
-            ->where('status', 'sakit')
-            ->count();
+    $mingguanSakit = DB::table('presensi')
+        ->whereBetween('tgl_presen', [$startWeek, $endWeek])
+        ->where('status', 'sakit')
+        ->count();
 
-        $mingguanCuti = DB::table('cuti')
-            ->where(function ($q) use ($startWeek, $endWeek) {
-                $q->whereBetween('tanggal_mulai', [$startWeek, $endWeek])
-                  ->orWhereBetween('tanggal_selesai', [$startWeek, $endWeek])
-                  ->orWhere(function ($q2) use ($startWeek, $endWeek) {
-                      $q2->where('tanggal_mulai', '<=', $startWeek)
-                         ->where('tanggal_selesai', '>=', $endWeek);
-                  });
-            })
-            ->count();
+    $mingguanCuti = DB::table('cuti')
+        ->where(function ($q) use ($startWeek, $endWeek) {
+            $q->whereBetween('tanggal_mulai', [$startWeek, $endWeek])
+              ->orWhereBetween('tanggal_selesai', [$startWeek, $endWeek])
+              ->orWhere(function ($q2) use ($startWeek, $endWeek) {
+                  $q2->where('tanggal_mulai', '<=', $startWeek)
+                     ->where('tanggal_selesai', '>=', $endWeek);
+              });
+        })
+        ->count();
 
-        $mingguanAlpha = $totalKaryawan - ($mingguanMasuk + $mingguanIzin + $mingguanSakit + $mingguanCuti);
+    $mingguanAlpha = $totalKaryawan - ($mingguanMasuk + $mingguanIzin + $mingguanSakit + $mingguanCuti);
 
-        /** ================= Bulanan ================= */
-        $bulananMasuk = DB::table('presensi')
-            ->whereBetween('tgl_presen', [$startMonth, $endMonth])
-            ->where('status', 'hadir')
-            ->count();
+    /** ================= Bulanan ================= */
+    $bulananMasuk = DB::table('presensi')
+        ->whereBetween('tgl_presen', [$startMonth, $endMonth])
+        ->where('status', 'hadir')
+        ->count();
 
-        $bulananIzin = DB::table('presensi')
-            ->whereBetween('tgl_presen', [$startMonth, $endMonth])
-            ->where('status', 'izin')
-            ->count();
+    $bulananIzin = DB::table('presensi')
+        ->whereBetween('tgl_presen', [$startMonth, $endMonth])
+        ->where('status', 'izin')
+        ->count();
 
-        $bulananSakit = DB::table('presensi')
-            ->whereBetween('tgl_presen', [$startMonth, $endMonth])
-            ->where('status', 'sakit')
-            ->count();
+    $bulananSakit = DB::table('presensi')
+        ->whereBetween('tgl_presen', [$startMonth, $endMonth])
+        ->where('status', 'sakit')
+        ->count();
 
-        $bulananCuti = DB::table('cuti')
-            ->where(function ($q) use ($startMonth, $endMonth) {
-                $q->whereBetween('tanggal_mulai', [$startMonth, $endMonth])
-                  ->orWhereBetween('tanggal_selesai', [$startMonth, $endMonth])
-                  ->orWhere(function ($q2) use ($startMonth, $endMonth) {
-                      $q2->where('tanggal_mulai', '<=', $startMonth)
-                         ->where('tanggal_selesai', '>=', $endMonth);
-                  });
-            })
-            ->count();
+    $bulananCuti = DB::table('cuti')
+        ->where(function ($q) use ($startMonth, $endMonth) {
+            $q->whereBetween('tanggal_mulai', [$startMonth, $endMonth])
+              ->orWhereBetween('tanggal_selesai', [$startMonth, $endMonth])
+              ->orWhere(function ($q2) use ($startMonth, $endMonth) {
+                  $q2->where('tanggal_mulai', '<=', $startMonth)
+                     ->where('tanggal_selesai', '>=', $endMonth);
+              });
+        })
+        ->count();
 
-        $bulananAlpha = $totalKaryawan - ($bulananMasuk + $bulananIzin + $bulananSakit + $bulananCuti);
+    $bulananAlpha = $totalKaryawan - ($bulananMasuk + $bulananIzin + $bulananSakit + $bulananCuti);
 
-        return view('dashboard', compact(
-            'totalKaryawan',
-            'harianMasuk','harianIzin','harianSakit','harianCuti','harianAlpha',
-            'mingguanMasuk','mingguanIzin','mingguanSakit','mingguanCuti','mingguanAlpha',
-            'bulananMasuk','bulananIzin','bulananSakit','bulananCuti','bulananAlpha'
-        ));
+    /** ================= Data Profil Karyawan ================= */
+    $karyawan = null;
+    if (Auth::check()) {
+        $nik = Auth::user()->NIK; // sesuaikan field login kamu
+        $karyawan = DB::table('karyawan')->where('NIK', $nik)->first();
+
+        // simpan juga ke session biar konsisten
+        session(['karyawan' => $karyawan]);
     }
+
+    return view('dashboard', compact(
+        'totalKaryawan',
+        'harianMasuk','harianIzin','harianSakit','harianCuti','harianAlpha',
+        'mingguanMasuk','mingguanIzin','mingguanSakit','mingguanCuti','mingguanAlpha',
+        'bulananMasuk','bulananIzin','bulananSakit','bulananCuti','bulananAlpha',
+        'karyawan' // 🔹 tambahan biar Blade dapet data
+    ));
+}
+
 
 
 
@@ -298,15 +310,18 @@ class PageController extends Controller
     }
 
     public function processLogin(Request $request)
-    {
-        $request->validate([
-            'username' => 'required',
-            'password' => 'required',
-        ]);
+{
+    // Validasi input
+    $request->validate([
+        'username' => 'required',
+        'password' => 'required',
+    ]);
 
-        // Ambil akun + role karyawan
-        $akun = DB::table('akun')
+    // Ambil akun + data karyawan lengkap
+    $akun = DB::table('akun')
         ->join('karyawan', 'akun.NIK', '=', 'karyawan.NIK')
+        ->leftJoin('departement', 'karyawan.id_divisi', '=', 'departement.id_divisi')
+        ->leftJoin('jabatan', 'karyawan.id_jabatan', '=', 'jabatan.id_jabatan')
         ->where('akun.username', $request->username)
         ->select(
             'akun.username',
@@ -314,26 +329,30 @@ class PageController extends Controller
             'karyawan.NIK',
             'karyawan.role',
             'karyawan.nama_lengkap',
-            'karyawan.id_divisi',
-            'karyawan.id_jabatan',
-            'karyawan.foto' // ✅ tambahkan ini
+            'karyawan.foto',
+            'departement.nama_divisi',
+            'jabatan.nama_jabatan'
         )
         ->first();
 
-        if (!$akun || !Hash::check($request->password, $akun->password)) {
-            return back()->withErrors(['login' => 'Username atau password salah.']);
-        }
-
-        // Simpan ke session (selalu satu key saja)
-        session(['karyawan' => $akun]);
-
-        // Redirect sesuai role
-        if ($akun->role === 'admin') {
-            return redirect()->route('dashboard')->with('success', 'Login berhasil sebagai Admin');
-        }
-
-        return redirect()->route('karyawan.dashboard')->with('success', 'Login berhasil sebagai Karyawan');
+    // Cek apakah user ada dan password benar
+    if (!$akun || !Hash::check($request->password, $akun->password)) {
+        return back()->withErrors(['login' => 'Username atau password salah.']);
     }
+
+    // Simpan data lengkap karyawan ke session
+    session(['karyawan' => $akun]);
+
+    // Redirect sesuai role
+    if ($akun->role === 'admin') {
+        return redirect()->route('dashboard')
+            ->with('success', 'Login berhasil sebagai Admin');
+    }
+
+    return redirect()->route('karyawan.dashboard')
+        ->with('success', 'Login berhasil sebagai Karyawan');
+}
+
 
 
 
@@ -905,42 +924,32 @@ public function exportExcel(Request $request)
     // =======================
     public function dashboardKaryawan(Request $request)
     {
-        $sessionKaryawan = session('karyawan');
+        $karyawan = session('karyawan');
 
-        if (!$sessionKaryawan) {
-            return redirect()->route('login.form');
-        }
+    if (!$karyawan) {
+        return redirect()->route('login.form');
+    }
 
-        // Ambil data lengkap dari DB (termasuk foto)
-        $karyawan = DB::table('karyawan')
-            ->leftJoin('departement', 'karyawan.id_divisi', '=', 'departement.id_divisi')
-            ->leftJoin('jabatan', 'karyawan.id_jabatan', '=', 'jabatan.id_jabatan')
-            ->select('karyawan.*', 'departement.nama_divisi', 'jabatan.nama_jabatan')
-            ->where('karyawan.NIK', $sessionKaryawan->NIK)
-            ->first();
+    // Presensi hari ini
+    $presensiHariIni = DB::table('presensi')
+        ->where('NIK', $karyawan->NIK)
+        ->whereDate('tgl_presen', now()->toDateString())
+        ->first();
 
-        // Presensi hari ini
-        $presensiHariIni = DB::table('presensi')
-            ->where('NIK', $karyawan->NIK)
-            ->whereDate('tgl_presen', now()->toDateString())
-            ->first();
+    // Riwayat presensi 7 hari terakhir
+    $riwayat = DB::table('presensi')
+        ->where('NIK', $karyawan->NIK)
+        ->orderBy('tgl_presen', 'desc');
 
-        // Riwayat presensi 7 hari terakhir
-        $riwayat = DB::table('presensi')
-            ->where('NIK', $karyawan->NIK)
-            ->orderBy('tgl_presen', 'desc');
+    if ($request->filled('mulai') && $request->filled('sampai')) {
+        $riwayat->whereBetween('tgl_presen', [$request->mulai, $request->sampai]);
+    } else {
+        $riwayat->limit(7);
+    }
 
-        // Cek apakah ada filter tanggal
-        if ($request->filled('mulai') && $request->filled('sampai')) {
-            $riwayat->whereBetween('tgl_presen', [$request->mulai, $request->sampai]);
-        } else {
-            // Default: tampilkan 7 hari terakhir
-            $riwayat->limit(7);
-        }
+    $riwayat = $riwayat->get();
 
-        $riwayat = $riwayat->get();
-
-        return view('karyawan.dashboard', compact('karyawan', 'presensiHariIni', 'riwayat'));
+    return view('karyawan.dashboard', compact('karyawan', 'presensiHariIni', 'riwayat'));
     }
 
 
