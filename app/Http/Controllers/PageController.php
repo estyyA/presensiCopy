@@ -424,7 +424,8 @@ class PageController extends Controller
              'NIK as nik',
              'tgl_presen as tanggal',
              'status',
-             DB::raw('TIMESTAMPDIFF(MINUTE, jam_masuk, jam_keluar) as durasi_menit')
+             DB::raw('TIMESTAMPDIFF(MINUTE, jam_masuk, jam_keluar) as durasi_menit'),
+             DB::raw('1 as durasi_hari')
          )
          ->when($mulai && $sampai, function ($q) use ($mulai, $sampai) {
              $q->whereBetween('tgl_presen', [$mulai, $sampai]);
@@ -474,7 +475,7 @@ $data = DB::table(DB::raw("({$all->toSql()}) as logs"))
         'karyawan.nama_lengkap as nama',
         'departement.nama_divisi as divisi',
         'jabatan.nama_jabatan as jabatan',
-        DB::raw('COUNT(DISTINCT logs.tanggal) as total_hari'),
+        DB::raw('SUM(DISTINCT logs.tanggal) as total_hari'),
         DB::raw('SUM(CASE WHEN logs.status = "hadir" THEN 1 ELSE 0 END) as hadir'),
         DB::raw('SUM(CASE WHEN logs.status = "sakit" THEN 1 ELSE 0 END) as sakit'),
         DB::raw('SUM(CASE WHEN logs.status = "izin" THEN 1 ELSE 0 END) as izin'),
@@ -510,10 +511,13 @@ $data = DB::table(DB::raw("({$all->toSql()}) as logs"))
      }
 
      // Filter kategori kalau dipilih
-     if ($kategori && $kategori != 'semua') {
-         $data = $data->filter(function ($row) use ($kategori) {
-             return $row->{$kategori} > 0;
-         })->values();
+    if ($kategori && $kategori != 'semua') {
+    $data = $data->filter(function ($row) use ($kategori) {
+        return $row->{$kategori} > 0;
+    })->map(function ($row) {
+        // jangan ubah total_hari, biarin tetap hasil aslinya
+        return $row;
+    })->values();
      }
 
      $catatan = CatatanLaporan::pluck('catatan', 'nik');

@@ -144,28 +144,31 @@
                                 <td>{{ $row->divisi ?? '-' }}</td>
                                 <td>{{ $row->jabatan ?? '-' }}</td>
 
-                                {{-- ✅ Total Hari sesuai kategori --}}
-                                <td>
-                                    @php
-                                        $kategori = request('kategori');
-                                        $totalHari = 0;
+                               {{-- ✅ Total Hari sesuai kategori --}}
+<td>
+    @php
+        $kategori = request('kategori');
+        $totalSemua = ($row->hadir ?? 0) + ($row->izin ?? 0) + ($row->sakit ?? 0) + ($row->cuti ?? 0) + ($row->alpha ?? 0);
 
-                                        if ($kategori == 'hadir') {
-                                            $totalHari = $row->hadir ?? 0;
-                                        } elseif ($kategori == 'sakit') {
-                                            $totalHari = $row->sakit ?? 0;
-                                        } elseif ($kategori == 'izin') {
-                                            $totalHari = $row->izin ?? 0;
-                                        } elseif ($kategori == 'cuti') {
-                                            $totalHari = $row->cuti ?? 0;
-                                        } elseif ($kategori == 'alpha') {
-                                            $totalHari = $row->alpha ?? 0;
-                                        } else {
-                                            $totalHari = ($row->hadir ?? 0) + ($row->izin ?? 0) + ($row->sakit ?? 0) + ($row->cuti ?? 0) + ($row->alpha ?? 0);
-                                        }
-                                    @endphp
-                                    <span class="badge badge-dark px-3">{{ $totalHari }}</span>
-                                </td>
+        if ($kategori == 'hadir') {
+            $totalHari = $row->hadir ?? 0;
+        } elseif ($kategori == 'sakit') {
+            $totalHari = $row->sakit ?? 0;
+        } elseif ($kategori == 'izin') {
+            $totalHari = $row->izin ?? 0;
+        } elseif ($kategori == 'cuti') {
+            $totalHari = $row->cuti ?? 0;
+        } elseif ($kategori == 'alpha') {
+            $totalHari = $row->alpha ?? 0;
+        } else {
+            $totalHari = $totalSemua;
+        }
+    @endphp
+
+    {{-- tampilkan total_semua di badge hitam, biar konsisten --}}
+    <span class="badge badge-dark px-3">{{ $totalSemua }}</span>
+</td>
+
 
                                 {{-- ✅ Kolom sesuai kategori --}}
                                 @if(request('kategori') == 'hadir')
