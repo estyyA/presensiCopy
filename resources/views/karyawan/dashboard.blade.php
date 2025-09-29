@@ -11,19 +11,19 @@
 <!-- Card Profil Karyawan -->
 <div class="card profile-card p-3 mb-3 text-center">
     <div class="d-flex flex-column align-items-center position-relative">
-
-<img src="{{ url('storage/'.$karyawan->foto) }}"
-     alt="Foto Karyawan"
-     class="rounded-circle"
-     width="90" height="90"
-     alt="Foto Karyawan"
-     style="object-fit: cover;">
-
-
+        <!-- Foto Profil -->
+        <img id="previewFoto"
+             src="{{ $karyawan->foto ? asset('uploads/'.$karyawan->foto) : asset('img/profile.png') }}"
+             class="rounded-circle mb-2"
+             width="90" height="90"
+             alt="Foto Karyawan"
+             style="object-fit: cover;">
 
         <!-- Tombol Edit Foto -->
         <input type="file" id="inputFoto" class="d-none" accept="image/*">
-        <label for="inputFoto" class="position-absolute bottom-0 end-0 bg-primary text-white rounded-circle p-1" style="cursor: pointer;">
+        <label for="inputFoto"
+               class="position-absolute bottom-0 end-0 bg-primary text-white rounded-circle p-1"
+               style="cursor: pointer;">
             <i class="bi bi-pencil-fill"></i>
         </label>
 
@@ -34,25 +34,25 @@
 
 <!-- Modal Preview Foto -->
 <div class="modal fade" id="modalPreview" tabindex="-1" aria-labelledby="modalPreviewLabel" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content">
-      <form action="{{ route('karyawan.uploadFoto') }}" method="POST" enctype="multipart/form-data" id="formFoto">
-        @csrf
-        <div class="modal-header">
-          <h5 class="modal-title" id="modalPreviewLabel">Preview Foto</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <form action="{{ route('karyawan.uploadFoto') }}" method="POST" enctype="multipart/form-data" id="formFoto">
+                @csrf
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalPreviewLabel">Preview Foto</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body text-center">
+                    <img id="modalFoto" src="" class="rounded-circle" width="150" height="150" style="object-fit: cover;">
+                    <input type="hidden" name="fotoBase64" id="fotoBase64">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save</button>
+                </div>
+            </form>
         </div>
-        <div class="modal-body text-center">
-          <img id="modalFoto" src="" class="rounded-circle" width="150" height="150" style="object-fit: cover;">
-          <input type="hidden" name="fotoBase64" id="fotoBase64">
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-          <button type="submit" class="btn btn-primary">Save</button>
-        </div>
-      </form>
     </div>
-  </div>
 </div>
 
 <script>
@@ -98,18 +98,13 @@ function updateClock() {
 
 updateClock();
 setInterval(updateClock, 1000);
-
-
-updateClock();
-setInterval(updateClock, 1000);
 </script>
 
     <div class="d-flex justify-content-between mt-3">
-    @if(!$presensiHariIni)
-        <!-- Belum Absen Masuk -->
-        <a href="{{ route('absensi.formMasuk') }}" class="btn btn-primary btn-lg">Masuk</a>
-        <button class="btn btn-danger btn-lg" disabled>Keluar</button>
-
+        @if(!$presensiHariIni)
+            <!-- Belum Absen Masuk -->
+            <a href="{{ route('absensi.formMasuk') }}" class="btn btn-primary btn-lg">Masuk</a>
+            <button class="btn btn-danger btn-lg" disabled>Keluar</button>
         @elseif(!$presensiHariIni->jam_keluar)
             <!-- Sudah Masuk, Belum Keluar -->
             <button class="btn btn-primary btn-lg" disabled>Masuk</button>
@@ -121,100 +116,99 @@ setInterval(updateClock, 1000);
     </div>
 </div>
 
-    <!-- Card Filter & Tabel Riwayat Presensi -->
-    <div class="card shadow-lg border-0 mb-4 rounded-4">
-        <div class="card-body">
-    <!-- Filter Presensi -->
-    <h5 class="fw-bold mb-3 text-purple">
-        <i class="bi-calendar-check-fill me-2"></i> Riwayat Presensi
-    </h5>
+<!-- Card Filter & Tabel Riwayat Presensi -->
+<div class="card shadow-lg border-0 mb-4 rounded-4">
+    <div class="card-body">
+        <!-- Filter Presensi -->
+        <h5 class="fw-bold mb-3 text-purple">
+            <i class="bi-calendar-check-fill me-2"></i> Riwayat Presensi
+        </h5>
 
-    <form method="GET" action="{{ route('karyawan.dashboard') }}">
-        <div class="d-flex align-items-end gap-3 flex-wrap">
-            <!-- Input Mulai -->
-            <div>
-                <label class="form-label fw-semibold">Mulai</label>
-                <input type="date" name="mulai"
-                    class="form-control form-control-sm shadow-sm rounded"
-                    style="width: 115px;"
-                    value="{{ request('mulai') }}">
+        <form method="GET" action="{{ route('karyawan.dashboard') }}">
+            <div class="d-flex align-items-end gap-3 flex-wrap">
+                <!-- Input Mulai -->
+                <div>
+                    <label class="form-label fw-semibold">Mulai</label>
+                    <input type="date" name="mulai"
+                           class="form-control form-control-sm shadow-sm rounded"
+                           style="width: 115px;"
+                           value="{{ request('mulai') }}">
+                </div>
+
+                <!-- Input Sampai -->
+                <div>
+                    <label class="form-label fw-semibold">Sampai</label>
+                    <input type="date" name="sampai"
+                           class="form-control form-control-sm shadow-sm rounded"
+                           style="width: 115px;"
+                           value="{{ request('sampai') }}">
+                </div>
+
+                <!-- Tombol -->
+                <div class="ms-auto">
+                    <button type="submit"
+                            class="btn btn-purple btn-sm shadow-sm rounded-circle d-flex align-items-center justify-content-center"
+                            style="width: 35px; height: 35px;"
+                            title="Tampilkan">
+                        <i class="bi bi-search"></i>
+                    </button>
+                </div>
             </div>
+        </form>
 
-            <!-- Input Sampai -->
-            <div>
-                <label class="form-label fw-semibold">Sampai</label>
-                <input type="date" name="sampai"
-                    class="form-control form-control-sm shadow-sm rounded"
-                    style="width: 115px;"
-                    value="{{ request('sampai') }}">
-            </div>
-
-            <!-- Tombol -->
-            <div class="ms-auto">
-                <button type="submit"
-                        class="btn btn-purple btn-sm shadow-sm rounded-circle d-flex align-items-center justify-content-center"
-                        style="width: 35px; height: 35px;"
-                        title="Tampilkan">
-                    <i class="bi bi-search"></i>
-                </button>
-
-            </div>
-        </div>
-    </form>
-
-    <!-- Tabel -->
-    <div class="table-responsive mt-4">
-        <table class="table table-bordered table-striped shadow-sm rounded-4 overflow-hidden">
-            <thead class="table-secondary">
-                <tr>
-                    <th>Tanggal</th>
-                    <th>Jam Masuk</th>
-                    <th>Lokasi Masuk</th>
-                    <th>Jam Keluar</th>
-                    <th>Lokasi Keluar</th>
-                    <th>Status</th>
-                </tr>
-            </thead>
-            <tbody>
-                @forelse($riwayat as $item)
-                    <tr class="{{ $item->jam_masuk > '07:30:00' ? 'bg-primary text-white' : '' }}">
-                        <td>{{ \Carbon\Carbon::parse($item->tgl_presen)->format('D, d F Y') }}</td>
-                        <td>{{ $item->jam_masuk ?? '--:--' }}</td>
-                        <td>{{ $item->lokasi_masuk ?? '-' }}</td>
-                        <td>{{ $item->jam_keluar ?? '--:--' }}</td>
-                        <td>{{ $item->lokasi_keluar ?? '-' }}</td>
-                        <td>
-                            <span class="fw-semibold text-secondary">
-                                {{ $item->status ?? '-' }}
-                            </span>
-                        </td>
-                    </tr>
-                @empty
+        <!-- Tabel -->
+        <div class="table-responsive mt-4">
+            <table class="table table-bordered table-striped shadow-sm rounded-4 overflow-hidden">
+                <thead class="table-secondary">
                     <tr>
-                        <td colspan="6" class="text-center text-muted">Belum ada data presensi</td>
+                        <th>Tanggal</th>
+                        <th>Jam Masuk</th>
+                        <th>Lokasi Masuk</th>
+                        <th>Jam Keluar</th>
+                        <th>Lokasi Keluar</th>
+                        <th>Status</th>
                     </tr>
-                @endforelse
-            </tbody>
-        </table>
+                </thead>
+                <tbody>
+                    @forelse($riwayat as $item)
+                        <tr class="{{ $item->jam_masuk > '07:30:00' ? 'bg-primary text-white' : '' }}">
+                            <td>{{ \Carbon\Carbon::parse($item->tgl_presen)->format('D, d F Y') }}</td>
+                            <td>{{ $item->jam_masuk ?? '--:--' }}</td>
+                            <td>{{ $item->lokasi_masuk ?? '-' }}</td>
+                            <td>{{ $item->jam_keluar ?? '--:--' }}</td>
+                            <td>{{ $item->lokasi_keluar ?? '-' }}</td>
+                            <td>
+                                <span class="fw-semibold text-secondary">
+                                    {{ $item->status ?? '-' }}
+                                </span>
+                            </td>
+                        </tr>
+                    @empty
+                        <tr>
+                            <td colspan="6" class="text-center text-muted">Belum ada data presensi</td>
+                        </tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Tombol Logout -->
+        <form action="{{ route('logout') }}" method="POST" class="mt-4 d-flex justify-content-end">
+            @csrf
+            <button type="submit" class="btn btn-danger btn-lg px-4 rounded-pill shadow-sm d-flex align-items-center justify-content-center gap-2" style="transition: 0.3s;">
+                <i class="bi bi-box-arrow-right"></i>
+                <span>Logout</span>
+            </button>
+        </form>
     </div>
-    <!-- Tombol Logout -->
-    <form action="{{ route('logout') }}" method="POST" class="mt-4 d-flex justify-content-end">
-        @csrf
-        <button type="submit" class="btn btn-danger btn-lg px-4 rounded-pill shadow-sm d-flex align-items-center justify-content-center gap-2" style="transition: 0.3s;">
-            <i class="bi bi-box-arrow-right"></i>
-            <span>Logout</span>
-        </button>
-    </form>
+
+    {{--
+    @if(session('success'))
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            {{ session('success') }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    @endif
+    --}}
 </div>
-
-
-
-{{-- @if(session('success'))
-<div class="alert alert-success alert-dismissible fade show" role="alert">
-    {{ session('success') }}
-    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-</div>
-@endif --}}
-
-
 @endsection
