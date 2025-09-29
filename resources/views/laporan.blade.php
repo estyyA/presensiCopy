@@ -64,6 +64,14 @@
     <div class="card-body">
         <h5 class="font-weight-bold mb-3 text-purple">📌 Pilih Kategori Laporan</h5>
         <ul class="nav nav-pills mb-3">
+            {{-- Tambahan menu Semua --}}
+            <li class="nav-item">
+                <a class="nav-link {{ request('kategori')==null ? 'active bg-purple text-white' : '' }}"
+                   href="{{ route('laporan', array_merge(request()->all(), ['kategori'=>null])) }}">
+                   Semua
+                </a>
+            </li>
+
             @foreach(['hadir','izin','sakit','cuti','alpha'] as $kategori)
                 <li class="nav-item">
                     <a class="nav-link {{ request('kategori')==$kategori ? 'active bg-purple text-white' : '' }}"
@@ -82,6 +90,8 @@
         <h5 class="font-weight-bold mb-3 text-purple">📑 Rekapitulasi Presensi
             @if(request('kategori'))
                 - {{ ucfirst(request('kategori')) }}
+            @else
+                - Semua
             @endif
         </h5>
         <div class="table-responsive">
@@ -97,10 +107,9 @@
                             <th>Jabatan</th>
                             <th>Total Hari</th>
 
-                            {{-- ✅ Tampilkan hanya kolom sesuai kategori --}}
+                            {{-- ✅ Tampilkan kolom sesuai kategori --}}
                             @if(request('kategori') == 'hadir')
                                 <th>Hadir</th>
-                                <th>Total Jam Kerja</th>
                             @elseif(request('kategori') == 'sakit')
                                 <th>Sakit</th>
                             @elseif(request('kategori') == 'izin')
@@ -109,6 +118,18 @@
                                 <th>Cuti</th>
                             @elseif(request('kategori') == 'alpha')
                                 <th>Alpha</th>
+                            @else
+                                {{-- Jika pilih semua --}}
+                                <th>Hadir</th>
+                                <th>Izin</th>
+                                <th>Sakit</th>
+                                <th>Cuti</th>
+                                <th>Alpha</th>
+                            @endif
+
+                            {{-- Kolom Total Jam Kerja di ujung sebelum catatan (hanya hadir & semua) --}}
+                            @if(request('kategori') == 'hadir' || request('kategori') == null)
+                                <th>Total Jam Kerja</th>
                             @endif
 
                             <th>Catatan</th>
@@ -139,14 +160,35 @@
                                             $totalHari = $row->cuti ?? 0;
                                         } elseif ($kategori == 'alpha') {
                                             $totalHari = $row->alpha ?? 0;
+                                        } else {
+                                            $totalHari = ($row->hadir ?? 0) + ($row->izin ?? 0) + ($row->sakit ?? 0) + ($row->cuti ?? 0) + ($row->alpha ?? 0);
                                         }
                                     @endphp
                                     <span class="badge badge-dark px-3">{{ $totalHari }}</span>
                                 </td>
 
-                                {{-- ✅ Tampilkan kolom sesuai kategori --}}
+                                {{-- ✅ Kolom sesuai kategori --}}
                                 @if(request('kategori') == 'hadir')
                                     <td><span class="badge badge-success px-3">{{ $row->hadir ?? 0 }}</span></td>
+                                @elseif(request('kategori') == 'sakit')
+                                    <td><span class="badge badge-info px-3">{{ $row->sakit ?? 0 }}</span></td>
+                                @elseif(request('kategori') == 'izin')
+                                    <td><span class="badge badge-warning px-3">{{ $row->izin ?? 0 }}</span></td>
+                                @elseif(request('kategori') == 'cuti')
+                                    <td><span class="badge badge-primary px-3">{{ $row->cuti ?? 0 }}</span></td>
+                                @elseif(request('kategori') == 'alpha')
+                                    <td><span class="badge badge-danger px-3">{{ $row->alpha ?? 0 }}</span></td>
+                                @else
+                                    {{-- Jika pilih semua --}}
+                                    <td><span class="badge badge-success px-3">{{ $row->hadir ?? 0 }}</span></td>
+                                    <td><span class="badge badge-warning px-3">{{ $row->izin ?? 0 }}</span></td>
+                                    <td><span class="badge badge-info px-3">{{ $row->sakit ?? 0 }}</span></td>
+                                    <td><span class="badge badge-primary px-3">{{ $row->cuti ?? 0 }}</span></td>
+                                    <td><span class="badge badge-danger px-3">{{ $row->alpha ?? 0 }}</span></td>
+                                @endif
+
+                                {{-- ✅ Total Jam Kerja di ujung --}}
+                                @if(request('kategori') == 'hadir' || request('kategori') == null)
                                     <td>
                                         @php
                                             $totalMenit = (int) ($row->total_menit ?? 0);
@@ -165,14 +207,6 @@
                                             @endif
                                         </span>
                                     </td>
-                                @elseif(request('kategori') == 'sakit')
-                                    <td><span class="badge badge-info px-3">{{ $row->sakit ?? 0 }}</span></td>
-                                @elseif(request('kategori') == 'izin')
-                                    <td><span class="badge badge-warning px-3">{{ $row->izin ?? 0 }}</span></td>
-                                @elseif(request('kategori') == 'cuti')
-                                    <td><span class="badge badge-primary px-3">{{ $row->cuti ?? 0 }}</span></td>
-                                @elseif(request('kategori') == 'alpha')
-                                    <td><span class="badge badge-danger px-3">{{ $row->alpha ?? 0 }}</span></td>
                                 @endif
 
                                 <td>
@@ -184,13 +218,12 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="{{ request('kategori') == 'hadir' ? 9 : 8 }}" class="text-muted">
+                                <td colspan="{{ request('kategori') == 'hadir' ? 9 : (request('kategori') ? 8 : 12) }}" class="text-muted">
                                     ⚠️ Tidak ada data presensi
                                 </td>
                             </tr>
                         @endforelse
                     </tbody>
-
                 </table>
 
                 {{-- Tombol Simpan --}}
