@@ -112,6 +112,7 @@
                                 <th>Hadir</th>
                             @elseif(request('kategori') == 'sakit')
                                 <th>Sakit</th>
+                                <th>Surat</th>
                             @elseif(request('kategori') == 'izin')
                                 <th>Izin</th>
                             @elseif(request('kategori') == 'cuti')
@@ -123,6 +124,7 @@
                                 <th>Hadir</th>
                                 <th>Izin</th>
                                 <th>Sakit</th>
+                                <th>Surat</th>
                                 <th>Cuti</th>
                                 <th>Alpha</th>
                             @endif
@@ -144,37 +146,44 @@
                                 <td>{{ $row->divisi ?? '-' }}</td>
                                 <td>{{ $row->jabatan ?? '-' }}</td>
 
-                               {{-- ✅ Total Hari sesuai kategori --}}
-<td>
-    @php
-        $kategori = request('kategori');
-        $totalSemua = ($row->hadir ?? 0) + ($row->izin ?? 0) + ($row->sakit ?? 0) + ($row->cuti ?? 0) + ($row->alpha ?? 0);
+                                {{-- ✅ Total Hari sesuai kategori --}}
+                                <td>
+                                    @php
+                                        $kategori = request('kategori');
+                                        $totalSemua = ($row->hadir ?? 0) + ($row->izin ?? 0) + ($row->sakit ?? 0) + ($row->cuti ?? 0) + ($row->alpha ?? 0);
 
-        if ($kategori == 'hadir') {
-            $totalHari = $row->hadir ?? 0;
-        } elseif ($kategori == 'sakit') {
-            $totalHari = $row->sakit ?? 0;
-        } elseif ($kategori == 'izin') {
-            $totalHari = $row->izin ?? 0;
-        } elseif ($kategori == 'cuti') {
-            $totalHari = $row->cuti ?? 0;
-        } elseif ($kategori == 'alpha') {
-            $totalHari = $row->alpha ?? 0;
-        } else {
-            $totalHari = $totalSemua;
-        }
-    @endphp
+                                        if ($kategori == 'hadir') {
+                                            $totalHari = $row->hadir ?? 0;
+                                        } elseif ($kategori == 'sakit') {
+                                            $totalHari = $row->sakit ?? 0;
+                                        } elseif ($kategori == 'izin') {
+                                            $totalHari = $row->izin ?? 0;
+                                        } elseif ($kategori == 'cuti') {
+                                            $totalHari = $row->cuti ?? 0;
+                                        } elseif ($kategori == 'alpha') {
+                                            $totalHari = $row->alpha ?? 0;
+                                        } else {
+                                            $totalHari = $totalSemua;
+                                        }
+                                    @endphp
 
-    {{-- tampilkan total_semua di badge hitam, biar konsisten --}}
-    <span class="badge badge-dark px-3">{{ $totalSemua }}</span>
-</td>
-
+                                    <span class="badge badge-dark px-3">{{ $totalSemua }}</span>
+                                </td>
 
                                 {{-- ✅ Kolom sesuai kategori --}}
                                 @if(request('kategori') == 'hadir')
                                     <td><span class="badge badge-success px-3">{{ $row->hadir ?? 0 }}</span></td>
                                 @elseif(request('kategori') == 'sakit')
                                     <td><span class="badge badge-info px-3">{{ $row->sakit ?? 0 }}</span></td>
+                                    <td>
+                                        @if(!empty($row->surat))
+                                            <a href="{{ asset('storage/'.$row->surat) }}" target="_blank" class="btn btn-sm btn-info">
+                                                <i class="fa fa-file-alt"></i> Lihat
+                                            </a>
+                                        @else
+                                            <span class="text-muted">-</span>
+                                        @endif
+                                    </td>
                                 @elseif(request('kategori') == 'izin')
                                     <td><span class="badge badge-warning px-3">{{ $row->izin ?? 0 }}</span></td>
                                 @elseif(request('kategori') == 'cuti')
@@ -186,6 +195,15 @@
                                     <td><span class="badge badge-success px-3">{{ $row->hadir ?? 0 }}</span></td>
                                     <td><span class="badge badge-warning px-3">{{ $row->izin ?? 0 }}</span></td>
                                     <td><span class="badge badge-info px-3">{{ $row->sakit ?? 0 }}</span></td>
+                                    <td>
+                                        @if(!empty($row->surat))
+                                            <a href="{{ asset('storage/'.$row->surat) }}" target="_blank" class="btn btn-sm btn-info">
+                                                <i class="fa fa-file-alt"></i> Lihat
+                                            </a>
+                                        @else
+                                            <span class="text-muted">-</span>
+                                        @endif
+                                    </td>
                                     <td><span class="badge badge-primary px-3">{{ $row->cuti ?? 0 }}</span></td>
                                     <td><span class="badge badge-danger px-3">{{ $row->alpha ?? 0 }}</span></td>
                                 @endif
