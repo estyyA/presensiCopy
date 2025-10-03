@@ -16,28 +16,29 @@
 
     <style>
         body {
-        background-color: #f4f6f9; /* abu muda atau ganti sesuai selera */
-        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        display: flex;
-        min-height: 100vh;
-        flex-direction: column;
-        margin: 0; /* pastikan tidak ada jarak default */
-    }
-
+            background-color: #f4f6f9;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
 
         .main-wrapper {
             display: flex;
-            flex: 1;
-        }
-        /* === SIDEBAR === */
-        .sidebar {
             min-height: 100vh;
+        }
+
+        /* === SIDEBAR FIXED === */
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 240px;
+            height: 100vh;
             background: linear-gradient(180deg, #0d47a1, #001f54);
             color: white;
             padding: 20px 15px;
+            overflow-y: auto;
             transition: all 0.3s ease;
-            position: sticky;
-            top: 0;
         }
         .sidebar .brand {
             display: flex;
@@ -100,12 +101,20 @@
             border: 2px solid #eee;
         }
 
-        /* === CONTENT === */
+        /* === MAIN CONTENT === */
+        .main-content {
+            margin-left: 240px;   /* geser karena sidebar fixed */
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+            min-height: 100vh;
+        }
+
         .content {
-            padding: 25px;   /* bisa dikurangi kalau kepanjangan */
+            padding: 25px;
             background: #fff;
-            width: 100%;     /* isi selebar body */
-            margin: 0;       /* hilangin gap */
+            width: 100%;
+            flex: 1;
             box-sizing: border-box;
         }
 
@@ -118,7 +127,6 @@
             text-align: center;
             font-size: 14px;
             color: #666;
-
         }
 
         /* === CARD STATS === */
@@ -152,11 +160,6 @@
         ::-webkit-scrollbar-thumb:hover {
             background: rgba(0,0,0,0.3);
         }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(5px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
     </style>
 </head>
 <body>
@@ -185,16 +188,13 @@
         <a href="{{ route('admin.presensi.form') }}" class="nav-link @if(Request::is('admin/presensi*')) active @endif">
             <i class="fa fa-clock mr-2"></i> Presensi
         </a>
-        <li class="nav-item">
-            <a class="nav-link" href="{{ route('cuti.index') }}">
-                <i class="fa fa-calendar-check"></i>
-                <span>Input Cuti</span>
-            </a>
-        </li>
+        <a href="{{ route('cuti.index') }}" class="nav-link @if(Request::is('cuti*')) active @endif">
+            <i class="fa fa-calendar-check mr-2"></i> Input Cuti
+        </a>
     </div>
 
     {{-- Main Content --}}
-    <div class="flex-fill d-flex flex-column">
+    <div class="main-content">
         {{-- Topbar --}}
         <div class="topbar">
             <div class="dropdown">
@@ -222,7 +222,7 @@
         </div>
 
         {{-- Content --}}
-        <div class="content flex-fill">
+        <div class="content">
             @yield('content')
         </div>
 

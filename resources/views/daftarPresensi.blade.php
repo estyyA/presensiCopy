@@ -70,9 +70,10 @@
 <div class="card shadow-sm border-0">
     <div class="card-body">
         <h5 class="font-weight-bold mb-3 text-purple">Data Presensi Karyawan</h5>
-        <div class="table-responsive">
+
+        <div class="table-responsive" style="max-height: 420px; overflow-y: auto;">
             <table class="table table-bordered table-striped text-center">
-                <thead>
+                <thead class="sticky-top">
                     <tr style="background:#3f71dc; color:#ffffff; text-align:center;">
                         <th>No</th>
                         <th>NIK</th>
@@ -129,7 +130,6 @@
                 </tbody>
             </table>
         </div>
-
 
         {{-- Pagination --}}
         <div class="d-flex justify-content-center mt-3">
@@ -193,6 +193,13 @@
     .action-btns .btn { width: 36px; height: 36px; border-radius: 8px; display: inline-flex; align-items: center; justify-content: center; margin: 2px; }
     .card .table th { font-weight: 600; }
     .badge { font-size: 0.85rem; }
+    .table thead th {
+        position: sticky;
+        top: 0;
+        z-index: 10;
+        background: #3f71dc;
+        color: #fff;
+    }
 </style>
 @endpush
 
