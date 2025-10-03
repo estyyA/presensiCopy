@@ -125,7 +125,7 @@
                                 <td>
                                     @if($p->surat)
                                     <a href="{{ asset('storage/' . $p->surat) }}" target="_blank" class="btn btn-sm btn-info">
-                                        📎 Lihat Surat
+                                        <i class="fa fa-file-alt"></i> Lihat Surat
                                     </a>
                                 @else
                                     <span class="text-muted">-</span>

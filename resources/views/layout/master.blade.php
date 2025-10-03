@@ -200,11 +200,16 @@
             <div class="dropdown">
                 <a class="d-flex align-items-center text-dark text-decoration-none dropdown-toggle"
                    href="#" id="userDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+
                    <span class="mr-2">
-                    {{ session('karyawan')->nama_lengkap ?? 'Guest' }}
-                </span>
-                <img src="https://ui-avatars.com/api/?name={{ urlencode(session('karyawan')->nama_lengkap ?? 'User') }}&background=0D8ABC&color=fff"
-                     class="rounded-circle" width="35" height="35" alt="avatar">
+                        {{ session('karyawan')->nama_lengkap ?? 'Guest' }}
+                   </span>
+
+                   {{-- Ganti avatar bawaan dengan icon dari Icons8 --}}
+                   <img src="https://img.icons8.com/ios-filled/40/0D8ABC/user.png"
+                        class="rounded-circle bg-white p-1"
+                        width="35" height="35" alt="user icon">
+
                 </a>
                 <div class="dropdown-menu dropdown-menu-right shadow" aria-labelledby="userDropdown">
                     <a class="dropdown-item" href="{{ route('profil') }}">
@@ -220,6 +225,7 @@
                 </div>
             </div>
         </div>
+
 
         {{-- Content --}}
         <div class="content">
