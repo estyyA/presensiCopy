@@ -12,18 +12,26 @@ class AddRoleToAkunTable extends Migration
      * @return void
      */
     public function up()
-{
-    Schema::table('akun', function (Blueprint $table) {
-        $table->string('role')->default('karyawan');
-        // default jadi karyawan, nanti admin bisa manual ubah
-    });
-}
+    {
+        if (!Schema::hasColumn('akun', 'role')) {
+            Schema::table('akun', function (Blueprint $table) {
+                $table->string('role')->default('karyawan');
+                // default jadi karyawan, nanti admin bisa manual ubah
+            });
+        }
+    }
 
-public function down()
-{
-    Schema::table('akun', function (Blueprint $table) {
-        $table->dropColumn('role');
-    });
-}
-
+    /**
+     * Reverse the migrations.
+     *
+     * @return void
+     */
+    public function down()
+    {
+        if (Schema::hasColumn('akun', 'role')) {
+            Schema::table('akun', function (Blueprint $table) {
+                $table->dropColumn('role');
+            });
+        }
+    }
 }
