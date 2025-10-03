@@ -1173,6 +1173,43 @@ public function storeSakit(Request $request)
     return redirect()->route('karyawan.dashboard')->with('success', 'Pengajuan sakit berhasil dikirim!');
 }
 
+// tampilkan form
+    public function trackingSalesForm()
+    {
+        $karyawan = session('karyawan');
+        if (!$karyawan) {
+            return redirect()->route('login.form')->with('error', 'Silahkan login terlebih dahulu.');
+        }
+        return view('karyawan.trackingSales');
+    }
+
+    // simpan data
+    public function trackingSalesStore(Request $request)
+{
+    $request->validate([
+        'tanggal_sales' => 'required|date',
+        'jam_sales' => 'required',
+        'lokasi_sales' => 'required|string|max:255',
+    ]);
+
+    // Ambil data karyawan dari session
+    $karyawan = session('karyawan');
+    if (!$karyawan) {
+        return redirect()->route('login.form')->with('error', 'Silahkan login terlebih dahulu.');
+    }
+
+    TrackingSales::create([
+        'NIK' => $karyawan->NIK,
+        'id_divisi' => $karyawan->id_divisi,
+        'tanggal_sales' => $request->tanggal_sales,
+        'jam_sales' => $request->jam_sales,
+        'lokasi_sales' => $request->lokasi_sales,
+    ]);
+
+    return redirect()->route('tracking.form')->with('success', 'Data tracking berhasil disimpan!');
+}
+
+
 // Hapus Presensi
 public function deletePresensi($id)
 {

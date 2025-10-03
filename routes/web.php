@@ -129,6 +129,12 @@ Route::middleware(['role:karyawan'])->group(function () {
     Route::get('/pengajuan-sakit', [PageController::class, 'formSakit'])->name('presensi.formSakit');
     Route::post('/pengajuan-sakit', [PageController::class, 'storeSakit'])->name('presensi.storeSakit');
 
+    // form input tracking
+    Route::get('/tracking-sales', [PageController::class, 'trackingSalesForm'])->name('tracking.form');
+
+    // simpan data
+    Route::post('/tracking-sales', [PageController::class, 'trackingSalesStore'])->name('tracking.store');
+
 });
 
 

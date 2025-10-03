@@ -131,6 +131,13 @@ setInterval(updateClock, 1000);
         <i class="bi bi-file-medical-fill me-2"></i> Ajukan Sakit
     </a>
 </div>
+<div class="mt-3">
+    <a href="{{ route('tracking.form') }}"
+       class="btn btn-primary btn-lg w-100 shadow-sm d-flex align-items-center justify-content-center">
+        <i class="bi bi-geo-alt-fill me-2"></i> Tracking Sales
+    </a>
+</div>
+
 
 
 <!-- Card Riwayat Presensi -->
