@@ -123,13 +123,13 @@
                                     </form>
                                 </td>
                                 <td>
-    @if($p->surat)
-        <a href="{{ asset('storage/surat/'.$p->surat) }}" target="_blank" class="btn btn-sm btn-info">
-            📎 Lihat Surat
-        </a>
-    @else
-        <span class="text-muted">-</span>
-    @endif
+                                    @if($p->surat)
+                                    <a href="{{ asset('storage/' . $p->surat) }}" target="_blank" class="btn btn-sm btn-info">
+                                        📎 Lihat Surat
+                                    </a>
+                                @else
+                                    <span class="text-muted">-</span>
+                                @endif
 </td>
 
                             </tr>
