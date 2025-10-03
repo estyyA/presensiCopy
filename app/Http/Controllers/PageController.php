@@ -143,7 +143,7 @@ class PageController extends Controller
 
 
     /** ---------------- KARYAWAN ---------------- */
-    public function daftarPresensi(Request $request)
+  public function daftarPresensi(Request $request)
 {
     $query = DB::table('presensi')
         ->join('karyawan', 'presensi.NIK', '=', 'karyawan.NIK')
@@ -154,6 +154,7 @@ class PageController extends Controller
             'presensi.jam_masuk',
             'presensi.jam_keluar',
             'presensi.status',
+            'presensi.surat', // ✅ tambahkan ini
             'karyawan.NIK',
             'karyawan.nama_lengkap',
             'departement.nama_divisi'
@@ -174,18 +175,17 @@ class PageController extends Controller
         $query->whereDate('presensi.tgl_presen', $request->tanggal);
     }
 
-    // Urut terbaru dulu, paginate, dan pertahankan query string
     $presensis = $query->orderBy('presensi.tgl_presen', 'desc')
         ->paginate(10)
         ->appends($request->all());
 
-    // Data dropdown divisi
     $departements = DB::table('departement')
         ->select('id_divisi', 'nama_divisi')
         ->get();
 
     return view('daftarPresensi', compact('presensis', 'departements'));
 }
+
 
 
 

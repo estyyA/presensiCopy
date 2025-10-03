@@ -12,22 +12,17 @@ class AddSuratToPresensiTable extends Migration
      * @return void
      */
     public function up()
-    {
-        Schema::table('presensi', function (Blueprint $table) {
-            $table->string('surat')->nullable()->after('status')
-                  ->comment('Path file surat dokter (foto atau PDF)');
-        });
-    }
+{
+    Schema::table('presensi', function (Blueprint $table) {
+        $table->string('surat')->nullable()->after('status');
+    });
+}
 
-    /**
-     * Reverse the migrations.
-     *
-     * @return void
-     */
-    public function down()
-    {
-        Schema::table('presensi', function (Blueprint $table) {
-            $table->dropColumn('surat');
-        });
-    }
+public function down()
+{
+    Schema::table('presensi', function (Blueprint $table) {
+        $table->dropColumn('surat');
+    });
+}
+
 }
