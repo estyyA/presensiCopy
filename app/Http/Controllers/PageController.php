@@ -27,7 +27,9 @@ class PageController extends Controller
     /** ---------------- DASHBOARD ---------------- */
     public function dashboard()
 {
-    $totalKaryawan = DB::table('karyawan')->count();
+    $totalKaryawan = DB::table('karyawan')
+    ->where('status', 'Aktif')
+    ->count();
 
     $today = Carbon::today();
     $startWeek = Carbon::now()->startOfWeek();
@@ -186,7 +188,11 @@ class PageController extends Controller
 }
 
 
-    public function daftarKaryawan(Request $request)
+
+
+/** ---------------- DATA KARYAWAN ---------------- */
+
+public function daftarKaryawan(Request $request)
 {
     $query = DB::table('karyawan')
         ->leftJoin('departement', 'karyawan.id_divisi', '=', 'departement.id_divisi')
@@ -218,6 +224,9 @@ class PageController extends Controller
         });
     }
 
+    // ✅ Tambahkan filter hanya karyawan aktif
+    $query->where('karyawan.status', 'aktif');
+
     // Ambil data dengan pagination
     $karyawan = $query->paginate(10)->appends($request->all());
 
@@ -227,7 +236,7 @@ class PageController extends Controller
     return view('daftarKaryawan', compact('karyawan', 'departements'));
 }
 
-/** ---------------- DATA KARYAWAN ---------------- */
+
     public function createKaryawan()
     {
         return view('createKaryawan');
@@ -1292,7 +1301,12 @@ public function storeKeluar(Request $request)
 public function cuti()
 {
     $cuti = Cuti::with('karyawan')->latest()->get();
-    $karyawan = Karyawan::orderBy('nama_lengkap')->get(); // urutkan biar rapi
+
+    // hanya ambil karyawan aktif untuk dropdown
+    $karyawan = Karyawan::where('status', 'Aktif')
+        ->orderBy('nama_lengkap')
+        ->get();
+
     return view('cuti', compact('cuti', 'karyawan'));
 }
 
