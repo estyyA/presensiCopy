@@ -1157,21 +1157,43 @@ public function showFormKeluar()
         'title'    => 'Profile'
     ]);
 }
-
-// Edit Presensi
-public function editPresensi($id)
-{
-    $presensi = DB::table('presensi')
-        ->join('karyawan', 'presensi.NIK', '=', 'karyawan.NIK')
-        ->select('presensi.*', 'karyawan.nama_lengkap')
-        ->where('presensi.id_presen', $id)
-        ->first();
-
-    if (!$presensi) {
-        return redirect()->route('daftarPresensi')->with('error', 'Data presensi tidak ditemukan.');
+public function formSakit()
+    {
+        return view('karyawan.sakit'); // Sesuaikan path view
     }
 
-    return view('editPresensi', compact('presensi'));
+public function storeSakit(Request $request)
+{
+    $karyawan = session('karyawan');
+    if (!$karyawan) {
+        return redirect()->route('login.form')->with('error', 'Silahkan login terlebih dahulu.');
+    }
+
+    $request->validate([
+        'tgl_presen' => 'required|date',
+        'surat' => 'nullable|file|mimes:jpeg,jpg,png,heic,pdf|max:2048',
+    ]);
+
+    $filePath = null;
+    if ($request->hasFile('surat')) {
+        $filePath = $request->file('surat')->store('surat', 'public');
+    }
+
+    // pakai DB::table agar konsisten dengan style di controllermu
+    DB::table('presensi')->insert([
+        'NIK' => $karyawan->NIK,
+        'nama_karyawan' => $karyawan->nama_lengkap,
+        'divisi' => $karyawan->nama_divisi ?? ($karyawan->divisi ?? '-'),
+        'tgl_presen' => $request->tgl_presen,
+        'jam_masuk' => null,
+        'lokasi_masuk' => null,
+        'jam_keluar' => null,
+        'lokasi_keluar' => null,
+        'status' => 'sakit',
+        'surat' => $filePath,
+    ]);
+
+    return redirect()->route('karyawan.dashboard')->with('success', 'Pengajuan sakit berhasil dikirim!');
 }
 
 // Hapus Presensi

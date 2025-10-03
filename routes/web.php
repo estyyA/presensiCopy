@@ -48,7 +48,7 @@ Route::get('/', function () {
 */
 Route::middleware('web')->group(function () {
     // Login
-    Route::get('/login', [PageController::class, 'showLogin'])->name('login.form');
+    Route::get('/login', [PageController::class, 'showLogin'])->name('login.form')->name('login');
     Route::post('/login', [PageController::class, 'processLogin'])->name('login.process');
 
     // Logout
@@ -126,7 +126,9 @@ Route::middleware(['role:karyawan'])->group(function () {
     Route::get('/absensi/keluar', [PageController::class, 'showFormKeluar'])->name('absensi.formKeluar');
     Route::post('/absensi/keluar', [PageController::class, 'presensiKeluar'])->name('absensi.keluar');
 
-
-
+    Route::get('/pengajuan-sakit', [PageController::class, 'formSakit'])->name('presensi.formSakit');
+    Route::post('/pengajuan-sakit', [PageController::class, 'storeSakit'])->name('presensi.storeSakit');
 
 });
+
+

@@ -101,21 +101,40 @@ updateClock();
 setInterval(updateClock, 1000);
 </script>
 
-    <div class="d-flex justify-content-between mt-3">
-        @if(!$presensiHariIni)
-            <a href="{{ route('absensi.formMasuk') }}" class="btn btn-primary btn-lg">Masuk</a>
-            <button class="btn btn-danger btn-lg" disabled>Keluar</button>
-        @elseif(!$presensiHariIni->jam_keluar)
-            <button class="btn btn-primary btn-lg" disabled>Masuk</button>
-            <a href="{{ route('absensi.formKeluar') }}" class="btn btn-danger btn-lg">Keluar</a>
-        @else
-            <p class="text-success w-100 fw-bold">Anda sudah absen masuk & keluar hari ini ✅</p>
-        @endif
-    </div>
+<div class="d-flex justify-content-between mt-4">
+    @if(!$presensiHariIni)
+        <a href="{{ route('absensi.formMasuk') }}"
+           class="btn btn-success btn-lg px-4 shadow-sm d-flex align-items-center">
+            <i class="bi bi-box-arrow-in-right me-2"></i> Masuk
+        </a>
+        <button class="btn btn-secondary btn-lg px-4 shadow-sm" disabled>
+            <i class="bi bi-box-arrow-left me-2"></i> Keluar
+        </button>
+    @elseif(!$presensiHariIni->jam_keluar)
+        <button class="btn btn-secondary btn-lg px-4 shadow-sm" disabled>
+            <i class="bi bi-box-arrow-in-right me-2"></i> Masuk
+        </button>
+        <a href="{{ route('absensi.formKeluar') }}"
+           class="btn btn-danger btn-lg px-4 shadow-sm d-flex align-items-center">
+            <i class="bi bi-box-arrow-left me-2"></i> Keluar
+        </a>
+    @else
+        <div class="alert alert-success text-center w-100 fw-bold shadow-sm rounded-3">
+            ✅ Anda sudah absen masuk & keluar hari ini
+        </div>
+    @endif
 </div>
 
+<div class="mt-3">
+    <a href="{{ route('presensi.formSakit') }}"
+       class="btn btn-warning btn-lg w-100 shadow-sm d-flex align-items-center justify-content-center">
+        <i class="bi bi-file-medical-fill me-2"></i> Ajukan Sakit
+    </a>
+</div>
+
+
 <!-- Card Riwayat Presensi -->
-<div class="card shadow-lg border-0 mb-4 rounded-4">
+<div class="card shadow-lg border-0 mb-4 rounded-4 mt-2">
     <div class="card-body">
         <h5 class="fw-bold mb-3 text-purple">
             <i class="bi-calendar-check-fill me-2"></i> Riwayat Presensi
@@ -184,13 +203,17 @@ setInterval(updateClock, 1000);
         </div>
 
         <!-- Tombol Logout -->
-        <form action="{{ route('logout') }}" method="POST" class="mt-4 d-flex justify-content-end">
+       <form action="{{ route('logout') }}" method="POST"
+            class="mt-4 d-flex justify-content-end">
             @csrf
-            <button type="submit" class="btn btn-danger btn-lg px-4 rounded-pill shadow-sm d-flex align-items-center justify-content-center gap-2" style="transition: 0.3s;">
+            <button type="submit"
+                class="btn btn-outline-danger px-4 py-2 rounded-pill shadow-sm d-flex align-items-center gap-2 fw-bold"
+                style="transition: 0.3s; font-size: 1rem;">
                 <i class="bi bi-box-arrow-right"></i>
                 <span>Logout</span>
             </button>
         </form>
+
     </div>
 </div>
 @endsection
