@@ -48,8 +48,10 @@ Route::get('/', function () {
 */
 Route::middleware('web')->group(function () {
     // Login
-    Route::get('/login', [PageController::class, 'showLogin'])->name('login.form')->name('login');
-    Route::post('/login', [PageController::class, 'processLogin'])->name('login.process');
+    // Login
+Route::get('/login', [PageController::class, 'showLogin'])->name('login.form');
+Route::post('/login', [PageController::class, 'processLogin'])->name('login.process');
+
 
     // Logout
     Route::post('/logout', [PageController::class, 'logout'])->name('logout');
