@@ -60,8 +60,10 @@
                                 <label for="alamat">Alamat</label>
                             </div>
 
+                            <!-- Divisi -->
                             <div class="form-floating mb-3">
-                                <select name="id_divisi" class="form-select shadow-sm">
+                                <select name="id_divisi" id="id_divisi" class="form-select shadow-sm">
+                                    <option value="">-- Pilih Divisi --</option>
                                     @foreach($departements as $divisi)
                                         <option value="{{ $divisi->id_divisi }}"
                                             {{ $karyawan->id_divisi == $divisi->id_divisi ? 'selected' : '' }}>
@@ -72,6 +74,22 @@
                                 <label for="id_divisi">Divisi</label>
                             </div>
 
+                            <!-- Sub Divisi -->
+                            <div class="form-floating mb-3">
+                                <select name="id_subdivisi" id="id_subdivisi" class="form-select shadow-sm">
+                                    <option value="">-- Pilih Sub Divisi --</option>
+                                    @foreach($subdepartements as $sub)
+                                        <option value="{{ $sub->id_subdivisi }}"
+                                            data-divisi="{{ $sub->id_divisi }}"
+                                            {{ $karyawan->id_subdivisi == $sub->id_subdivisi ? 'selected' : '' }}>
+                                            {{ $sub->nama_subdivisi }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                                <label for="id_subdivisi">Sub Divisi</label>
+                            </div>
+
+                            <!-- Jabatan -->
                             <div class="form-floating mb-3">
                                 <select name="id_jabatan" class="form-select shadow-sm">
                                     @foreach($jabatans as $jabatan)
@@ -132,4 +150,30 @@
         </div>
     </div>
 </div>
+
+{{-- 🔽 AJAX Filter Sub Divisi Berdasarkan Divisi --}}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const divisiSelect = document.getElementById('id_divisi');
+    const subSelect = document.getElementById('id_subdivisi');
+
+    divisiSelect.addEventListener('change', function() {
+        let idDivisi = this.value;
+        subSelect.innerHTML = '<option value="">Memuat...</option>';
+
+        fetch('/get-subdivisi/' + idDivisi)
+            .then(res => res.json())
+            .then(data => {
+                subSelect.innerHTML = '<option value="">-- Pilih Sub Divisi --</option>';
+                data.forEach(sub => {
+                    subSelect.innerHTML += `<option value="${sub.id_subdivisi}">${sub.nama_subdivisi}</option>`;
+                });
+            })
+            .catch(err => {
+                subSelect.innerHTML = '<option value="">Gagal memuat data</option>';
+                console.error(err);
+            });
+    });
+});
+</script>
 @endsection

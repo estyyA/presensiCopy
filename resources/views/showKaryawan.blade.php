@@ -65,6 +65,10 @@
                             <td>{{ $karyawan->nama_divisi ?? '-' }}</td>
                         </tr>
                         <tr>
+                            <th><i class="fa fa-sitemap text-purple me-2"></i> Subdivisi</th>
+                            <td>{{ $karyawan->nama_subdivisi ?? '-' }}</td>
+                        </tr>
+                        <tr>
                             <th><i class="fa fa-briefcase text-primary me-2"></i> Jabatan</th>
                             <td>{{ $karyawan->nama_jabatan ?? '-' }}</td>
                         </tr>

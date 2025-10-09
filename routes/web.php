@@ -2,6 +2,7 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Route;
 
 use App\Http\Controllers\PageController;
@@ -101,8 +102,9 @@ Route::middleware(['role:admin'])->group(function () {
     Route::post('/cuti', 'PageController@cutiStore')->name('cuti.store');
     Route::delete('/cuti/{id}', 'PageController@cutiDelete')->name('cuti.delete');
 
-
-
+    Route::get('/get-subdivisi/{id_divisi}', function($id_divisi) {
+        return DB::table('subdepartement')->where('id_divisi', $id_divisi)->get();
+    });
 
     // Profil
     Route::get('/profil', [PageController::class, 'profil'])->name('profil');

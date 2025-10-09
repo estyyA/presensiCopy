@@ -261,24 +261,26 @@ public function daftarKaryawan(Request $request)
 
     public function editKaryawan($nik)
     {
-        $karyawan    = DB::table('karyawan')->where('NIK', $nik)->first();
-        $departements = DB::table('departement')->get();
-        $jabatans     = DB::table('jabatan')->get();
+        $karyawan      = DB::table('karyawan')->where('NIK', $nik)->first();
+        $departements  = DB::table('departement')->get();
+        $jabatans      = DB::table('jabatan')->get();
+        $subdepartements = DB::table('subdepartement')->get(); // ✅ Tambah ini
 
-        return view('editKaryawan', compact('karyawan', 'departements', 'jabatans'));
+        return view('editKaryawan', compact('karyawan', 'departements', 'jabatans', 'subdepartements'));
     }
 
     public function updateKaryawan(Request $request, $NIK)
     {
         $dataUpdate = [
-            'username'   => $request->username,
-            'no_hp'      => $request->no_hp,
-            'tgl_lahir'  => $request->tgl_lahir,
-            'alamat'     => $request->alamat,
-            'id_divisi'  => $request->id_divisi,
-            'id_jabatan' => $request->id_jabatan,
-            'status'     => $request->status,
-            'role'       => 'karyawan', // 👈 dipaksa tetap karyawan
+            'username'     => $request->username,
+            'no_hp'        => $request->no_hp,
+            'tgl_lahir'    => $request->tgl_lahir,
+            'alamat'       => $request->alamat,
+            'id_divisi'    => $request->id_divisi,
+            'id_subdivisi' => $request->id_subdivisi, // ✅ Tambah ini
+            'id_jabatan'   => $request->id_jabatan,
+            'status'       => $request->status,
+            'role'         => 'karyawan',
         ];
 
         if ($request->hasFile('foto')) {
@@ -303,8 +305,14 @@ public function daftarKaryawan(Request $request)
     {
         $karyawan = DB::table('karyawan')
             ->leftJoin('departement', 'karyawan.id_divisi', '=', 'departement.id_divisi')
+            ->leftJoin('subdepartement', 'karyawan.id_subdivisi', '=', 'subdepartement.id_subdivisi') // ✅ Tambahan join subdivisi
             ->leftJoin('jabatan', 'karyawan.id_jabatan', '=', 'jabatan.id_jabatan')
-            ->select('karyawan.*', 'departement.nama_divisi', 'jabatan.nama_jabatan')
+            ->select(
+                'karyawan.*',
+                'departement.nama_divisi',
+                'subdepartement.nama_subdivisi', // ✅ Ambil nama_subdivisi
+                'jabatan.nama_jabatan'
+            )
             ->where('karyawan.NIK', $nik)
             ->first();
 
@@ -1124,7 +1132,7 @@ public function showFormKeluar()
 }
 
 
-    public function profil()
+public function profil()
 {
     $sessionKaryawan = session('karyawan');
 
@@ -1134,8 +1142,14 @@ public function showFormKeluar()
 
     $karyawan = DB::table('karyawan')
         ->leftJoin('departement', 'karyawan.id_divisi', '=', 'departement.id_divisi')
+        ->leftJoin('subdepartement', 'karyawan.id_subdivisi', '=', 'subdepartement.id_subdivisi') // ✅ Tambahan join subdivisi
         ->leftJoin('jabatan', 'karyawan.id_jabatan', '=', 'jabatan.id_jabatan')
-        ->select('karyawan.*', 'departement.nama_divisi', 'jabatan.nama_jabatan')
+        ->select(
+            'karyawan.*',
+            'departement.nama_divisi',
+            'subdepartement.nama_subdivisi', // ✅ Ambil nama_subdivisi
+            'jabatan.nama_jabatan'
+        )
         ->where('karyawan.NIK', $sessionKaryawan->NIK)
         ->first();
 
