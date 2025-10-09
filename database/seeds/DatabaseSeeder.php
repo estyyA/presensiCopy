@@ -11,16 +11,10 @@ class DatabaseSeeder extends Seeder
      */
     public function run()
     {
-        // Jalankan seeder admin
-        $this->call(AdminSeeder::class);
-
-{
-    $this->call([
-        AdminSeeder::class,
-        Department::class,
-        SubdepartementSeeder::class,
-    ]);
-}
-
+        $this->call([
+            AdminSeeder::class,
+            Department::class,
+            SubdepartementSeeder::class,
+        ]);
     }
 }
