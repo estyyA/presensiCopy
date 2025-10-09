@@ -7,8 +7,6 @@ class Department extends Seeder
 {
     public function run()
     {
-        // Hapus sub_divisi dulu agar tidak bentrok foreign key
-        DB::table('sub_divisi')->delete();
 
         // Sekarang aman hapus departement
         DB::table('departement')->delete();
