@@ -18,10 +18,7 @@
             padding: 40px 15px;
         }
 
-        .register-container {
-            width: 100%;
-            max-width: 950px;
-        }
+        .register-container { width: 100%; max-width: 950px; }
 
         .register-card {
             background: #ffffff;
@@ -49,17 +46,8 @@
             border: 2px solid white;
         }
 
-        .register-header h1 {
-            margin: 0;
-            font-size: 26px;
-            font-weight: 700;
-        }
-
-        .register-header p {
-            margin: 0;
-            font-size: 14px;
-            color: #e3f2fd;
-        }
+        .register-header h1 { margin: 0; font-size: 26px; font-weight: 700; }
+        .register-header p { margin: 0; font-size: 14px; color: #e3f2fd; }
 
         .register-body {
             padding: 35px 30px 40px 30px;
@@ -112,7 +100,6 @@
             border-top: 1px solid #eee;
         }
 
-        /* scrollbar */
         .register-body::-webkit-scrollbar { width: 6px; }
         .register-body::-webkit-scrollbar-thumb { background: #3f71dc; border-radius: 10px; }
         .register-body::-webkit-scrollbar-track { background: #f1f1f1; }
@@ -177,6 +164,7 @@
                             <input type="text" name="no_hp" class="form-control" placeholder="No HP" required>
                         </div>
                     </div>
+
                     <!-- Kolom Kanan -->
                     <div class="col-md-6">
                         <div class="form-group mb-3">
@@ -187,13 +175,22 @@
                             <i class="bi bi-geo-alt input-icon"></i>
                             <textarea name="alamat" class="form-control" rows="2" placeholder="Alamat" required></textarea>
                         </div>
+
+                        <!-- Divisi & Subdivisi jadi satu bagian -->
                         <div class="form-group mb-3">
                             <i class="bi bi-diagram-3 input-icon"></i>
-                            <select name="id_divisi" class="form-select" required>
+                            <select name="id_divisi" id="divisi" class="form-select" required>
                                 <option value="">--Pilih Divisi--</option>
                                 @foreach($departements as $dept)
                                     <option value="{{ $dept->id_divisi }}">{{ $dept->nama_divisi }}</option>
                                 @endforeach
+                            </select>
+                        </div>
+
+                        <div class="form-group mb-3">
+                            <i class="bi bi-diagram-3-fill input-icon"></i>
+                            <select name="id_subdivisi" id="subdivisi" class="form-select" required>
+                                <option value="">--Pilih Subdivisi--</option>
                             </select>
                         </div>
 
@@ -206,6 +203,7 @@
                                 @endforeach
                             </select>
                         </div>
+
                         <div class="form-group mb-3">
                             <i class="bi bi-shield-lock input-icon"></i>
                             <input type="text" class="form-control" value="Karyawan" disabled>
@@ -223,7 +221,6 @@
             </form>
         </div>
 
-        <!-- Footer -->
         <div class="footer-text">
             © 2025 PT Madubaru - All Rights Reserved
         </div>
@@ -231,6 +228,7 @@
 </div>
 
 <script>
+    // toggle password
     const togglePassword = document.querySelector('#togglePassword');
     const password = document.querySelector('#password');
     const eyeIcon = document.querySelector('#eyeIcon');
@@ -239,6 +237,32 @@
         password.setAttribute('type', type);
         eyeIcon.classList.toggle('bi-eye');
         eyeIcon.classList.toggle('bi-eye-slash');
+    });
+
+    // dynamic subdivisi berdasarkan divisi
+    document.getElementById('divisi').addEventListener('change', function() {
+        const divisiId = this.value;
+        const subdivisiSelect = document.getElementById('subdivisi');
+        subdivisiSelect.innerHTML = '<option value="">Memuat...</option>';
+
+        if (divisiId) {
+            fetch(`/get-subdivisi/${divisiId}`)
+                .then(response => response.json())
+                .then(data => {
+                    subdivisiSelect.innerHTML = '<option value="">--Pilih Subdivisi--</option>';
+                    data.forEach(sub => {
+                        const option = document.createElement('option');
+                        option.value = sub.id_subdivisi;
+                        option.textContent = sub.nama_subdivisi;
+                        subdivisiSelect.appendChild(option);
+                    });
+                })
+                .catch(() => {
+                    subdivisiSelect.innerHTML = '<option value="">Gagal memuat subdivisi</option>';
+                });
+        } else {
+            subdivisiSelect.innerHTML = '<option value="">--Pilih Subdivisi--</option>';
+        }
     });
 </script>
 </body>

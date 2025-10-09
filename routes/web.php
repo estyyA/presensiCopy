@@ -101,6 +101,9 @@ Route::middleware(['role:admin'])->group(function () {
     Route::post('/cuti', 'PageController@cutiStore')->name('cuti.store');
     Route::delete('/cuti/{id}', 'PageController@cutiDelete')->name('cuti.delete');
 
+
+
+
     // Profil
     Route::get('/profil', [PageController::class, 'profil'])->name('profil');
 });
@@ -118,6 +121,8 @@ Route::middleware(['role:karyawan'])->group(function () {
     // Presensi Karyawan
     Route::get('/PresensiKaryawan', [PageController::class, 'PresensiKaryawan']);
     Route::get('/riwayat', [PageController::class, 'riwayat'])->name('riwayat.index');
+
+
 
     // Upload Foto
     Route::post('/karyawan/upload-foto', [KaryawanController::class, 'uploadFoto'])->name('karyawan.uploadFoto');
@@ -138,5 +143,7 @@ Route::middleware(['role:karyawan'])->group(function () {
     Route::post('/tracking-sales', [PageController::class, 'trackingSalesStore'])->name('tracking.store');
 
 });
+
+Route::get('/get-subdivisi/{id_divisi}', [PageController::class, 'getSubdivisi'])->name('getSubdivisi');
 
 

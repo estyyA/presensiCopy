@@ -13,5 +13,14 @@ class DatabaseSeeder extends Seeder
     {
         // Jalankan seeder admin
         $this->call(AdminSeeder::class);
+
+{
+    $this->call([
+        AdminSeeder::class,
+        Department::class,
+        SubdepartementSeeder::class,
+    ]);
+}
+
     }
 }

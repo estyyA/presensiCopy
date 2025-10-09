@@ -19,6 +19,7 @@ use App\Department;
 use App\Jabatan;
 use App\CatatanLaporan;
 use App\Cuti;
+use App\Subdepartement;
 
 
 
@@ -429,6 +430,15 @@ public function daftarKaryawan(Request $request)
 
     return redirect()->route('login.form')->with('success', 'Registrasi berhasil! Silakan login.');
 }
+
+public function getSubdivisi($id_divisi)
+{
+    $subdivisi = \App\Subdepartement::where('id_divisi', $id_divisi)
+        ->get(['id_subdivisi', 'nama_subdivisi']);
+
+    return response()->json($subdivisi);
+}
+
 
 
     /** ---------------- PRESENSI ---------------- */
