@@ -7,7 +7,10 @@ class Department extends Seeder
 {
     public function run()
     {
-        DB::table('departement')->truncate(); // kosongkan tabel dulu
+
+        // Sekarang aman hapus departement
+        DB::table('departement')->delete();
+        DB::statement('ALTER TABLE departement AUTO_INCREMENT = 1;');
 
         DB::table('departement')->insert([
             ['nama_divisi' => 'Kabag. Hub Kelembagaan, SDM, Umum'],
