@@ -20,6 +20,7 @@ use App\Jabatan;
 use App\CatatanLaporan;
 use App\Cuti;
 use App\Subdepartement;
+use App\TrackingSales;
 
 
 
@@ -1198,17 +1199,18 @@ public function storeSakit(Request $request)
 }
 
 // tampilkan form
-    public function trackingSalesForm()
-    {
-        $karyawan = session('karyawan');
-        if (!$karyawan) {
-            return redirect()->route('login.form')->with('error', 'Silahkan login terlebih dahulu.');
-        }
-        return view('karyawan.trackingSales');
+public function trackingSalesForm()
+{
+    // Ambil data karyawan dari session
+    $karyawan = session('karyawan');
+    if (!$karyawan) {
+        return redirect()->route('login.form')->with('error', 'Silahkan login terlebih dahulu.');
     }
 
-    // simpan data
-    public function trackingSalesStore(Request $request)
+    return view('karyawan.trackingSales', compact('karyawan'));
+}
+
+public function trackingSalesStore(Request $request)
 {
     $request->validate([
         'tanggal_sales' => 'required|date',
@@ -1222,15 +1224,43 @@ public function storeSakit(Request $request)
         return redirect()->route('login.form')->with('error', 'Silahkan login terlebih dahulu.');
     }
 
+    // 🔍 Pastikan id_divisi benar-benar ada di database
+    $divisi = DB::table('karyawan')
+        ->where('NIK', $karyawan->NIK)
+        ->value('id_divisi');
+
+    if (!$divisi) {
+        return back()->with('error', 'ID divisi karyawan tidak ditemukan.');
+    }
+
+    // Simpan data ke tabel tracking_sales
     TrackingSales::create([
         'NIK' => $karyawan->NIK,
-        'id_divisi' => $karyawan->id_divisi,
+        'id_divisi' => $divisi,
         'tanggal_sales' => $request->tanggal_sales,
         'jam_sales' => $request->jam_sales,
         'lokasi_sales' => $request->lokasi_sales,
     ]);
 
-    return redirect()->route('tracking.form')->with('success', 'Data tracking berhasil disimpan!');
+    // ⬇️ Setelah simpan, langsung kembali ke dashboard karyawan
+    return redirect()->route('karyawan.dashboard')
+                     ->with('success', 'Data tracking berhasil disimpan!');
+}
+
+public function trackingSalesHistory()
+{
+    $karyawan = session('karyawan');
+
+    if (!$karyawan) {
+        return redirect()->route('login.form')
+                         ->with('error', 'Silahkan login terlebih dahulu.');
+    }
+
+    $tracking = TrackingSales::where('NIK', $karyawan->NIK)
+                             ->orderBy('tanggal_sales', 'desc')
+                             ->get();
+
+    return view('karyawan.trackingSalesHistory', compact('tracking'));
 }
 
 
