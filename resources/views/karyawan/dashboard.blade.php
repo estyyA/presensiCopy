@@ -6,21 +6,58 @@
         background-color: #c82333 !important;
         transform: scale(1.05);
     }
+
+    /* Gaya tombol titik tiga */
+    .menu-btn {
+        background: transparent;
+        border: none;
+        font-size: 1.3rem;
+        color: #6c757d;
+        cursor: pointer;
+    }
+
+    .menu-btn:hover {
+        color: #000;
+        transform: scale(1.1);
+    }
+
+    .dropdown-menu {
+        border-radius: 10px;
+        box-shadow: 0px 4px 12px rgba(0,0,0,0.15);
+    }
 </style>
 
 <!-- Card Profil Karyawan -->
-<div class="card profile-card p-3 mb-3 text-center">
+<div class="card profile-card p-3 mb-3 text-center position-relative">
+
+    <!-- Tombol Titik 3 -->
+    <div class="dropdown position-absolute top-0 end-0 m-2">
+        <button class="menu-btn" type="button" id="menuDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+            <i class="bi bi-three-dots-vertical"></i>
+        </button>
+        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="menuDropdown">
+            <li>
+                <form action="{{ route('logout') }}" method="POST" class="d-inline">
+                    @csrf
+                    <button type="submit" class="dropdown-item text-danger fw-semibold d-flex align-items-center">
+                        <i class="bi bi-box-arrow-right me-2"></i> Logout
+                    </button>
+                </form>
+            </li>
+        </ul>
+    </div>
+
+    <!-- Isi Profil -->
     <div class="d-flex flex-column align-items-center position-relative">
         <!-- Foto Profil -->
         <img id="previewFoto"
-     src="{{ $karyawan->foto
-            ? asset('storage/'.$karyawan->foto)
-            : asset('img/profile.png') }}"
-     class="rounded-circle mb-2"
-     width="90" height="90"
-     alt="Foto Karyawan"
-     style="object-fit: cover;">
-
+             src="{{ $karyawan->foto
+                    ? asset('storage/'.$karyawan->foto)
+                    : asset('img/profile.png') }}"
+             class="rounded-circle mb-2"
+             width="90" height="90"
+             alt="Foto Karyawan"
+             style="object-fit: cover;">
 
         <!-- Tombol Edit Foto -->
         <input type="file" id="inputFoto" class="d-none" accept="image/*">
@@ -138,8 +175,6 @@ setInterval(updateClock, 1000);
     </a>
 </div>
 
-
-
 <!-- Card Riwayat Presensi -->
 <div class="card shadow-lg border-0 mb-4 rounded-4 mt-2">
     <div class="card-body">
@@ -208,19 +243,6 @@ setInterval(updateClock, 1000);
                 </tbody>
             </table>
         </div>
-
-        <!-- Tombol Logout -->
-       <form action="{{ route('logout') }}" method="POST"
-            class="mt-4 d-flex justify-content-end">
-            @csrf
-            <button type="submit"
-                class="btn btn-outline-danger px-4 py-2 rounded-pill shadow-sm d-flex align-items-center gap-2 fw-bold"
-                style="transition: 0.3s; font-size: 1rem;">
-                <i class="bi bi-box-arrow-right"></i>
-                <span>Logout</span>
-            </button>
-        </form>
-
     </div>
 </div>
 @endsection
