@@ -108,6 +108,9 @@ Route::middleware(['role:admin'])->group(function () {
 
     // Profil
     Route::get('/profil', [PageController::class, 'profil'])->name('profil');
+
+    //tracking
+    Route::get('/tracking/admin', [PageController::class, 'trackingAdmin'])->name('tracking.admin');
 });
 
 
@@ -147,6 +150,7 @@ Route::middleware(['role:karyawan'])->group(function () {
     Route::get('/tracking', [PageController::class, 'trackingSalesForm'])->name('tracking.form');
     Route::post('/tracking', [PageController::class, 'trackingSalesStore'])->name('tracking.store');
      Route::get('/tracking/history', [PageController::class, 'trackingSalesHistory'])->name('tracking.history');
+
 
 });
 

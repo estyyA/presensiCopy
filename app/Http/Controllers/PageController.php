@@ -1265,6 +1265,16 @@ public function trackingSalesHistory(Request $request)
 
     return view('karyawan.trackingSalesHistory', compact('tracking'));
 }
+public function trackingAdmin()
+{
+    // Ambil data tracking sales dengan relasi karyawan
+    $trackings = TrackingSales::with('karyawan')
+        ->orderBy('tanggal_sales', 'desc')
+        ->paginate(10);
+
+    return view('admin.trackingSalesAdmin', compact('trackings'));
+}
+
 
 
 

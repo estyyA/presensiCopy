@@ -243,6 +243,16 @@ setInterval(updateClock, 1000);
                 </tbody>
             </table>
         </div>
+        <!-- Tombol Logout -->
+        <div class="mt-4">
+            <form action="{{ route('logout') }}" method="POST" class="d-inline w-100">
+                @csrf
+                <button type="submit"
+                        class="btn btn-danger btn-lg w-100 shadow-sm d-flex align-items-center justify-content-center rounded-pill">
+                    <i class="bi bi-box-arrow-right me-2"></i> Logout
+                </button>
+            </form>
+        </div>
     </div>
 </div>
 @endsection
