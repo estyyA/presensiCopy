@@ -33,6 +33,14 @@
                     <label class="form-label">Jam</label>
                     <input type="time" name="jam_sales" id="jam_sales" class="form-control rounded-3 shadow-sm" required>
                 </div>
+                                <!-- Peta Lokasi -->
+                <div class="mb-3">
+                    <iframe id="map-frame"
+                        width="100%" height="250"
+                        style="border:0; border-radius:10px;"
+                        allowfullscreen="" loading="lazy">
+                    </iframe>
+                </div>
 
                 <!-- Lokasi -->
                 <div class="mb-3">
@@ -45,6 +53,11 @@
                 <button type="submit" class="btn btn-primary w-100 mb-2 py-2 fw-bold rounded-pill shadow-sm">
                     <i class="bi bi-plus-circle me-2"></i> Simpan Tracking
                 </button>
+                <!-- Tombol Riwayat -->
+                <a href="{{ route('tracking.history') }}"
+                class="btn btn-outline-success w-100 mb-2 py-2 fw-bold rounded-pill shadow-sm">
+                    <i class="bi bi-clock-history me-2"></i> Lihat Riwayat
+                </a>
 
                 <!-- Tombol Batal -->
                 <a href="{{ route('karyawan.dashboard') }}" class="btn btn-secondary w-100 py-2 rounded-pill">
@@ -54,6 +67,7 @@
         </div>
     </div>
 </div>
+
 
 <!-- Script Bootstrap -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
@@ -74,6 +88,7 @@ document.addEventListener("DOMContentLoaded", function() {
     // Ambil lokasi user
     const lokasiInput = document.getElementById('lokasi_sales');
     const alamatText = document.getElementById('alamat');
+    const mapFrame = document.getElementById('map-frame');
 
     if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(
@@ -81,10 +96,13 @@ document.addEventListener("DOMContentLoaded", function() {
                 const lat = position.coords.latitude;
                 const lon = position.coords.longitude;
 
+                // Tampilkan peta di iframe
+                mapFrame.src = `https://www.google.com/maps?q=${lat},${lon}&hl=id&z=17&output=embed`;
+
                 // Isi input lokasi dengan koordinat
                 lokasiInput.value = `${lat},${lon}`;
 
-                // Optional: reverse geocoding pakai OpenStreetMap
+                // Reverse geocoding (ambil alamat)
                 fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}`)
                     .then(res => res.json())
                     .then(data => {

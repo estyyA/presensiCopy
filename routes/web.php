@@ -143,6 +143,10 @@ Route::middleware(['role:karyawan'])->group(function () {
 
     // simpan data
     Route::post('/tracking-sales', [PageController::class, 'trackingSalesStore'])->name('tracking.store');
+    //riwayat
+    Route::get('/tracking', [PageController::class, 'trackingSalesForm'])->name('tracking.form');
+    Route::post('/tracking', [PageController::class, 'trackingSalesStore'])->name('tracking.store');
+     Route::get('/tracking/history', [PageController::class, 'trackingSalesHistory'])->name('tracking.history');
 
 });
 

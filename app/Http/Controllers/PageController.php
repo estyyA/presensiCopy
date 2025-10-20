@@ -1247,21 +1247,25 @@ public function trackingSalesStore(Request $request)
                      ->with('success', 'Data tracking berhasil disimpan!');
 }
 
-public function trackingSalesHistory()
+public function trackingSalesHistory(Request $request)
 {
     $karyawan = session('karyawan');
 
     if (!$karyawan) {
-        return redirect()->route('login.form')
-                         ->with('error', 'Silahkan login terlebih dahulu.');
+        return redirect()->route('login.form')->with('error', 'Silahkan login terlebih dahulu.');
     }
 
-    $tracking = TrackingSales::where('NIK', $karyawan->NIK)
-                             ->orderBy('tanggal_sales', 'desc')
-                             ->get();
+    $query = TrackingSales::where('NIK', $karyawan->NIK)->orderBy('tanggal_sales', 'desc');
+
+    if ($request->filled('mulai') && $request->filled('sampai')) {
+        $query->whereBetween('tanggal_sales', [$request->mulai, $request->sampai]);
+    }
+
+    $tracking = $query->get();
 
     return view('karyawan.trackingSalesHistory', compact('tracking'));
 }
+
 
 
 // Hapus Presensi
@@ -1429,12 +1433,6 @@ public function cutiDelete($id)
 
     return redirect()->route('cuti.index')->with('success', '🗑️ Data cuti berhasil dihapus');
 }
-
-
-
-
-
-
 
 }
 
