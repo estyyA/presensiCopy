@@ -188,12 +188,13 @@
         <a href="{{ route('admin.presensi.form') }}" class="nav-link @if(Request::is('admin/presensi*')) active @endif">
             <i class="fa fa-clock mr-2"></i> Presensi
         </a>
+        <a href="{{ route('cuti.index') }}" class="nav-link @if(Request::is('cuti*')) active @endif">
+            <i class="fa fa-calendar-check mr-2"></i> Input Cuti
+        </a>
         <a href="{{ route('tracking.admin') }}"
         class="nav-link @if(Request::is('tracking/admin*')) active @endif">
             <i class="fa fa-map-marker-alt mr-2"></i> Cek Tracking Sales
-        </a>
-
-
+         </a>
     </div>
 
     {{-- Main Content --}}

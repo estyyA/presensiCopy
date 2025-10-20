@@ -103,3 +103,4 @@
     .table thead th { font-weight: 600; position: sticky; top: 0; z-index: 10; background: #3f71dc; color: #fff; }
 </style>
 @endpush
+
