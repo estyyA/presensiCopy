@@ -6,20 +6,36 @@ use Illuminate\Database\Eloquent\Model;
 
 class TrackingSales extends Model
 {
+use HasFactory;
+
     protected $table = 'tracking_sales';
     protected $primaryKey = 'id';
+    public $timestamps = true;
+
     protected $fillable = [
         'NIK',
+        'id_divisi',
+        'id_subdivisi',
         'tanggal_sales',
         'jam_sales',
         'lokasi_sales',
     ];
 
-    public $timestamps = true;
-
-    // Relasi ke karyawan
+    // Relasi ke Karyawan
     public function karyawan()
     {
         return $this->belongsTo(Karyawan::class, 'NIK', 'NIK');
+    }
+
+    // Relasi ke Divisi
+    public function divisi()
+    {
+        return $this->belongsTo(Divisi::class, 'id_divisi', 'id_divisi');
+    }
+
+    // Relasi ke Subdepartement
+    public function subdepartement()
+    {
+        return $this->belongsTo(Subdepartement::class, 'id_subdivisi', 'id_subdivisi');
     }
 }
