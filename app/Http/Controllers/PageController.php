@@ -1243,7 +1243,7 @@ public function trackingSalesStore(Request $request)
     ]);
 
     // ⬇️ Setelah simpan, langsung kembali ke dashboard karyawan
-    return redirect()->route('karyawan.dashboard')
+    return redirect()->route('tracking.history')
                      ->with('success', 'Data tracking berhasil disimpan!');
 }
 

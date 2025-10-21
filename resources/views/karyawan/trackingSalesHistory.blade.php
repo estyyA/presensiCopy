@@ -62,9 +62,18 @@
                 </tbody>
             </table>
         </div>
-    <a href="{{ route('tracking.form') }}" class="btn btn-primary btn-sm rounded-pill shadow-sm">
-        <i class="bi bi-arrow-left-circle me-1"></i> Kembali ke Form
+ <div class="d-flex justify-content-between align-items-center mt-3">
+    <!-- Tombol kiri -->
+    <a href="{{ route('tracking.form') }}" class="btn btn-outline-primary btn-sm rounded-pill shadow-sm px-3">
+        <i class="bi bi-pencil-square me-1"></i> Isi Form Tracking
     </a>
+
+    <!-- Tombol kanan -->
+    <a href="{{ route('karyawan.dashboard') }}" class="btn btn-primary btn-sm rounded-pill shadow-sm px-3">
+        <i class="bi bi-speedometer2 me-1"></i> Kembali ke Dashboard
+    </a>
+</div>
+
 </div>
 
     </div>
