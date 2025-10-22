@@ -1,6 +1,8 @@
 <?php
 
 namespace App;
+use App\Department;
+
 
 use Illuminate\Database\Eloquent\Model;
 
@@ -30,7 +32,7 @@ use HasFactory;
     // Relasi ke Divisi
     public function divisi()
     {
-        return $this->belongsTo(Divisi::class, 'id_divisi', 'id_divisi');
+        return $this->belongsTo(Department::class, 'id_divisi', 'id_divisi');
     }
 
     // Relasi ke Subdepartement
