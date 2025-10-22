@@ -3,12 +3,11 @@
 namespace App;
 use App\Department;
 
-
 use Illuminate\Database\Eloquent\Model;
+
 
 class TrackingSales extends Model
 {
-use HasFactory;
 
     protected $table = 'tracking_sales';
     protected $primaryKey = 'id';
