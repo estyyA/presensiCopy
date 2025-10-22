@@ -19,14 +19,19 @@
     <div class="text-center mb-3"
          style="background: linear-gradient(90deg, #4a90e2, #357ABD);
                 width: 800px; border-radius: 20px; padding: 20px;">
-       <img src="{{ asset('uploads/' . $admin->foto) }}"
-     alt="Foto {{ $admin->nama_lengkap }}"
-     class="foto-profil border border-3 border-white mb-2 d-block mx-auto">
+
+        {{-- FOTO PROFIL (disamakan dengan karyawan) --}}
+        <img src="{{ $admin->foto 
+                      ? asset('storage/'.$admin->foto) 
+                      : asset('img/profile.png') }}"
+             alt="Foto {{ $admin->nama_lengkap ?? 'Admin' }}"
+             class="foto-profil border border-3 border-white mb-2 d-block mx-auto">
+
         <h4 class="text-white mb-0">
-            {{ session('karyawan')->nama_lengkap ?? 'Admin' }}
+            {{ $admin->nama_lengkap ?? session('karyawan')->nama_lengkap ?? 'Admin' }}
         </h4>
         <small class="text-light">
-            {{ session('karyawan')->nama_divisi ?? 'Administrator' }}
+            {{ $admin->nama_divisi ?? session('karyawan')->nama_divisi ?? 'Administrator' }}
         </small>
     </div>
 
@@ -58,44 +63,44 @@
     </div>
 
     {{-- Riwayat Presensi --}}
-<div class="card shadow-lg p-4" style="width: 800px; border-radius: 20px;">
-    <h6 class="fw-bold mb-3 mt-5">Riwayat Presensi</h6>
-    <div class="table-responsive" style="max-height: 400px; overflow-y: auto;">
-        <table class="table table-bordered table-striped align-middle text-center"
-               style="table-layout: fixed; width: 100%;">
+    <div class="card shadow-lg p-4" style="width: 800px; border-radius: 20px;">
+        <h6 class="fw-bold mb-3 mt-5">Riwayat Presensi</h6>
+        <div class="table-responsive" style="max-height: 400px; overflow-y: auto;">
+            <table class="table table-bordered table-striped align-middle text-center"
+                   style="table-layout: fixed; width: 100%;">
                 <thead class="table-light">
-                     <tr>
-                    <th style="width: 130px;">Tanggal</th>
-                    <th style="width: 100px;">Jam Masuk</th>
-                    <th style="width: 200px;">Lokasi Masuk</th>
-                    <th style="width: 100px;">Jam Keluar</th>
-                    <th style="width: 200px;">Lokasi Keluar</th>
-                    <th style="width: 100px;">Status</th>
-                </tr>
+                    <tr>
+                        <th style="width: 130px;">Tanggal</th>
+                        <th style="width: 100px;">Jam Masuk</th>
+                        <th style="width: 200px;">Lokasi Masuk</th>
+                        <th style="width: 100px;">Jam Keluar</th>
+                        <th style="width: 200px;">Lokasi Keluar</th>
+                        <th style="width: 100px;">Status</th>
+                    </tr>
                 </thead>
                 <tbody>
-                  @forelse($riwayat as $item)
-                    <tr class="{{ $item->jam_masuk > '08:30:00' ? 'bg-light text-dark' : '' }}">
-                        <td>{{ \Carbon\Carbon::parse($item->tgl_presen)->format('D, d F Y') }}</td>
-                        <td>{{ $item->jam_masuk ?? '--:--' }}</td>
-                        <td class="text-start" style="white-space: normal; word-wrap: break-word;">
-                            {{ $item->lokasi_masuk ?? '-' }}
-                        </td>
-                        <td>{{ $item->jam_keluar ?? '--:--' }}</td>
-                        <td class="text-start" style="white-space: normal; word-wrap: break-word;">
-                            {{ $item->lokasi_keluar ?? '-' }}
-                        </td>
-                        <td>
-                            <span class="fw-semibold text-secondary">
-                                {{ $item->status ?? '-' }}
-                            </span>
-                        </td>
-                    </tr>
-                @empty
-                    <tr>
-                        <td colspan="6" class="text-center text-muted">Belum ada data presensi</td>
-                    </tr>
-                @endforelse
+                    @forelse($riwayat as $item)
+                        <tr class="{{ $item->jam_masuk > '08:30:00' ? 'bg-light text-dark' : '' }}">
+                            <td>{{ \Carbon\Carbon::parse($item->tgl_presen)->format('D, d F Y') }}</td>
+                            <td>{{ $item->jam_masuk ?? '--:--' }}</td>
+                            <td class="text-start" style="white-space: normal; word-wrap: break-word;">
+                                {{ $item->lokasi_masuk ?? '-' }}
+                            </td>
+                            <td>{{ $item->jam_keluar ?? '--:--' }}</td>
+                            <td class="text-start" style="white-space: normal; word-wrap: break-word;">
+                                {{ $item->lokasi_keluar ?? '-' }}
+                            </td>
+                            <td>
+                                <span class="fw-semibold text-secondary">
+                                    {{ $item->status ?? '-' }}
+                                </span>
+                            </td>
+                        </tr>
+                    @empty
+                        <tr>
+                            <td colspan="6" class="text-center text-muted">Belum ada data presensi</td>
+                        </tr>
+                    @endforelse
                 </tbody>
             </table>
         </div>
