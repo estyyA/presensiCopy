@@ -64,6 +64,7 @@
                         <th>Tanggal Sales</th>
                         <th>Jam Sales</th>
                         <th>Lokasi Sales</th>
+                        <th>Aksi</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -75,11 +76,28 @@
                             <td>{{ \Carbon\Carbon::parse($t->tanggal_sales)->format('d/m/Y') }}</td>
                             <td>{{ $t->jam_sales ?? '-' }}</td>
                             <td>{{ $t->lokasi_sales ?? '-' }}</td>
+                            <td>
+                                @if($t->lokasi_sales)
+                                    @php
+                                        // Deteksi apakah lokasi berupa koordinat (latitude,longitude)
+                                        $isCoordinate = preg_match('/^-?\d+(\.\d+)?\s*,\s*-?\d+(\.\d+)?$/', trim($t->lokasi_sales));
+                                        $mapsUrl = $isCoordinate
+                                            ? "https://www.google.com/maps?q=" . urlencode($t->lokasi_sales)
+                                            : "https://www.google.com/maps/search/" . urlencode($t->lokasi_sales);
+                                    @endphp
+                                    <a href="{{ $mapsUrl }}" target="_blank" class="btn btn-sm btn-success">
+                                        📍 Lihat di Maps
+                                    </a>
+                                @else
+                                    <span class="text-muted">-</span>
+                                @endif
+                            </td>
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="6" class="text-center text-muted">⚠️ Belum ada data tracking sales</td>
+                            <td colspan="7" class="text-center text-muted">⚠️ Belum ada data tracking sales</td>
                         </tr>
+                </tbody>
                     @endforelse
                 </tbody>
             </table>
@@ -101,6 +119,14 @@
     .btn-purple:hover { background-color: #59309a !important; }
     .filter .form-control, .filter .btn { height: 44px; }
     .table thead th { font-weight: 600; position: sticky; top: 0; z-index: 10; background: #3f71dc; color: #fff; }
+    .btn-success {
+    background-color: #28a745 !important;
+    border: none;
+}
+.btn-success:hover {
+    background-color: #218838 !important;
+}
+
 </style>
 @endpush
 
