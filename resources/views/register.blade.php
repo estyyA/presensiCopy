@@ -192,7 +192,7 @@
                         <div class="form-group mb-3">
                             <i class="bi bi-briefcase input-icon"></i>
                             <select name="id_jabatan" class="form-select" required>
-                                <option value="">--Pilih Jabatan--</option>
+                                <option value="">--Pilih Status--</option>
                                 @foreach($jabatans as $jab)
                                     <option value="{{ $jab->id_jabatan }}">{{ $jab->nama_jabatan }}</option>
                                 @endforeach
