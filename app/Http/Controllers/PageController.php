@@ -284,12 +284,6 @@ public function daftarKaryawan(Request $request)
             'role'         => 'karyawan',
         ];
 
-        if ($request->hasFile('foto')) {
-            $foto = $request->file('foto');
-            $namaFile = time() . '_' . $foto->getClientOriginalName();
-            $foto->move(public_path('uploads'), $namaFile);
-            $dataUpdate['foto'] = $namaFile;
-        }
 
         DB::table('karyawan')->where('NIK', $NIK)->update($dataUpdate);
 
@@ -321,6 +315,7 @@ public function daftarKaryawan(Request $request)
     }
 
 
+    
 
     /** ---------------- LOGIN ---------------- */
     public function showLogin()
@@ -348,7 +343,6 @@ public function daftarKaryawan(Request $request)
             'karyawan.NIK',
             'karyawan.role',
             'karyawan.nama_lengkap',
-            'karyawan.foto',
             'departement.nama_divisi',
             'jabatan.nama_jabatan'
         )
@@ -398,17 +392,9 @@ public function daftarKaryawan(Request $request)
         'tgl_lahir'   => 'required|date',
         'alamat'      => 'required|string',
         'role'        => 'required|string',
-        'foto'        => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
     ]);
 
-  // default foto kosong
-    $fotoPath = null;
 
-    // kalau ada file yang diupload
-    if ($request->hasFile('foto')) {
-        // simpan ke storage/app/public/foto
-        $fotoPath = $request->file('foto')->store('foto', 'public');
-    }
 
     // Simpan data ke tabel karyawan (tambahkan status default = Aktif)
     DB::table('karyawan')->insert([
@@ -422,7 +408,6 @@ public function daftarKaryawan(Request $request)
         'tgl_lahir'    => $request->tgl_lahir,
         'alamat'       => $request->alamat,
         'role'         => $request->role,
-        'foto'         => $fotoPath,
         'status'       => 'Aktif', // <- tambahkan ini
         // 'created_at'   => now(),
         // 'updated_at'   => now(),

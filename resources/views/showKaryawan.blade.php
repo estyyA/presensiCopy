@@ -14,28 +14,7 @@
         <!-- Body -->
         <div class="card-body p-5">
             <div class="row">
-                <!-- Kolom Foto -->
-                <div class="col-md-4 text-center mb-4 mb-md-0">
-                    @if($karyawan->foto)
-                        <img src="{{ asset('storage/' . $karyawan->foto) }}"
-                             alt="Foto {{ $karyawan->nama_lengkap }}"
-                             class="rounded-circle shadow-lg border border-3 border-white mb-3"
-                             style="width: 200px; height: 200px; object-fit: cover;">
-                    @else
-                        <div class="bg-light rounded-circle d-flex align-items-center justify-content-center shadow-sm mb-3"
-                             style="width: 200px; height: 200px; margin: auto;">
-                            <i class="fa fa-user text-muted" style="font-size: 60px;"></i>
-                        </div>
-                    @endif
-
-                    <h4 class="fw-bold">{{ $karyawan->nama_lengkap }}</h4>
-                    <p class="text-muted mb-1">
-                        <i class="fa fa-briefcase me-1 text-primary"></i> {{ $karyawan->nama_jabatan ?? '-' }}
-                    </p>
-                    <p class="text-muted">
-                        <i class="fa fa-user-shield me-1 text-success"></i> {{ ucfirst($karyawan->role) }}
-                    </p>
-                </div>
+              
 
                 <!-- Kolom Detail -->
                 <div class="col-md-8">

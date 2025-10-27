@@ -114,27 +114,6 @@
                                 <label for="status">Status</label>
                             </div>
 
-                            <!-- Foto -->
-                            <div class="mb-3 text-center">
-                                <label for="foto" class="form-label fw-bold d-block">Foto</label>
-                                @if($karyawan->foto)
-                                    <div class="position-relative d-inline-block">
-                                        <img src="{{ asset('storage/'.$karyawan->foto) }}"
-                                             alt="Foto Karyawan"
-                                             class="rounded-circle shadow mb-3 border border-3 border-white"
-                                             style="width:120px; height:120px; object-fit:cover; transition: transform 0.3s;">
-                                    </div>
-                                @else
-                                    <div class="bg-white rounded-circle shadow-sm mb-3 d-flex align-items-center justify-content-center border"
-                                         style="width: 120px; height: 120px; margin: auto;">
-                                        <span class="text-muted">No Foto</span>
-                                    </div>
-                                @endif
-                                <input type="file" name="foto" class="form-control shadow-sm">
-                            </div>
-                        </div>
-                    </div>
-
                     <!-- Button -->
                     <div class="mt-4 text-end">
                         <a href="{{ url('/daftarKaryawan') }}" class="btn btn-outline-secondary px-4 me-2">

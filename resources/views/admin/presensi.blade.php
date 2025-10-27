@@ -20,20 +20,6 @@
          style="background: linear-gradient(90deg, #4a90e2, #357ABD);
                 width: 800px; border-radius: 20px; padding: 20px;">
 
-        {{-- FOTO PROFIL (disamakan dengan karyawan) --}}
-        <img src="{{ $admin->foto 
-                      ? asset('storage/'.$admin->foto) 
-                      : asset('img/profile.png') }}"
-             alt="Foto {{ $admin->nama_lengkap ?? 'Admin' }}"
-             class="foto-profil border border-3 border-white mb-2 d-block mx-auto">
-
-        <h4 class="text-white mb-0">
-            {{ $admin->nama_lengkap ?? session('karyawan')->nama_lengkap ?? 'Admin' }}
-        </h4>
-        <small class="text-light">
-            {{ $admin->nama_divisi ?? session('karyawan')->nama_divisi ?? 'Administrator' }}
-        </small>
-    </div>
 
     {{-- Live Attendance --}}
     <div class="card shadow-lg p-4 mb-3"

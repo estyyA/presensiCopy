@@ -108,14 +108,12 @@
 <body>
 <div class="register-container">
     <div class="register-card">
-        <!-- Header -->
         <div class="register-header">
             <img src="{{ asset('img/logo.png') }}" alt="Logo">
             <h1>PT Madubaru</h1>
             <p>PG - PS MADUKISMO</p>
         </div>
 
-        <!-- Body -->
         <div class="register-body">
             <h5><i class="bi bi-person-plus-fill me-2"></i> Registrasi Akun</h5>
 
@@ -129,10 +127,9 @@
             </div>
             @endif
 
-            <form action="{{ route('register.store') }}" method="POST" enctype="multipart/form-data">
+            <form action="{{ route('register.store') }}" method="POST">
                 @csrf
                 <div class="row g-3">
-                    <!-- Kolom Kiri -->
                     <div class="col-md-6">
                         <div class="form-group mb-3">
                             <i class="bi bi-credit-card input-icon"></i>
@@ -165,7 +162,6 @@
                         </div>
                     </div>
 
-                    <!-- Kolom Kanan -->
                     <div class="col-md-6">
                         <div class="form-group mb-3">
                             <i class="bi bi-calendar-date input-icon"></i>
@@ -176,7 +172,6 @@
                             <textarea name="alamat" class="form-control" rows="2" placeholder="Alamat" required></textarea>
                         </div>
 
-                        <!-- Divisi & Subdivisi jadi satu bagian -->
                         <div class="form-group mb-3">
                             <i class="bi bi-diagram-3 input-icon"></i>
                             <select name="id_divisi" id="divisi" class="form-select" required>
@@ -209,10 +204,6 @@
                             <input type="text" class="form-control" value="Karyawan" disabled>
                             <input type="hidden" name="role" value="Karyawan">
                         </div>
-                        <div class="form-group mb-3">
-                            <i class="bi bi-image input-icon"></i>
-                            <input type="file" name="foto" class="form-control">
-                        </div>
                     </div>
                 </div>
 
@@ -228,7 +219,6 @@
 </div>
 
 <script>
-    // toggle password
     const togglePassword = document.querySelector('#togglePassword');
     const password = document.querySelector('#password');
     const eyeIcon = document.querySelector('#eyeIcon');
@@ -239,7 +229,7 @@
         eyeIcon.classList.toggle('bi-eye-slash');
     });
 
-    // dynamic subdivisi berdasarkan divisi
+    // dynamic subdivisi
     document.getElementById('divisi').addEventListener('change', function() {
         const divisiId = this.value;
         const subdivisiSelect = document.getElementById('subdivisi');

@@ -46,7 +46,7 @@
             </li>
         </ul>
     </div>
-
+{{--
     <!-- Isi Profil -->
     <div class="d-flex flex-column align-items-center position-relative">
         <!-- Foto Profil -->
@@ -65,7 +65,7 @@
                class="position-absolute bottom-0 end-0 bg-primary text-white rounded-circle p-1"
                style="cursor: pointer;">
             <i class="bi bi-pencil-fill"></i>
-        </label>
+        </label> --}}
 
         <!-- Nama & Divisi -->
         <h6 class="mb-0 mt-2">{{ $karyawan->nama_lengkap ?? 'Nama Karyawan' }}</h6>
@@ -73,7 +73,7 @@
     </div>
 </div>
 
-<!-- Modal Preview Foto -->
+{{-- <!-- Modal Preview Foto -->
 <div class="modal fade" id="modalPreview" tabindex="-1" aria-labelledby="modalPreviewLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
@@ -94,7 +94,7 @@
             </form>
         </div>
     </div>
-</div>
+</div> --}}
 
 <script>
 document.getElementById('inputFoto').addEventListener('change', function(e) {
