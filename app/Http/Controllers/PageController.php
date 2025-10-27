@@ -315,7 +315,7 @@ public function daftarKaryawan(Request $request)
     }
 
 
-    
+
 
     /** ---------------- LOGIN ---------------- */
     public function showLogin()
@@ -332,10 +332,12 @@ public function daftarKaryawan(Request $request)
     ]);
 
     // Ambil akun + data karyawan lengkap
+
     $akun = DB::table('akun')
         ->join('karyawan', 'akun.NIK', '=', 'karyawan.NIK')
         ->leftJoin('departement', 'karyawan.id_divisi', '=', 'departement.id_divisi')
         ->leftJoin('jabatan', 'karyawan.id_jabatan', '=', 'jabatan.id_jabatan')
+        ->leftJoin('subdepartement', 'karyawan.id_subdivisi', '=', 'subdepartement.id_subdivisi')
         ->where('akun.username', $request->username)
         ->select(
             'akun.username',
@@ -344,9 +346,12 @@ public function daftarKaryawan(Request $request)
             'karyawan.role',
             'karyawan.nama_lengkap',
             'departement.nama_divisi',
-            'jabatan.nama_jabatan'
+            'jabatan.nama_jabatan',
+            'subdepartement.nama_subdivisi' // ✅ sesuai kolom di database
         )
         ->first();
+
+
 
     // Cek apakah user ada dan password benar
     if (!$akun || !Hash::check($request->password, $akun->password)) {
@@ -381,36 +386,34 @@ public function daftarKaryawan(Request $request)
     public function processRegister(Request $request)
 {
     $request->validate([
-        'nik'         => 'required|unique:karyawan,NIK',
-        'username'    => 'required|unique:akun,username',
-        'password'    => 'required|min:6',
-        'email'       => 'required|email|unique:karyawan,email',
-        'id_divisi'   => 'required|integer',
-        'id_jabatan'  => 'required|integer',
-        'nama_lengkap'=> 'required|string',
-        'no_hp'       => 'required|string',
-        'tgl_lahir'   => 'required|date',
-        'alamat'      => 'required|string',
-        'role'        => 'required|string',
+        'nik'          => 'required|unique:karyawan,NIK',
+        'username'     => 'required|unique:akun,username',
+        'password'     => 'required|min:6',
+        'email'        => 'required|email|unique:karyawan,email',
+        'id_divisi'    => 'required|integer',
+        'id_subdivisi' => 'nullable|integer', // ✅ tambahkan ini
+        'id_jabatan'   => 'required|integer',
+        'nama_lengkap' => 'required|string',
+        'no_hp'        => 'required|string',
+        'tgl_lahir'    => 'required|date',
+        'alamat'       => 'required|string',
+        'role'         => 'required|string',
     ]);
 
-
-
-    // Simpan data ke tabel karyawan (tambahkan status default = Aktif)
+    // Simpan data ke tabel karyawan
     DB::table('karyawan')->insert([
         'NIK'          => $request->nik,
         'username'     => $request->username,
         'email'        => $request->email,
         'id_divisi'    => $request->id_divisi,
+        'id_subdivisi' => $request->id_subdivisi, // ✅ tambahkan ini
         'id_jabatan'   => $request->id_jabatan,
         'nama_lengkap' => $request->nama_lengkap,
         'no_hp'        => $request->no_hp,
         'tgl_lahir'    => $request->tgl_lahir,
         'alamat'       => $request->alamat,
         'role'         => $request->role,
-        'status'       => 'Aktif', // <- tambahkan ini
-        // 'created_at'   => now(),
-        // 'updated_at'   => now(),
+        'status'       => 'Aktif',
     ]);
 
     // Simpan data ke tabel akun
@@ -418,12 +421,11 @@ public function daftarKaryawan(Request $request)
         'username'   => $request->username,
         'NIK'        => $request->nik,
         'password'   => Hash::make($request->password),
-        // 'created_at' => now(),
-        // 'updated_at' => now(),
     ]);
 
     return redirect()->route('login.form')->with('success', 'Registrasi berhasil! Silakan login.');
 }
+
 
 public function getSubdivisi($id_divisi)
 {

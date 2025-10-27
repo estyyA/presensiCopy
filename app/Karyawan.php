@@ -8,17 +8,18 @@ class Karyawan extends Model
 {
     protected $table = 'karyawan';
     protected $primaryKey = 'NIK';
-    public $incrementing = false; // karena PK bukan auto increment
+    public $incrementing = false;
     protected $keyType = 'string';
     public $timestamps = false;
 
     protected $fillable = [
         'NIK',
         'id_divisi',
+        'id_subdivisi',
         'id_jabatan',
         'nama_lengkap',
         'username',
-        'password',   // harus ada
+        'password',
         'no_hp',
         'tgl_lahir',
         'alamat',
@@ -26,13 +27,19 @@ class Karyawan extends Model
         'status',
     ];
 
-    // Relasi ke Departement
-    public function departement()
+    // ✅ Relasi ke Divisi
+    public function divisi()
     {
-        return $this->belongsTo(Department::class, 'id_divisi', 'id_divisi');
+        return $this->belongsTo(Divisi::class, 'id_divisi', 'id_divisi');
     }
 
-    // Relasi ke Jabatan
+    // ✅ Relasi ke Sub Divisi
+    public function subdivisi()
+    {
+        return $this->belongsTo(SubDivisi::class, 'id_subdivisi', 'id_subdivisi');
+    }
+
+    // ✅ Relasi ke Jabatan
     public function jabatan()
     {
         return $this->belongsTo(Jabatan::class, 'id_jabatan', 'id_jabatan');
@@ -44,13 +51,11 @@ class Karyawan extends Model
         return $this->hasMany(Presensi::class, 'NIK', 'NIK');
     }
 
-    // Relasi ke Akun
     public function akun()
     {
         return $this->hasOne(Akun::class, 'NIK', 'NIK');
     }
 
-    // 🔥 Relasi ke Cuti
     public function cuti()
     {
         return $this->hasMany(Cuti::class, 'nik', 'NIK');

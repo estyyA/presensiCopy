@@ -69,7 +69,17 @@
 
         <!-- Nama & Divisi -->
         <h6 class="mb-0 mt-2">{{ $karyawan->nama_lengkap ?? 'Nama Karyawan' }}</h6>
-        <small class="text-muted">{{ $karyawan->nama_divisi ?? 'Divisi' }}</small>
+        <small class="text-muted d-block">
+            Divisi: {{ $karyawan->nama_divisi ?? '-' }}
+        </small>
+        <small class="text-muted d-block">
+            Subdivisi: {{ $karyawan->nama_subdivisi ?? '-' }}
+        </small>
+
+        <small class="text-muted d-block">
+            Status: {{ $karyawan->nama_jabatan ?? '-' }}
+        </small>
+
     </div>
 </div>
 
