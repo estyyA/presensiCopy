@@ -13,22 +13,22 @@
                 <div>
                     <label class="form-label fw-semibold">Mulai</label>
                     <input type="date" name="mulai"
-                           class="form-control form-control-sm shadow-sm rounded"
-                           style="width: 130px;"
-                           value="{{ request('mulai') }}">
+                        class="form-control form-control-sm shadow-sm rounded"
+                        style="width: 130px;"
+                        value="{{ request('mulai') }}">
                 </div>
                 <div>
                     <label class="form-label fw-semibold">Sampai</label>
                     <input type="date" name="sampai"
-                           class="form-control form-control-sm shadow-sm rounded"
-                           style="width: 130px;"
-                           value="{{ request('sampai') }}">
+                        class="form-control form-control-sm shadow-sm rounded"
+                        style="width: 130px;"
+                        value="{{ request('sampai') }}">
                 </div>
                 <div class="ms-auto">
                     <button type="submit"
-                            class="btn btn-primary btn-sm shadow-sm rounded-circle d-flex align-items-center justify-content-center"
-                            style="width: 35px; height: 35px;"
-                            title="Tampilkan">
+                        class="btn btn-primary btn-sm shadow-sm rounded-circle d-flex align-items-center justify-content-center"
+                        style="width: 35px; height: 35px;"
+                        title="Tampilkan">
                         <i class="bi bi-search"></i>
                     </button>
                 </div>
@@ -48,34 +48,34 @@
                 </thead>
                 <tbody>
                     @forelse($tracking as $item)
-                        <tr>
-                            <td>{{ \Carbon\Carbon::parse($item->tanggal_sales)->translatedFormat('D, d M Y') }}</td>
-                            <td>{{ $item->jam_sales }}</td>
-                            <td>{{ $item->lokasi_sales }}</td>
-                            <td>{{ $item->id_divisi }}</td>
-                        </tr>
+                    <tr>
+                        <td>{{ \Carbon\Carbon::parse($item->tanggal_sales)->translatedFormat('D, d M Y') }}</td>
+                        <td>{{ $item->jam_sales }}</td>
+                        <td>{{ $item->lokasi_sales }}</td>
+                        <td>{{ $item->id_divisi }}</td>
+                    </tr>
                     @empty
-                        <tr>
-                            <td colspan="4" class="text-center text-muted">Belum ada data tracking sales</td>
-                        </tr>
+                    <tr>
+                        <td colspan="4" class="text-center text-muted">Belum ada data tracking sales</td>
+                    </tr>
                     @endforelse
                 </tbody>
             </table>
         </div>
- <div class="d-flex justify-content-between align-items-center mt-3">
-    <!-- Tombol kiri -->
-    <a href="{{ route('tracking.form') }}" class="btn btn-outline-primary btn-sm rounded-pill shadow-sm px-3">
-        <i class="bi bi-pencil-square me-1"></i> Isi Form Tracking
-    </a>
+        <div class="d-flex justify-content-between align-items-center mt-3">
+            <!-- Tombol kiri -->
+            <a href="{{ route('tracking.form') }}" class="btn btn-outline-primary btn-sm rounded-pill shadow-sm px-3">
+                <i class="bi bi-pencil-square me-1"></i> Isi Form Tracking
+            </a>
 
-    <!-- Tombol kanan -->
-    <a href="{{ route('karyawan.dashboard') }}" class="btn btn-primary btn-sm rounded-pill shadow-sm px-3">
-        <i class="bi bi-speedometer2 me-1"></i> Kembali ke Dashboard
-    </a>
-</div>
-
-</div>
+            <!-- Tombol kanan -->
+            <a href="{{ route('karyawan.dashboard') }}" class="btn btn-primary btn-sm rounded-pill shadow-sm px-3">
+                <i class="bi bi-speedometer2 me-1"></i> Kembali ke Dashboard
+            </a>
+        </div>
 
     </div>
+
+</div>
 </div>
 @endsection
