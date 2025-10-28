@@ -21,6 +21,8 @@ use App\CatatanLaporan;
 use App\Cuti;
 use App\Subdepartement;
 use App\TrackingSales;
+use App\Sakit;
+
 
 
 
@@ -993,35 +995,117 @@ public function storeSakit(Request $request)
 {
     $karyawan = session('karyawan');
     if (!$karyawan) {
-        return redirect()->route('login.form')->with('error', 'Silahkan login terlebih dahulu.');
+        return redirect()->route('login.form')->with('error', 'Silakan login terlebih dahulu.');
     }
 
+    // Validasi input
     $request->validate([
-        'tgl_presen' => 'required|date',
-        'surat' => 'nullable|file|mimes:jpeg,jpg,png,heic,pdf|max:2048',
+        'tgl_pengajuan' => 'required|date',
+        'tgl_mulai' => 'required|date',
+        'tgl_selesai' => 'required|date|after_or_equal:tgl_mulai',
+        'keterangan' => 'nullable|string',
+        'surat_dokter' => 'nullable|file|mimes:jpeg,jpg,png,heic,pdf|max:2048',
     ]);
 
+    // Upload file jika ada
     $filePath = null;
-    if ($request->hasFile('surat')) {
-        $filePath = $request->file('surat')->store('surat', 'public');
+    if ($request->hasFile('surat_dokter')) {
+        $filePath = $request->file('surat_dokter')->store('surat_dokter', 'public');
     }
 
-    // pakai DB::table agar konsisten dengan style di controllermu
-    DB::table('presensi')->insert([
+    // Simpan ke tabel sakit
+    DB::table('sakit')->insert([
         'NIK' => $karyawan->NIK,
-        'nama_karyawan' => $karyawan->nama_lengkap,
-        'divisi' => $karyawan->nama_divisi ?? ($karyawan->divisi ?? '-'),
-        'tgl_presen' => $request->tgl_presen,
-        'jam_masuk' => null,
-        'lokasi_masuk' => null,
-        'jam_keluar' => null,
-        'lokasi_keluar' => null,
-        'status' => 'sakit',
-        'surat' => $filePath,
+        'tgl_pengajuan' => $request->tgl_pengajuan,
+        'tgl_mulai' => $request->tgl_mulai,
+        'tgl_selesai' => $request->tgl_selesai,
+        'keterangan' => $request->keterangan,
+        'surat_dokter' => $filePath,
+        'status_pengajuan' => 'menunggu',
+        'created_at' => now(),
+        'updated_at' => now(),
     ]);
 
-    return redirect()->route('karyawan.dashboard')->with('success', 'Pengajuan sakit berhasil dikirim!');
+    return redirect()->route('karyawan.dashboard')
+        ->with('success', 'Pengajuan sakit berhasil dikirim dan menunggu persetujuan admin.');
 }
+
+public function konfirSakit()
+{
+    $pengajuans = Sakit::with(['karyawan' => function($q) {
+        $q->leftJoin('departement', 'karyawan.id_divisi', '=', 'departement.id_divisi')
+          ->select('karyawan.*', 'departement.nama_divisi');
+    }])
+    ->orderByDesc('id')
+    ->get();
+
+    return view('konfirsakit', compact('pengajuans'));
+}
+
+
+public function setujuiSakit($id)
+{
+    $pengajuan = DB::table('sakit')->where('id', $id)->first();
+
+    if (!$pengajuan) {
+        return redirect()->back()->with('error', 'Data tidak ditemukan.');
+    }
+
+    DB::beginTransaction();
+    try {
+        // ✅ Ubah status pengajuan jadi disetujui + catat tanggal & admin
+        DB::table('sakit')->where('id', $id)->update([
+            'status_pengajuan' => 'disetujui',
+            'tanggal_disetujui' => now(),
+            'disetujui_oleh' => session('admin')->nama ?? 'Admin',
+            'updated_at' => now(),
+        ]);
+
+        // ✅ Tambahkan data ke tabel presensi sesuai rentang tanggal
+        $mulai = \Carbon\Carbon::parse($pengajuan->tgl_mulai);
+        $selesai = \Carbon\Carbon::parse($pengajuan->tgl_selesai);
+
+        for ($tgl = $mulai; $tgl->lte($selesai); $tgl->addDay()) {
+            DB::table('presensi')->updateOrInsert(
+                [
+                    'NIK' => $pengajuan->NIK,
+                    'tgl_presen' => $tgl->toDateString(),
+                ],
+                [
+                    'jam_masuk' => null,
+                    'jam_keluar' => null,
+                    'lokasi_masuk' => null,
+                    'lokasi_keluar' => null,
+                    'status' => 'sakit',
+                    'surat' => $pengajuan->surat_dokter,
+                ]
+            );
+        }
+
+        DB::commit();
+        return redirect()->back()->with('success', 'Pengajuan sakit disetujui dan presensi diperbarui.');
+    } catch (\Exception $e) {
+        DB::rollBack();
+        return redirect()->back()->with('error', 'Gagal menyetujui: ' . $e->getMessage());
+    }
+}
+
+
+public function tolakSakit($id)
+{
+    $pengajuan = DB::table('sakit')->where('id', $id)->first();
+    if (!$pengajuan) {
+        return redirect()->back()->with('error', 'Data tidak ditemukan.');
+    }
+
+    DB::table('sakit')->where('id', $id)->update([
+        'status_pengajuan' => 'ditolak',
+        'updated_at' => now(),
+    ]);
+
+    return redirect()->back()->with('success', 'Pengajuan sakit ditolak.');
+}
+
 
 // tampilkan form
 public function trackingSalesForm()

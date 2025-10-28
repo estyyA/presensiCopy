@@ -28,9 +28,9 @@ class Karyawan extends Model
     ];
 
     // ✅ Relasi ke Divisi
-    public function divisi()
+    public function departement()
     {
-        return $this->belongsTo(Divisi::class, 'id_divisi', 'id_divisi');
+        return $this->belongsTo(Department::class, 'id_divisi', 'id_divisi');
     }
 
     // ✅ Relasi ke Sub Divisi
