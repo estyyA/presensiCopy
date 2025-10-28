@@ -437,43 +437,52 @@ public function getSubdivisi($id_divisi)
 
 
 
+/** ---------------- LAPORAN ---------------- */
 public function laporan(Request $request)
 {
     $mulai    = $request->mulai;
     $sampai   = $request->sampai;
     $kategori = $request->kategori;
 
-    // --- Ambil data presensi + cuti (union builder) ---
+    // --- Ambil data presensi ---
     $presensi = DB::table('presensi')
         ->select(
-            'presensi.NIK as nik',
-            'presensi.tgl_presen as tanggal',
-            'presensi.status',
-            'presensi.surat',
-            DB::raw('TIMESTAMPDIFF(MINUTE, jam_masuk, jam_keluar) as total_menit')
+            'NIK as nik',
+            'tgl_presen as tanggal',
+            'status',
+            'surat',
+            DB::raw('TIMESTAMPDIFF(MINUTE, jam_masuk, jam_keluar) as total_menit'),
+            DB::raw('1 as total_hari')
         )
         ->when($mulai && $sampai, function ($q) use ($mulai, $sampai) {
-            $q->whereBetween('presensi.tgl_presen', [$mulai, $sampai]);
+            $q->whereBetween('tgl_presen', [$mulai, $sampai]);
         });
 
+    // --- Ambil data cuti (hitung durasi harinya) ---
     $cuti = DB::table('cuti')
         ->select(
-            'cuti.nik as nik',
-            DB::raw('cuti.tanggal_mulai as tanggal'),
+            'nik',
+            DB::raw('tanggal_mulai as tanggal'),
             DB::raw('"cuti" as status'),
             DB::raw('NULL as surat'),
-            DB::raw('0 as total_menit')
+            DB::raw('0 as total_menit'),
+            DB::raw('DATEDIFF(tanggal_selesai, tanggal_mulai) + 1 as total_hari')
         )
         ->when($mulai && $sampai, function ($q) use ($mulai, $sampai) {
             $q->where(function ($sub) use ($mulai, $sampai) {
-                $sub->whereBetween('cuti.tanggal_mulai', [$mulai, $sampai])
-                    ->orWhereBetween('cuti.tanggal_selesai', [$mulai, $sampai]);
+                $sub->whereBetween('tanggal_mulai', [$mulai, $sampai])
+                    ->orWhereBetween('tanggal_selesai', [$mulai, $sampai])
+                    ->orWhere(function ($x) use ($mulai, $sampai) {
+                        $x->where('tanggal_mulai', '<=', $mulai)
+                          ->where('tanggal_selesai', '>=', $sampai);
+                    });
             });
         });
 
+    // Gabungkan presensi dan cuti
     $all = $presensi->unionAll($cuti);
 
-    // --- Rekap: hitung semua status termasuk status='alpha' dari DB (alpha_presensi) ---
+    // --- Rekap per karyawan ---
     $rekap = DB::table(DB::raw("({$all->toSql()}) as logs"))
         ->mergeBindings($all)
         ->rightJoin('karyawan', 'logs.nik', '=', 'karyawan.NIK')
@@ -485,51 +494,36 @@ public function laporan(Request $request)
             'karyawan.nama_lengkap as nama',
             'departement.nama_divisi as divisi',
             'jabatan.nama_jabatan as jabatan',
+            DB::raw('GROUP_CONCAT(DISTINCT logs.surat SEPARATOR ", ") as surat'),
             DB::raw('SUM(CASE WHEN logs.status = "hadir" THEN 1 ELSE 0 END) as hadir'),
             DB::raw('SUM(CASE WHEN logs.status = "izin" THEN 1 ELSE 0 END) as izin'),
             DB::raw('SUM(CASE WHEN logs.status = "sakit" THEN 1 ELSE 0 END) as sakit'),
-            DB::raw('SUM(CASE WHEN logs.status = "cuti" THEN 1 ELSE 0 END) as cuti'),
-            // penting: hitung alpha yang memang tercatat di tabel presensi
+            DB::raw('SUM(CASE WHEN logs.status = "cuti" THEN logs.total_hari ELSE 0 END) as cuti'),
             DB::raw('SUM(CASE WHEN logs.status = "alpha" THEN 1 ELSE 0 END) as alpha_presensi'),
-            DB::raw('SUM(CASE WHEN logs.status = "hadir" THEN logs.total_menit ELSE 0 END) as total_menit'),
-            DB::raw('MAX(logs.surat) as surat')
+            DB::raw('SUM(CASE WHEN logs.status = "hadir" THEN logs.total_menit ELSE 0 END) as total_menit')
         )
         ->get();
 
-    // --- Hitung total hari kerja pada periode ---
-    // Jika user memberikan tanggal, gunakan periode itu. Jika tidak, kita gunakan
-    // jumlah tanggal unik di tabel presensi pada bulan berjalan (fallback).
-    $totalHari = 0;
+    // --- Hitung total hari kerja ---
     if ($mulai && $sampai) {
         $period = new \DatePeriod(
             new \DateTime($mulai),
             new \DateInterval('P1D'),
             (new \DateTime($sampai))->modify('+1 day')
         );
-        foreach ($period as $d) {
-            // opsional: exclude weekend (contoh exclude Sundays)
-            // jika mau hitung semua hari, hapus if
-            if ($d->format('N') != 7) {
-                $totalHari++;
-            }
-        }
+        $totalHari = iterator_count($period);
     } else {
-        // fallback: hitung jumlah distinct tgl_presen di tabel presensi untuk bulan ini
-        $startMonth = date('Y-m-01');
-        $endMonth = date('Y-m-t');
-        $totalHari = DB::table('presensi')
-            ->when(true, function($q) use ($startMonth, $endMonth) {
-                $q->whereBetween('tgl_presen', [$startMonth, $endMonth]);
-            })
-            ->distinct()
-            ->count('tgl_presen');
-
-        // jika tidak ada pencatatan sama sekali, bisa set default 0 atau 1 — kita pakai 0
-        $totalHari = (int)$totalHari;
+        $first = DB::table('presensi')->min('tgl_presen');
+        $last  = DB::table('presensi')->max('tgl_presen');
+        if ($first && $last) {
+            $period = new \DatePeriod(new \DateTime($first), new \DateInterval('P1D'), (new \DateTime($last))->modify('+1 day'));
+            $totalHari = iterator_count($period);
+        } else {
+            $totalHari = 0;
+        }
     }
 
-    // --- Gabungkan alpha dari presensi (alpha_presensi) + alpha kosong (perhitungan hari kerja) ---
-    // alpha_kosong = totalHari - (hadir + izin + sakit + cuti)
+    // --- Tambahkan kolom alpha ---
     foreach ($rekap as $r) {
         $hadir = (int) $r->hadir;
         $izin  = (int) $r->izin;
@@ -539,289 +533,161 @@ public function laporan(Request $request)
 
         $alpha_kosong = max(0, $totalHari - ($hadir + $izin + $sakit + $cuti));
         $r->alpha = $alpha_presensi + $alpha_kosong;
-
-        // pastikan kolom lain ada sesuai view
-        $r->total_menit = (int) $r->total_menit;
     }
 
-    // --- Filter kategori setelah alpha terset ---
+    // filter kategori
     if ($kategori && $kategori != 'semua') {
-        $rekap = $rekap->filter(function ($row) use ($kategori) {
-            // jika kategori = alpha, gunakan kolom 'alpha' (sudah dikalkulasi)
-            return (int) ($row->{$kategori} ?? 0) > 0;
+        $rekap = $rekap->filter(function ($r) use ($kategori) {
+            return (int) ($r->{$kategori} ?? 0) > 0;
         })->values();
     }
 
     $catatan = CatatanLaporan::pluck('catatan', 'nik');
 
-    // kirim ke view — view kamu mengakses $data, jadi kita tetap kirim 'data'
     return view('laporan', [
         'data' => $rekap,
         'catatan' => $catatan
     ]);
 }
 
-
 private function getData($mulai = null, $sampai = null)
 {
-    // 1. Tentukan range tanggal
     if (!$mulai || !$sampai) {
-        $first = DB::table('presensi')->min('tgl_presen');
-        $last  = DB::table('presensi')->max('tgl_presen');
-
-        // Jika database kosong
-        if (!$first || !$last) {
-            return collect();
-        }
-
-        $mulai  = $mulai ?? $first;
-        $sampai = $sampai ?? $last;
+        $mulai  = DB::table('presensi')->min('tgl_presen');
+        $sampai = DB::table('presensi')->max('tgl_presen');
     }
 
-    // 2. Buat daftar tanggal antara mulai dan sampai
+    // --- Ambil data presensi
+    $presensi = DB::table('presensi')
+        ->select(
+            'NIK as nik',
+            'tgl_presen as tanggal',
+            'status',
+            'surat',
+            DB::raw('TIMESTAMPDIFF(MINUTE, jam_masuk, jam_keluar) as total_menit')
+        )
+        ->whereBetween('tgl_presen', [$mulai, $sampai])
+        ->get();
+
+    // --- Ambil data cuti (yang overlap rentang)
+    $cutiRows = DB::table('cuti')
+        ->select('nik', 'tanggal_mulai', 'tanggal_selesai')
+        ->where(function ($q) use ($mulai, $sampai) {
+            $q->whereBetween('tanggal_mulai', [$mulai, $sampai])
+              ->orWhereBetween('tanggal_selesai', [$mulai, $sampai])
+              ->orWhere(function ($x) use ($mulai, $sampai) {
+                  $x->where('tanggal_mulai', '<=', $mulai)
+                    ->where('tanggal_selesai', '>=', $sampai);
+              });
+        })
+        ->get();
+
+    // --- Expand cuti per hari (Senin–Sabtu)
+    $cutiExpanded = collect();
+    foreach ($cutiRows as $c) {
+        $start = new \DateTime($c->tanggal_mulai);
+        $end   = new \DateTime($c->tanggal_selesai);
+        $period = new \DatePeriod($start, new \DateInterval('P1D'), $end->modify('+1 day'));
+
+        foreach ($period as $d) {
+            if ($d->format('N') < 7) { // Senin–Sabtu
+                $cutiExpanded->push([
+                    'nik' => $c->nik,
+                    'tanggal' => $d->format('Y-m-d'),
+                    'status' => 'cuti',
+                    'surat' => null,
+                    'total_menit' => 0,
+                ]);
+            }
+        }
+    }
+
+    // --- Gabungkan presensi dan cuti
+    $allLogs = $presensi->map(function ($p) {
+        return (array) $p;
+    })->merge($cutiExpanded);
+
+    // --- Buat daftar tanggal kerja (Senin–Sabtu)
     $dates = collect();
     $period = new \DatePeriod(
         new \DateTime($mulai),
         new \DateInterval('P1D'),
         (new \DateTime($sampai))->modify('+1 day')
     );
-    foreach ($period as $date) {
-        $dates->push($date->format('Y-m-d'));
+
+    foreach ($period as $d) {
+        if ($d->format('N') < 7) { // exclude Minggu
+            $dates->push($d->format('Y-m-d'));
+        }
     }
 
-    // 3. Ambil semua karyawan
+    // --- Ambil data karyawan
     $karyawan = DB::table('karyawan')->get();
-
-    // Pastikan nama field benar
     $namaField = Schema::hasColumn('karyawan', 'nama_lengkap') ? 'nama_lengkap' : 'nama_karyawan';
 
-    // 4. Buat kombinasi setiap karyawan × tanggal
-    $combination = collect();
+    // --- Rekap per karyawan
+    $rekap = collect();
     foreach ($karyawan as $k) {
-        foreach ($dates as $d) {
-            $combination->push([
-                'nik'     => $k->NIK,
-                'tanggal' => $d
-            ]);
-        }
-    }
+        $logPerKar = collect();
 
-    // 5. Ambil data presensi
-    $presensi = DB::table('presensi')
-        ->select(
-            'NIK as nik',
-            'tgl_presen as tanggal',
-            'status',
-            DB::raw('TIMESTAMPDIFF(MINUTE, jam_masuk, jam_keluar) as durasi_menit')
-        )
-        ->whereBetween('tgl_presen', [$mulai, $sampai])
-        ->get();
-
-    // 6. Ambil data cuti lalu expand ke setiap tanggal
-    $cutiRows = DB::table('cuti')
-        ->select('nik', 'tanggal_mulai', 'tanggal_selesai')
-        ->when($mulai && $sampai, function ($q) use ($mulai, $sampai) {
-            $q->where(function ($sub) use ($mulai, $sampai) {
-                $sub->whereBetween('tanggal_mulai', [$mulai, $sampai])
-                    ->orWhereBetween('tanggal_selesai', [$mulai, $sampai])
-                    ->orWhere(function ($sub2) use ($mulai, $sampai) {
-                        $sub2->where('tanggal_mulai', '<=', $mulai)
-                             ->where('tanggal_selesai', '>=', $sampai);
-                    });
+        foreach ($dates as $tgl) {
+            $record = $allLogs->first(function ($x) use ($k, $tgl) {
+                return isset($x['nik']) && isset($x['tanggal']) && $x['nik'] == $k->NIK && $x['tanggal'] == $tgl;
             });
-        })
-        ->get();
 
-    $cutiExpanded = collect();
-    foreach ($cutiRows as $c) {
-        if (!$c->tanggal_mulai || !$c->tanggal_selesai) continue;
-
-        $start = $mulai ? max($mulai, $c->tanggal_mulai) : $c->tanggal_mulai;
-        $end   = $sampai ? min($sampai, $c->tanggal_selesai) : $c->tanggal_selesai;
-
-        $period = new \DatePeriod(
-            new \DateTime($start),
-            new \DateInterval('P1D'),
-            (new \DateTime($end))->modify('+1 day')
-        );
-
-        foreach ($period as $d) {
-            $cutiExpanded->push([
-                'nik'          => $c->nik,
-                'tanggal'      => $d->format('Y-m-d'),
-                'status'       => 'cuti',
-                'durasi_menit' => 0
-            ]);
+            if ($record) {
+                $logPerKar->push($record);
+            } else {
+                $logPerKar->push([
+                    'nik' => $k->NIK,
+                    'tanggal' => $tgl,
+                    'status' => 'alpha',
+                    'surat' => null,
+                    'total_menit' => 0,
+                ]);
+            }
         }
+
+        $rekap->push((object) [
+            'nik'   => $k->NIK,
+            'nama'  => $k->$namaField,
+            'total_hari' => $dates->count(),
+            'hadir' => $logPerKar->where('status', 'hadir')->count(),
+            'izin'  => $logPerKar->where('status', 'izin')->count(),
+            'sakit' => $logPerKar->where('status', 'sakit')->count(),
+            'cuti'  => $logPerKar->where('status', 'cuti')->count(),
+            'alpha' => $logPerKar->where('status', 'alpha')->count(),
+            'surat' => $logPerKar->pluck('surat')->filter()->implode(', '),
+            'total_menit' => $logPerKar->sum('total_menit'),
+        ]);
     }
 
-    // 7. Gabungkan presensi + cuti
-    $allLogs = $presensi->map(function ($p) {
-        return (array) $p;
-    })->merge($cutiExpanded);
-
-    // 8. Masukkan ke kombinasi, isi yang kosong sebagai alpha
-    $logs = collect();
-    foreach ($combination as $c) {
-        $record = $allLogs->first(function ($item) use ($c) {
-            return $item['nik'] == $c['nik'] && $item['tanggal'] == $c['tanggal'];
-        });
-
-        if ($record) {
-            $logs->push($record);
-        } else {
-            $logs->push([
-                'nik'          => $c['nik'],
-                'tanggal'      => $c['tanggal'],
-                'status'       => 'alpha',
-                'durasi_menit' => 0,
-            ]);
-        }
-    }
-
-    // 9. Rekap hasil akhir per karyawan
-    $query = $logs->groupBy('nik')->map(function ($items, $nik) use ($karyawan, $namaField) {
-        $kar = $karyawan->firstWhere('NIK', $nik);
-
-        return (object) [
-            'nik'         => $nik,
-            'nama'        => $kar ? $kar->$namaField : '-',
-            'total_hari'  => $items->count(),
-            'hadir'       => $items->where('status', 'hadir')->count(),
-            'sakit'       => $items->where('status', 'sakit')->count(),
-            'izin'        => $items->where('status', 'izin')->count(),
-            'cuti'        => $items->where('status', 'cuti')->count(),
-            'alpha'       => $items->where('status', 'alpha')->count(),
-            'total_menit' => $items->where('status', 'hadir')->sum('durasi_menit'),
-        ];
-    })->values();
-
-    return $query;
+    return $rekap;
 }
+
+
+
+
 public function cetakPdf(Request $request)
 {
     $mulai    = $request->mulai;
     $sampai   = $request->sampai;
     $kategori = $request->kategori;
 
-    // --- ambil data presensi + cuti ---
-    $presensi = DB::table('presensi')
-        ->select(
-            'nik',
-            DB::raw('tgl_presen as tanggal'),
-            'status',
-            DB::raw('TIMESTAMPDIFF(MINUTE, jam_masuk, jam_keluar) as durasi_menit'),
-            DB::raw('1 as durasi_hari')
-        )
-        ->when($mulai && $sampai, function ($q) use ($mulai, $sampai) {
-            $q->whereBetween('tgl_presen', [$mulai, $sampai]);
-        });
-
-    $cuti = DB::table('cuti')
-        ->select(
-            'nik',
-            DB::raw('tanggal_mulai as tanggal'),
-            DB::raw('"cuti" as status'),
-            DB::raw('0 as durasi_menit'),
-            DB::raw('DATEDIFF(tanggal_selesai, tanggal_mulai) + 1 as durasi_hari')
-        )
-        ->when($mulai && $sampai, function ($q) use ($mulai, $sampai) {
-            $q->where(function ($sub) use ($mulai, $sampai) {
-                $sub->whereBetween('tanggal_mulai', [$mulai, $sampai])
-                    ->orWhereBetween('tanggal_selesai', [$mulai, $sampai]);
-            });
-        });
-
-    $all = $presensi->unionAll($cuti);
-
-    $data = DB::table(DB::raw("({$all->toSql()}) as logs"))
-        ->mergeBindings($all)
-        ->join('karyawan', 'logs.nik', '=', 'karyawan.NIK')
-        ->leftJoin('departement', 'karyawan.id_divisi', '=', 'departement.id_divisi')
-        ->leftJoin('jabatan', 'karyawan.id_jabatan', '=', 'jabatan.id_jabatan')
-        ->groupBy('karyawan.NIK', 'karyawan.nama_lengkap', 'departement.nama_divisi', 'jabatan.nama_jabatan')
-        ->select(
-            'karyawan.NIK as nik',
-            'karyawan.nama_lengkap as nama',
-            'departement.nama_divisi as divisi',
-            'jabatan.nama_jabatan as jabatan',
-            DB::raw('COUNT(DISTINCT logs.tanggal) as total_hari'),
-            DB::raw('SUM(CASE WHEN logs.status = "hadir" THEN 1 ELSE 0 END) as hadir'),
-            DB::raw('SUM(CASE WHEN logs.status = "sakit" THEN 1 ELSE 0 END) as sakit'),
-            DB::raw('SUM(CASE WHEN logs.status = "izin" THEN 1 ELSE 0 END) as izin'),
-            DB::raw('SUM(CASE WHEN logs.status = "cuti" THEN logs.durasi_hari ELSE 0 END) as cuti'),
-            DB::raw('SUM(CASE WHEN logs.status = "hadir" THEN logs.durasi_menit ELSE 0 END) as total_menit')
-        )
-        ->get();
-
-    // total hari kerja
-    $totalHari = Carbon::parse($mulai)->diffInDays(Carbon::parse($sampai)) + 1;
-
-    // hitung alpha dan total jam kerja
-    foreach ($data as $item) {
-        $hadir = DB::table('presensi')
-            ->where('NIK', $item->nik)
-            ->whereBetween('tgl_presen', [$mulai, $sampai])
-            ->where('status', 'Hadir')
-            ->count();
-
-        $izin = DB::table('presensi')
-            ->where('NIK', $item->nik)
-            ->whereBetween('tgl_presen', [$mulai, $sampai])
-            ->where('status', 'Izin')
-            ->count();
-
-        $sakit = DB::table('presensi')
-            ->where('NIK', $item->nik)
-            ->whereBetween('tgl_presen', [$mulai, $sampai])
-            ->where('status', 'Sakit')
-            ->count();
-
-        $cuti = DB::table('cuti')
-            ->where('nik', $item->nik)
-            ->whereBetween('tanggal_mulai', [$mulai, $sampai])
-            ->orWhereBetween('tanggal_selesai', [$mulai, $sampai])
-            ->count();
-
-        $alpha = $totalHari - ($hadir + $izin + $sakit + $cuti);
-        $item->alpha = max($alpha, 0);
-
-        // hitung total menit kerja dari jam_masuk dan jam_keluar
-        $totalMenit = DB::table('presensi')
-            ->where('NIK', $item->nik)
-            ->whereBetween('tgl_presen', [$mulai, $sampai])
-            ->selectRaw('SUM(TIMESTAMPDIFF(MINUTE, jam_masuk, jam_keluar)) as total_menit')
-            ->value('total_menit');
-
-        $jam = intdiv($totalMenit ?? 0, 60);
-        $menit = ($totalMenit ?? 0) % 60;
-        $item->total_jam = ($jam > 0 || $menit > 0)
-            ? ($jam > 0 ? "{$jam} Jam {$menit} Menit" : "{$menit} Menit")
-            : "0 Menit";
-    }
-
-    // filter kategori
-    if ($kategori && $kategori != 'semua') {
-        $data = $data->filter(function ($row) use ($kategori) {
-            if ($kategori === 'alpha') {
-                return $row->alpha > 0;
-            }
-            return isset($row->{$kategori}) && (int) $row->{$kategori} > 0;
-        })->values();
-    }
-
+    $data = $this->laporan($request)->getData()['data']; // ambil data dari fungsi laporan
     $catatan = CatatanLaporan::pluck('catatan', 'nik')->toArray();
 
     $pdf = PDF::loadView('laporan_pdf', [
         'data'     => $data,
         'catatan'  => $catatan,
-        'kategori' => $kategori ?? null,
         'mulai'    => $mulai,
         'sampai'   => $sampai,
-    ])->setPaper('a4', 'portrait');
+        'kategori' => $kategori,
+    ])->setPaper('a4', 'landscape');
 
-    return $pdf->download('laporan.pdf');
+    return $pdf->download("Laporan Presensi $mulai - $sampai.pdf");
 }
+
 
 
 public function exportExcel(Request $request)
@@ -830,93 +696,12 @@ public function exportExcel(Request $request)
     $sampai   = $request->sampai;
     $kategori = $request->kategori;
 
-    $presensi = DB::table('presensi')
-        ->select(
-            'nik',
-            DB::raw('tgl_presen as tanggal'),
-            'status',
-            DB::raw('TIMESTAMPDIFF(MINUTE, jam_masuk, jam_keluar) as durasi_menit'),
-            DB::raw('1 as durasi_hari')
-        )
-        ->when($mulai && $sampai, function ($q) use ($mulai, $sampai) {
-            $q->whereBetween('tgl_presen', [$mulai, $sampai]);
-        });
-
-    $cuti = DB::table('cuti')
-        ->select(
-            'nik',
-            DB::raw('tanggal_mulai as tanggal'),
-            DB::raw('"cuti" as status'),
-            DB::raw('0 as durasi_menit'),
-            DB::raw('DATEDIFF(tanggal_selesai, tanggal_mulai) + 1 as durasi_hari')
-        )
-        ->when($mulai && $sampai, function ($q) use ($mulai, $sampai) {
-            $q->where(function ($sub) use ($mulai, $sampai) {
-                $sub->whereBetween('tanggal_mulai', [$mulai, $sampai])
-                    ->orWhereBetween('tanggal_selesai', [$mulai, $sampai]);
-            });
-        });
-
-    $all = $presensi->unionAll($cuti);
-
-    $data = DB::table(DB::raw("({$all->toSql()}) as logs"))
-        ->mergeBindings($all)
-        ->join('karyawan', 'logs.nik', '=', 'karyawan.NIK')
-        ->leftJoin('departement', 'karyawan.id_divisi', '=', 'departement.id_divisi')
-        ->leftJoin('jabatan', 'karyawan.id_jabatan', '=', 'jabatan.id_jabatan')
-        ->groupBy('karyawan.NIK', 'karyawan.nama_lengkap', 'departement.nama_divisi', 'jabatan.nama_jabatan')
-        ->select(
-            'karyawan.NIK as nik',
-            'karyawan.nama_lengkap as nama',
-            'departement.nama_divisi as divisi',
-            'jabatan.nama_jabatan as jabatan',
-            DB::raw('COUNT(DISTINCT logs.tanggal) as total_hari'),
-            DB::raw('SUM(CASE WHEN logs.status = "hadir" THEN 1 ELSE 0 END) as hadir'),
-            DB::raw('SUM(CASE WHEN logs.status = "sakit" THEN 1 ELSE 0 END) as sakit'),
-            DB::raw('SUM(CASE WHEN logs.status = "izin" THEN 1 ELSE 0 END) as izin'),
-            DB::raw('SUM(CASE WHEN logs.status = "cuti" THEN logs.durasi_hari ELSE 0 END) as cuti'),
-            DB::raw('SUM(CASE WHEN logs.status = "hadir" THEN logs.durasi_menit ELSE 0 END) as total_menit')
-        )
-        ->get();
-
-    $totalHari = Carbon::parse($mulai)->diffInDays(Carbon::parse($sampai)) + 1;
-
-    foreach ($data as $item) {
-        $hadir = DB::table('presensi')->where('NIK', $item->nik)->whereBetween('tgl_presen', [$mulai, $sampai])->where('status', 'Hadir')->count();
-        $izin  = DB::table('presensi')->where('NIK', $item->nik)->whereBetween('tgl_presen', [$mulai, $sampai])->where('status', 'Izin')->count();
-        $sakit = DB::table('presensi')->where('NIK', $item->nik)->whereBetween('tgl_presen', [$mulai, $sampai])->where('status', 'Sakit')->count();
-        $cuti  = DB::table('cuti')->where('nik', $item->nik)->whereBetween('tanggal_mulai', [$mulai, $sampai])->orWhereBetween('tanggal_selesai', [$mulai, $sampai])->count();
-
-        $alpha = $totalHari - ($hadir + $izin + $sakit + $cuti);
-        $item->alpha = max($alpha, 0);
-
-        $totalMenit = DB::table('presensi')
-            ->where('NIK', $item->nik)
-            ->whereBetween('tgl_presen', [$mulai, $sampai])
-            ->selectRaw('SUM(TIMESTAMPDIFF(MINUTE, jam_masuk, jam_keluar)) as total_menit')
-            ->value('total_menit');
-
-        $jam = intdiv($totalMenit ?? 0, 60);
-        $menit = ($totalMenit ?? 0) % 60;
-        $item->total_jam = ($jam > 0 || $menit > 0)
-            ? ($jam > 0 ? "{$jam} Jam {$menit} Menit" : "{$menit} Menit")
-            : "0 Menit";
-    }
-
-    if ($kategori && $kategori != 'semua') {
-        $data = $data->filter(function ($row) use ($kategori) {
-            if ($kategori === 'alpha') {
-                return $row->alpha > 0;
-            }
-            return isset($row->{$kategori}) && (int) $row->{$kategori} > 0;
-        })->values();
-    }
-
+    $data = $this->laporan($request)->getData()['data'];
     $catatan = CatatanLaporan::pluck('catatan', 'nik')->toArray();
 
-    return Excel::download(new class($data, $catatan) implements \Maatwebsite\Excel\Concerns\FromCollection, \Maatwebsite\Excel\Concerns\WithHeadings {
-        private $data;
-        private $catatan;
+    return Excel::download(new class($data, $catatan) implements \Maatwebsite\Excel\Concerns\FromCollection, \Maatwebsite\Excel\Concerns\WithHeadings
+    {
+        private $data, $catatan;
         public function __construct($data, $catatan)
         {
             $this->data = $data;
@@ -925,50 +710,50 @@ public function exportExcel(Request $request)
 
         public function collection()
         {
-            return $this->data->map(function ($row) {
+            return collect($this->data)->map(function ($r) {
                 return [
-                    'NIK'        => $row->nik,
-                    'Nama'       => $row->nama,
-                    'Divisi'     => $row->divisi ?? '-',
-                    'Jabatan'    => $row->jabatan ?? '-',
-                    'Total Hari' => $row->total_hari,
-                    'Hadir'      => $row->hadir,
-                    'Sakit'      => $row->sakit,
-                    'Izin'       => $row->izin,
-                    'Cuti'       => $row->cuti,
-                    'Alpha'      => $row->alpha,
-                    'Total Jam'  => $row->total_jam,
-                    'Catatan'    => $this->catatan[$row->nik] ?? '-',
+                    'NIK' => $r->nik,
+                    'Nama' => $r->nama,
+                    'Divisi' => $r->divisi,
+                    'Jabatan' => $r->jabatan,
+                    'Surat' => $r->surat,
+                    'Hadir' => $r->hadir,
+                    'Izin' => $r->izin,
+                    'Sakit' => $r->sakit,
+                    'Cuti' => $r->cuti,
+                    'Alpha' => $r->alpha,
+                    'Total Menit' => $r->total_menit,
                 ];
             });
         }
 
         public function headings(): array
         {
-            return ['NIK','Nama','Divisi','Jabatan','Total Hari','Hadir','Sakit','Izin','Cuti','Alpha','Total Jam','Catatan'];
+            return ['NIK', 'Nama', 'Divisi', 'Jabatan', 'Surat', 'Hadir', 'Izin', 'Sakit', 'Cuti', 'Alpha', 'Total Menit'];
         }
-    }, 'laporan.xlsx');
+    }, "Laporan Presensi $mulai - $sampai.xlsx");
 }
 
-    public function simpanCatatan(Request $request)
-    {
-        try {
-            $catatan = $request->input('catatan', []);
 
-            foreach ($catatan as $nik => $teks) {
-                if (!empty($teks)) {
-                    DB::table('catatan_laporan')->updateOrInsert(
-                        ['nik' => $nik],
-                        ['catatan' => $teks, 'updated_at' => now()]
-                    );
-                }
+public function simpanCatatan(Request $request)
+{
+    try {
+        $catatan = $request->input('catatan', []);
+
+        foreach ($catatan as $nik => $teks) {
+            if (!empty($teks)) {
+                DB::table('catatan_laporan')->updateOrInsert(
+                    ['nik' => $nik],
+                    ['catatan' => $teks, 'updated_at' => now()]
+                );
             }
-
-            return redirect()->route('laporan')->with('success', 'Catatan berhasil disimpan!');
-        } catch (\Exception $e) {
-            return redirect()->route('laporan')->with('error', 'Gagal menyimpan catatan: ' . $e->getMessage());
         }
+
+        return redirect()->route('laporan')->with('success', 'Catatan berhasil disimpan!');
+    } catch (\Exception $e) {
+        return redirect()->route('laporan')->with('error', 'Gagal menyimpan catatan: ' . $e->getMessage());
     }
+}
 
     /** ---------------- LOGOUT ---------------- */
     public function logout(Request $request)
