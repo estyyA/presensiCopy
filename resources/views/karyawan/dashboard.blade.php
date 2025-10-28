@@ -67,18 +67,18 @@
             <i class="bi bi-pencil-fill"></i>
         </label> --}}
 
-        <!-- Nama & Divisi -->
-        <h6 class="mb-0 mt-2">{{ $karyawan->nama_lengkap ?? 'Nama Karyawan' }}</h6>
-        <small class="text-muted d-block">
-            Divisi: {{ $karyawan->nama_divisi ?? '-' }}
-        </small>
-        <small class="text-muted d-block">
-            Subdivisi: {{ $karyawan->nama_subdivisi ?? '-' }}
-        </small>
+       <!-- Semua teks tebal -->
+<h6 class="mb-0 mt-2 fw-bold">{{ $karyawan->nama_lengkap ?? 'Nama Karyawan' }}</h6>
+<small class="text-muted d-block fw-bold">
+    Divisi: {{ $karyawan->nama_divisi ?? '-' }}
+</small>
+<small class="text-muted d-block fw-bold">
+    Subdivisi: {{ $karyawan->nama_subdivisi ?? '-' }}
+</small>
+<small class="text-muted d-block fw-bold">
+    Status: {{ $karyawan->nama_jabatan ?? '-' }}
+</small>
 
-        <small class="text-muted d-block">
-            Status: {{ $karyawan->nama_jabatan ?? '-' }}
-        </small>
 
     </div>
 </div>
