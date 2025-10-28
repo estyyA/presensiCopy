@@ -49,25 +49,36 @@
             </div>
             @endif
 
-            <form action="{{ route('presensi.storeSakit') }}" method="POST" enctype="multipart/form-data">
-                @csrf
-                <div class="mb-3">
-                    <label class="form-label"><i class="bi bi-calendar-event me-2"></i>Tanggal Sakit</label>
-                    <input type="date" name="tgl_presen" class="form-control rounded-3 shadow-sm" required>
-                </div>
-                <div class="mb-3">
-                    <label class="form-label"><i class="bi bi-upload me-2"></i>Upload Surat Dokter (Foto/PDF)</label>
-                    <input type="file" name="surat" class="form-control rounded-3 shadow-sm" accept="image/*,application/pdf">
-                </div>
-                <button type="submit" class="btn btn-warning w-100 py-2 shadow-sm mb-2">
-                    <i class="bi bi-send-fill me-2"></i>Kirim Absen Sakit
-                </button>
-                <a href="{{ route('karyawan.dashboard') }}" class="btn btn-secondary w-100 py-2 shadow-sm">
-                    <i class="bi bi-arrow-left-circle me-2"></i>Batal
-                </a>
-            </form>
-        </div>
+        <form action="{{ route('presensi.storeSakit') }}" method="POST" enctype="multipart/form-data">
+            @csrf
+             <!-- Tanggal Pengajuan Otomatis (hidden) -->
+            <input type="hidden" name="tgl_pengajuan" value="{{ date('Y-m-d') }}">
+            <div class="mb-3">
+                <label class="form-label"><i class="bi bi-calendar-event me-2"></i>Tanggal Mulai Sakit</label>
+                <input type="date" name="tgl_mulai" class="form-control rounded-3 shadow-sm" required>
+            </div>
+            <div class="mb-3">
+                <label class="form-label"><i class="bi bi-calendar-event me-2"></i>Tanggal Selesai Sakit</label>
+                <input type="date" name="tgl_selesai" class="form-control rounded-3 shadow-sm" required>
+            </div>
+            <div class="mb-3">
+                <label class="form-label"><i class="bi bi-upload me-2"></i>Upload Surat Dokter (Foto/PDF)</label>
+                <input type="file" name="surat_dokter" class="form-control rounded-3 shadow-sm" accept="image/*,application/pdf">
+            </div>
+            <div class="mb-3">
+                <label class="form-label"><i class="bi bi-chat-dots me-2"></i>Keterangan</label>
+                <textarea name="keterangan" class="form-control rounded-3 shadow-sm" rows="3"
+                    placeholder="Contoh: Demam tinggi, istirahat atas saran dokter"></textarea>
+            </div>
+            <button type="submit" class="btn btn-warning w-100 py-2 shadow-sm mb-2">
+                <i class="bi bi-send-fill me-2"></i>Kirim Pengajuan Sakit
+            </button>
+            <a href="{{ route('karyawan.dashboard') }}" class="btn btn-secondary w-100 py-2 shadow-sm">
+                <i class="bi bi-arrow-left-circle me-2"></i>Batal
+            </a>
+        </form>
     </div>
+</div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>

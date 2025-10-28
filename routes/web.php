@@ -111,6 +111,10 @@ Route::middleware(['role:admin'])->group(function () {
 
     //tracking
     Route::get('/tracking/admin', [PageController::class, 'trackingAdmin'])->name('tracking.admin');
+    //konfir sakit
+    Route::get('/konfirsakit', [PageController::class, 'konfirSakit'])->name('konfirsakit');
+    Route::post('/konfirsakit/{id}/setujui', [PageController::class, 'setujuiSakit'])->name('konfirsakit.setujui');
+    Route::post('/konfirsakit/{id}/tolak', [PageController::class, 'tolakSakit'])->name('konfirsakit.tolak');
 });
 
 

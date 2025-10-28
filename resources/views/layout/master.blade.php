@@ -188,6 +188,9 @@
         <a href="{{ route('admin.presensi.form') }}" class="nav-link @if(Request::is('admin/presensi*')) active @endif">
             <i class="fa fa-clock mr-2"></i> Presensi
         </a>
+        <a href="{{ route('konfirsakit') }}" class="nav-link @if(Request::is('konfirsakit*')) active @endif">
+            <i class="fa fa-notes-medical mr-2"></i> Konfirmasi Sakit
+        </a>
         <a href="{{ route('cuti.index') }}" class="nav-link @if(Request::is('cuti*')) active @endif">
             <i class="fa fa-calendar-check mr-2"></i> Input Cuti
         </a>
