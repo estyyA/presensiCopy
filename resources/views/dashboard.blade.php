@@ -71,7 +71,7 @@
 
     // Data dari controller
     var dataPeriode = {
-        harian: [{{ $harianMasuk }}, {{ $harianIzin }}, {{ $harianSakit }}, {{ $harianCuti }}, {{ $harianAlpha }}],
+        harian: [{{$harianMasuk}}, {{ $harianIzin }}, {{ $harianSakit }}, {{ $harianCuti }}, {{ $harianAlpha }}],
         mingguan: [{{ $mingguanMasuk }}, {{ $mingguanIzin }}, {{ $mingguanSakit }}, {{ $mingguanCuti }}, {{ $mingguanAlpha }}],
         bulanan: [{{ $bulananMasuk }}, {{ $bulananIzin }}, {{ $bulananSakit }}, {{ $bulananCuti }}, {{ $bulananAlpha }}],
     };
