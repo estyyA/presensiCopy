@@ -1037,7 +1037,7 @@ public function konfirSakit()
           ->select('karyawan.*', 'departement.nama_divisi');
     }])
     ->orderByDesc('id')
-    ->get();
+    ->paginate(5);
 
     return view('konfirsakit', compact('pengajuans'));
 }

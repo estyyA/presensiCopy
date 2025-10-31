@@ -89,6 +89,9 @@
                         @endforelse
                     </tbody>
                 </table>
+                <div class="d-flex justify-content-center mt-3">
+                    {{ $pengajuans->links() }}
+                </div>
             </div>
         </div>
     </div>
