@@ -4,7 +4,7 @@
 <div class="card shadow-lg border-0 mb-4 rounded-4 mt-2">
     <div class="card-body">
         <h5 class="fw-bold mb-3 text-primary">
-            <i class="bi bi-geo-alt-fill me-2"></i> Riwayat Tracking Sales
+            <i class="bi bi-geo-alt-fill me-2"></i> Riwayat Pelacakan Lapangan
         </h5>
 
         <!-- Filter Tanggal -->

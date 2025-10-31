@@ -14,7 +14,7 @@
     <div class="container py-4">
         <div class="card shadow-sm rounded-4 mx-auto" style="max-width: 500px;">
             <div class="card-body">
-                <h4 class="fw-bold text-center mb-4">📍 Tracking Sales</h4>
+                <h4 class="fw-bold text-center mb-4">📍 Pelacakan Lapangan</h4>
 
                 <!-- Notifikasi sukses -->
                 @if(session('success'))
