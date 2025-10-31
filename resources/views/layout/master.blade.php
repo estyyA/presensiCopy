@@ -196,7 +196,7 @@
         </a>
         <a href="{{ route('tracking.admin') }}"
         class="nav-link @if(Request::is('tracking/admin*')) active @endif">
-            <i class="fa fa-map-marker-alt mr-2"></i> Cek Tracking Sales
+            <i class="fa fa-map-marker-alt mr-2"></i> Pelacakan Lapangan
          </a>
     </div>
 

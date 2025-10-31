@@ -1,10 +1,10 @@
 @extends('layout.master')
 
-@section('title', 'Tracking Sales Admin')
+@section('title', 'Pelacakan Lapangan Admin')
 
 @section('content')
 <div class="mb-4">
-    <h3 class="font-weight-bold text-purple">📊 Tracking Sales</h3>
+    <h3 class="font-weight-bold text-purple">📊 Pelacakan Lapangan</h3>
     <p class="text-muted">PT Madubaru</p>
 </div>
 
@@ -52,7 +52,7 @@
 {{-- 📋 Data Tracking Sales --}}
 <div class="card shadow-sm border-0">
     <div class="card-body">
-        <h5 class="font-weight-bold mb-3 text-purple">Data Tracking Sales</h5>
+        <h5 class="font-weight-bold mb-3 text-purple">Data Pelacakan</h5>
 
         <div class="table-responsive" style="max-height: 420px; overflow-y: auto;">
             <table class="table table-bordered table-striped text-center">
@@ -61,9 +61,9 @@
                         <th>No</th>
                         <th>NIK</th>
                         <th>Nama Karyawan</th>
-                        <th>Tanggal Sales</th>
-                        <th>Jam Sales</th>
-                        <th>Lokasi Sales</th>
+                        <th>Tanggal</th>
+                        <th>Jam</th>
+                        <th>Lokasi</th>
                         <th>Aksi</th>
                     </tr>
                 </thead>
