@@ -1180,7 +1180,7 @@ public function trackingAdmin()
     // Ambil data tracking sales dengan relasi karyawan
     $trackings = TrackingSales::with('karyawan')
         ->orderBy('tanggal_sales', 'desc')
-        ->paginate(10);
+        ->paginate(5);
 
     return view('admin.trackingSalesAdmin', compact('trackings'));
 }
