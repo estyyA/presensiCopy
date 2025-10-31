@@ -1171,7 +1171,7 @@ public function trackingSalesHistory(Request $request)
         $query->whereBetween('tanggal_sales', [$request->mulai, $request->sampai]);
     }
 
-    $tracking = $query->get();
+    $tracking = $query->paginate(5);
 
     return view('karyawan.trackingSalesHistory', compact('tracking'));
 }

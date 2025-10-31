@@ -61,6 +61,9 @@
                     @endforelse
                 </tbody>
             </table>
+             <div class="d-flex justify-content-center mt-3">
+                {{ $tracking->links() }}
+             </div>
         </div>
         <div class="d-flex justify-content-between align-items-center mt-3">
             <!-- Tombol kiri -->
