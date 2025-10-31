@@ -1164,7 +1164,8 @@ public function trackingSalesHistory(Request $request)
         return redirect()->route('login.form')->with('error', 'Silahkan login terlebih dahulu.');
     }
 
-    $query = TrackingSales::where('NIK', $karyawan->NIK)->orderBy('tanggal_sales', 'desc');
+    $query = TrackingSales::with('departement')
+    ->where('NIK', $karyawan->NIK)->orderBy('tanggal_sales', 'desc');
 
     if ($request->filled('mulai') && $request->filled('sampai')) {
         $query->whereBetween('tanggal_sales', [$request->mulai, $request->sampai]);

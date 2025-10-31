@@ -29,7 +29,7 @@ class TrackingSales extends Model
     }
 
     // Relasi ke Divisi
-    public function divisi()
+    public function departement()
     {
         return $this->belongsTo(Department::class, 'id_divisi', 'id_divisi');
     }

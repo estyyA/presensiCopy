@@ -186,7 +186,8 @@
     <div class="mt-3">
         <a href="{{ route('tracking.form') }}"
             class="btn btn-primary btn-lg w-100 shadow-sm d-flex align-items-center justify-content-center">
-            <i class="bi bi-geo-alt-fill me-2"></i> Tracking Sales
+            <i class="bi bi-geo-alt-fill me-2"></i> Tracking
+
         </a>
     </div>
 
@@ -197,6 +198,7 @@
                 <i class="bi-calendar-check-fill me-2"></i> Riwayat Presensi
             </h5>
 
+            
             <form method="GET" action="{{ route('karyawan.dashboard') }}">
                 <div class="d-flex align-items-end gap-3 flex-wrap">
                     <div>

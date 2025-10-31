@@ -52,7 +52,7 @@
                         <td>{{ \Carbon\Carbon::parse($item->tanggal_sales)->translatedFormat('D, d M Y') }}</td>
                         <td>{{ $item->jam_sales }}</td>
                         <td>{{ $item->lokasi_sales }}</td>
-                        <td>{{ $item->id_divisi }}</td>
+                        <td>{{ $item->departement->nama_divisi }}</td>
                     </tr>
                     @empty
                     <tr>
