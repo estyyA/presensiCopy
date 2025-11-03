@@ -71,7 +71,6 @@
                 @elseif($kategori == 'alpha')
                     <th>Alpha</th>
                 @else
-                    {{-- Jika pilih semua --}}
                     <th>Hadir</th>
                     <th>Sakit</th>
                     <th>Izin</th>
@@ -92,32 +91,15 @@
                     <td>{{ $row->divisi ?? '-' }}</td>
                     <td>{{ $row->jabatan ?? '-' }}</td>
 
-                    {{-- ✅ Total Hari sesuai kategori --}}
+                    {{-- ✅ Total Hari SELALU menjumlah semua kategori (sinkron dgn Excel) --}}
                     <td>
-                        @php
-                            $kategoriView = $kategori;
-                            $totalHari = 0;
-
-                            if ($kategoriView == 'hadir') {
-                                $totalHari = $row->hadir ?? 0;
-                            } elseif ($kategoriView == 'sakit') {
-                                $totalHari = $row->sakit ?? 0;
-                            } elseif ($kategoriView == 'izin') {
-                                $totalHari = $row->izin ?? 0;
-                            } elseif ($kategoriView == 'cuti') {
-                                $totalHari = $row->cuti ?? 0;
-                            } elseif ($kategoriView == 'alpha') {
-                                $totalHari = $row->alpha ?? 0;
-                            } else {
-                                $totalHari =
-                                    ($row->hadir ?? 0) +
-                                    ($row->sakit ?? 0) +
-                                    ($row->izin ?? 0) +
-                                    ($row->cuti ?? 0) +
-                                    ($row->alpha ?? 0);
-                            }
-                        @endphp
-                        {{ $totalHari }}
+                        {{
+                            ($row->hadir ?? 0) +
+                            ($row->sakit ?? 0) +
+                            ($row->izin ?? 0) +
+                            ($row->cuti ?? 0) +
+                            ($row->alpha ?? 0)
+                        }}
                     </td>
 
                     {{-- ✅ Kolom presensi sesuai kategori --}}
