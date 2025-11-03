@@ -26,13 +26,26 @@
         th {
             background: #f2f2f2;
         }
+
+        h3 {
+            text-align: center;
+            margin-bottom: 4px;
+        }
+
+        p {
+            text-align: center;
+            margin-top: 0;
+            margin-bottom: 10px;
+        }
     </style>
 </head>
 
 <body>
-    <h3 align="center">Laporan Presensi Karyawan</h3>
-    <p align="center">
-        Periode: {{ request('mulai') }} s/d {{ request('sampai') }}
+    <h3>Laporan Presensi Karyawan</h3>
+    <p>
+        Periode: {{ $mulai ? date('d-m-Y', strtotime($mulai)) : '-' }}
+        s/d {{ $sampai ? date('d-m-Y', strtotime($sampai)) : '-' }}<br>
+        Kategori: {{ ucfirst($kategori ?? 'Semua') }}
     </p>
 
     <table>
@@ -42,19 +55,20 @@
                 <th>NIK</th>
                 <th>Nama</th>
                 <th>Divisi</th>
+                <th>Jabatan</th>
                 <th>Total Hari</th>
 
-                {{-- ✅ Tampilkan kolom sesuai kategori --}}
-                @if (request('kategori') == 'hadir')
+                {{-- ✅ Kolom dinamis sesuai kategori --}}
+                @if ($kategori == 'hadir')
                     <th>Hadir</th>
                     <th>Total Jam Kerja</th>
-                @elseif(request('kategori') == 'sakit')
+                @elseif($kategori == 'sakit')
                     <th>Sakit</th>
-                @elseif(request('kategori') == 'izin')
+                @elseif($kategori == 'izin')
                     <th>Izin</th>
-                @elseif(request('kategori') == 'cuti')
+                @elseif($kategori == 'cuti')
                     <th>Cuti</th>
-                @elseif(request('kategori') == 'alpha')
+                @elseif($kategori == 'alpha')
                     <th>Alpha</th>
                 @else
                     {{-- Jika pilih semua --}}
@@ -76,22 +90,23 @@
                     <td>{{ $row->nik }}</td>
                     <td>{{ $row->nama }}</td>
                     <td>{{ $row->divisi ?? '-' }}</td>
+                    <td>{{ $row->jabatan ?? '-' }}</td>
 
                     {{-- ✅ Total Hari sesuai kategori --}}
                     <td>
                         @php
-                            $kategori = request('kategori');
+                            $kategoriView = $kategori;
                             $totalHari = 0;
 
-                            if ($kategori == 'hadir') {
+                            if ($kategoriView == 'hadir') {
                                 $totalHari = $row->hadir ?? 0;
-                            } elseif ($kategori == 'sakit') {
+                            } elseif ($kategoriView == 'sakit') {
                                 $totalHari = $row->sakit ?? 0;
-                            } elseif ($kategori == 'izin') {
+                            } elseif ($kategoriView == 'izin') {
                                 $totalHari = $row->izin ?? 0;
-                            } elseif ($kategori == 'cuti') {
+                            } elseif ($kategoriView == 'cuti') {
                                 $totalHari = $row->cuti ?? 0;
-                            } elseif ($kategori == 'alpha') {
+                            } elseif ($kategoriView == 'alpha') {
                                 $totalHari = $row->alpha ?? 0;
                             } else {
                                 $totalHari =
@@ -105,17 +120,17 @@
                         {{ $totalHari }}
                     </td>
 
-                    {{-- ✅ Tampilkan kolom sesuai kategori --}}
-                    @if (request('kategori') == 'hadir')
+                    {{-- ✅ Kolom presensi sesuai kategori --}}
+                    @if ($kategori == 'hadir')
                         <td>{{ $row->hadir ?? 0 }}</td>
-                        <td>{{ $row->total_jam ?? 0 }}</td>
-                    @elseif(request('kategori') == 'sakit')
+                        <td>{{ $row->durasi_jam_kerja ?? '0 Jam 0 Menit' }}</td>
+                    @elseif($kategori == 'sakit')
                         <td>{{ $row->sakit ?? 0 }}</td>
-                    @elseif(request('kategori') == 'izin')
+                    @elseif($kategori == 'izin')
                         <td>{{ $row->izin ?? 0 }}</td>
-                    @elseif(request('kategori') == 'cuti')
+                    @elseif($kategori == 'cuti')
                         <td>{{ $row->cuti ?? 0 }}</td>
-                    @elseif(request('kategori') == 'alpha')
+                    @elseif($kategori == 'alpha')
                         <td>{{ $row->alpha ?? 0 }}</td>
                     @else
                         <td>{{ $row->hadir ?? 0 }}</td>
@@ -123,7 +138,7 @@
                         <td>{{ $row->izin ?? 0 }}</td>
                         <td>{{ $row->cuti ?? 0 }}</td>
                         <td>{{ $row->alpha ?? 0 }}</td>
-                        <td>{{ $row->total_jam ?? 0 }}</td>
+                        <td>{{ $row->durasi_jam_kerja ?? '0 Jam 0 Menit' }}</td>
                     @endif
 
                     <td>{{ $catatan[$row->nik] ?? '-' }}</td>

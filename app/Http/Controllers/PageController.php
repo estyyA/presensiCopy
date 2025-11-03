@@ -584,6 +584,7 @@ public function laporan(Request $request)
 }
 
 
+/** ---------------- GET DATA ---------------- */
 private function getData($mulai = null, $sampai = null, $kategori = null)
 {
     // --- 1️⃣ Tentukan rentang tanggal
@@ -592,153 +593,141 @@ private function getData($mulai = null, $sampai = null, $kategori = null)
         $sampai = DB::table('presensi')->max('tgl_presen');
     }
 
-    // --- 2️⃣ Ambil data presensi (lengkap dengan jam kerja & durasi)
+    // --- 2️⃣ Ambil data presensi (status, jam kerja, durasi)
     $presensi = DB::table('presensi')
-        ->leftJoin('karyawan', 'presensi.NIK', '=', 'karyawan.NIK')
-        ->leftJoin('divisi', 'karyawan.id_divisi', '=', 'divisi.id_divisi')
-        ->leftJoin('jabatan', 'karyawan.id_jabatan', '=', 'jabatan.id_jabatan')
         ->select(
             'presensi.NIK as nik',
-            'karyawan.nama_karyawan as nama',
-            'divisi.nama_divisi as divisi',
-            'jabatan.nama_jabatan as jabatan',
             'presensi.tgl_presen as tanggal',
-            'presensi.status',
+            DB::raw('LOWER(TRIM(presensi.status)) as status'),
             'presensi.jam_masuk',
             'presensi.jam_keluar',
             'presensi.surat',
             DB::raw('TIMESTAMPDIFF(MINUTE, jam_masuk, jam_keluar) as total_menit')
         )
-        ->whereBetween('tgl_presen', [$mulai, $sampai])
-        ->get();
+        ->when($mulai && $sampai, function ($q) use ($mulai, $sampai) {
+            $q->whereBetween('tgl_presen', [$mulai, $sampai]);
+        });
 
     // --- 3️⃣ Ambil data cuti (yang overlap rentang)
-    $cutiRows = DB::table('cuti')
-        ->select('nik', 'tanggal_mulai', 'tanggal_selesai')
-        ->where(function ($q) use ($mulai, $sampai) {
-            $q->whereBetween('tanggal_mulai', [$mulai, $sampai])
-              ->orWhereBetween('tanggal_selesai', [$mulai, $sampai])
-              ->orWhere(function ($x) use ($mulai, $sampai) {
-                  $x->where('tanggal_mulai', '<=', $mulai)
-                    ->where('tanggal_selesai', '>=', $sampai);
-              });
-        })
-        ->get();
-
-    // --- 4️⃣ Expand cuti per hari (Senin–Sabtu)
-    $cutiExpanded = collect();
-    foreach ($cutiRows as $c) {
-        $start = new \DateTime($c->tanggal_mulai);
-        $end   = new \DateTime($c->tanggal_selesai);
-        $period = new \DatePeriod($start, new \DateInterval('P1D'), $end->modify('+1 day'));
-
-        foreach ($period as $d) {
-            if ($d->format('N') < 7) { // exclude Minggu
-                $cutiExpanded->push([
-                    'nik' => $c->nik,
-                    'tanggal' => $d->format('Y-m-d'),
-                    'status' => 'cuti',
-                    'jam_masuk' => null,
-                    'jam_keluar' => null,
-                    'surat' => null,
-                    'total_menit' => 0,
-                ]);
-            }
-        }
-    }
-
-    // --- 5️⃣ Gabungkan presensi & cuti
-    $allLogs = $presensi->map(function ($p) {
-        return (array) $p;
-    })->merge($cutiExpanded);
-
-    // --- 6️⃣ Daftar tanggal kerja (Senin–Sabtu)
-    $dates = collect();
-    $period = new \DatePeriod(
-        new \DateTime($mulai),
-        new \DateInterval('P1D'),
-        (new \DateTime($sampai))->modify('+1 day')
-    );
-    foreach ($period as $d) {
-        if ($d->format('N') < 7) $dates->push($d->format('Y-m-d'));
-    }
-
-    // --- 7️⃣ Ambil data karyawan
-    $karyawan = DB::table('karyawan')
-        ->leftJoin('divisi', 'karyawan.id_divisi', '=', 'divisi.id_divisi')
-        ->leftJoin('jabatan', 'karyawan.id_jabatan', '=', 'jabatan.id_jabatan')
+    $cuti = DB::table('cuti')
         ->select(
-            'karyawan.NIK',
-            'karyawan.nama_karyawan as nama',
-            'divisi.nama_divisi as divisi',
-            'jabatan.nama_jabatan as jabatan'
+            'nik',
+            DB::raw('tanggal_mulai as tanggal'),
+            DB::raw('"cuti" as status'),
+            DB::raw('NULL as jam_masuk'),
+            DB::raw('NULL as jam_keluar'),
+            DB::raw('NULL as surat'),
+            DB::raw('0 as total_menit')
+        )
+        ->when($mulai && $sampai, function ($q) use ($mulai, $sampai) {
+            $q->where(function ($sub) use ($mulai, $sampai) {
+                $sub->whereBetween('tanggal_mulai', [$mulai, $sampai])
+                    ->orWhereBetween('tanggal_selesai', [$mulai, $sampai])
+                    ->orWhere(function ($x) use ($mulai, $sampai) {
+                        $x->where('tanggal_mulai', '<=', $mulai)
+                          ->where('tanggal_selesai', '>=', $sampai);
+                    });
+            });
+        });
+
+    // --- 4️⃣ Gabungkan presensi + cuti
+    $all = $presensi->unionAll($cuti);
+
+    // --- 5️⃣ Rekap data per karyawan (mengikuti logika laporan web)
+    $rekap = DB::table(DB::raw("({$all->toSql()}) as logs"))
+        ->mergeBindings($all)
+        ->rightJoin('karyawan', 'logs.nik', '=', 'karyawan.NIK')
+        ->leftJoin('departement', 'karyawan.id_divisi', '=', 'departement.id_divisi')
+        ->leftJoin('jabatan', 'karyawan.id_jabatan', '=', 'jabatan.id_jabatan')
+        ->groupBy('karyawan.NIK', 'karyawan.nama_lengkap', 'departement.nama_divisi', 'jabatan.nama_jabatan')
+        ->select(
+            'karyawan.NIK as nik',
+            'karyawan.nama_lengkap as nama',
+            'departement.nama_divisi as divisi',
+            'jabatan.nama_jabatan as jabatan',
+            DB::raw('GROUP_CONCAT(DISTINCT logs.surat SEPARATOR ", ") as surat'),
+            DB::raw('SUM(CASE WHEN logs.status = "hadir" THEN 1 ELSE 0 END) as hadir'),
+            DB::raw('SUM(CASE WHEN logs.status = "izin" THEN 1 ELSE 0 END) as izin'),
+            DB::raw('SUM(CASE WHEN logs.status = "sakit" THEN 1 ELSE 0 END) as sakit'),
+            DB::raw('SUM(CASE WHEN logs.status = "cuti" THEN 1 ELSE 0 END) as cuti'),
+            DB::raw('SUM(CASE WHEN logs.status = "alpha" THEN 1 ELSE 0 END) as alpha_presensi'),
+            DB::raw('SUM(CASE WHEN logs.status = "hadir" THEN logs.total_menit ELSE 0 END) as total_menit')
         )
         ->get();
 
-    // --- 8️⃣ Rekap per karyawan
-    $rekap = collect();
-    foreach ($karyawan as $k) {
-        $logPerKar = collect();
+    // --- 6️⃣ Ambil tanggal presensi pertama tiap karyawan
+    $firstMap = DB::table('presensi')
+        ->select('NIK', DB::raw('MIN(tgl_presen) as first_presensi'))
+        ->groupBy('NIK')
+        ->pluck('first_presensi', 'NIK')
+        ->toArray();
 
-        foreach ($dates as $tgl) {
-            $record = $allLogs->first(function ($x) use ($k, $tgl) {
-                return isset($x['nik']) && isset($x['tanggal']) && $x['nik'] == $k->NIK && $x['tanggal'] == $tgl;
-            });
+    // --- 7️⃣ Hitung total hari kerja dan alpha sesuai periode
+    foreach ($rekap as $r) {
+        $nik = $r->nik;
+        $first = $firstMap[$nik] ?? null;
 
-            if ($record) {
-                $logPerKar->push($record);
+        if ($first) {
+            if ($mulai) {
+                $startStr = (strtotime($first) > strtotime($mulai)) ? $first : $mulai;
             } else {
-                $logPerKar->push([
-                    'nik' => $k->NIK,
-                    'tanggal' => $tgl,
-                    'status' => 'alpha',
-                    'jam_masuk' => null,
-                    'jam_keluar' => null,
-                    'surat' => null,
-                    'total_menit' => 0,
-                ]);
+                $startStr = $first;
+            }
+        } else {
+            $startStr = $mulai ?? date('Y-m-d');
+        }
+
+        $endStr = $sampai ?? date('Y-m-d');
+
+        if (strtotime($startStr) > strtotime($endStr)) {
+            $hariKerja = 0;
+        } else {
+            $startDate = new \DateTime($startStr);
+            $endDate = new \DateTime($endStr);
+            $period = new \DatePeriod($startDate, new \DateInterval('P1D'), $endDate->modify('+1 day'));
+
+            $hariKerja = 0;
+            foreach ($period as $d) {
+                if ((int)$d->format('N') < 7) {
+                    $hariKerja++;
+                }
             }
         }
 
-        $rekap->push((object) [
-            'nik'   => $k->NIK,
-            'nama'  => $k->nama,
-            'divisi' => $k->divisi,
-            'jabatan' => $k->jabatan,
-            'total_hari' => $dates->count(),
-            'hadir' => $logPerKar->where('status', 'hadir')->count(),
-            'izin'  => $logPerKar->where('status', 'izin')->count(),
-            'sakit' => $logPerKar->where('status', 'sakit')->count(),
-            'cuti'  => $logPerKar->where('status', 'cuti')->count(),
-            'alpha' => $logPerKar->where('status', 'alpha')->count(),
-            'durasi_jam_kerja' => floor($logPerKar->sum('total_menit') / 60) . ' jam ' . ($logPerKar->sum('total_menit') % 60) . ' menit',
-            'surat' => $logPerKar->pluck('surat')->filter()->implode(', '),
-        ]);
+        $r->total_hari = $hariKerja;
+
+        $hadir = (int)$r->hadir;
+        $izin = (int)$r->izin;
+        $sakit = (int)$r->sakit;
+        $cuti = (int)$r->cuti;
+        $alpha_presensi = (int)$r->alpha_presensi;
+
+        $alpha_kosong = max(0, $hariKerja - ($hadir + $izin + $sakit + $cuti));
+        $r->alpha = $alpha_presensi + $alpha_kosong;
+
+        // Tambahkan format jam kerja (seperti web)
+        $jam = floor($r->total_menit / 60);
+        $menit = $r->total_menit % 60;
+        $r->durasi_jam_kerja = "{$jam} Jam {$menit} Menit";
     }
 
-    // --- 9️⃣ Jika kategori dipilih, filter hasilnya
-    if ($kategori && in_array(strtolower($kategori), ['hadir', 'izin', 'sakit', 'cuti', 'alpha'])) {
+    // --- 8️⃣ Filter kategori jika ada
+    if ($kategori && $kategori != 'semua') {
         $rekap = $rekap->filter(function ($r) use ($kategori) {
-            return $r->$kategori > 0;
-        });
+            return (int)($r->{$kategori} ?? 0) > 0;
+        })->values();
     }
 
-    // --- 🔟 Kembalikan hasil akhir
-    return $rekap->values();
+    return $rekap;
 }
-
-
-
 public function cetakPdf(Request $request)
 {
     $mulai    = $request->mulai;
     $sampai   = $request->sampai;
     $kategori = $request->kategori;
 
-    // Pastikan kategori tetap dikirim ke laporan()
-    $request->merge(['kategori' => $kategori]);
-
-    $data = $this->laporan($request)->getData()['data'];
+    // 🔹 Ambil data dari getData() agar identik dengan laporan web
+    $data = $this->getData($mulai, $sampai, $kategori);
     $catatan = CatatanLaporan::pluck('catatan', 'nik')->toArray();
 
     $pdf = PDF::loadView('laporan_pdf', [
@@ -749,7 +738,7 @@ public function cetakPdf(Request $request)
         'kategori' => $kategori,
     ])->setPaper('a4', 'landscape');
 
-    return $pdf->download("Laporan Presensi $kategori $mulai - $sampai.pdf");
+    return $pdf->download("Laporan Presensi {$kategori} {$mulai} - {$sampai}.pdf");
 }
 
 
@@ -759,15 +748,55 @@ public function exportExcel(Request $request)
     $sampai   = $request->sampai;
     $kategori = $request->kategori;
 
-    // Tambahkan baris ini
-    $request->merge(['kategori' => $kategori]);
-
-    $data = $this->laporan($request)->getData()['data'];
+    // 🔹 Ambil data dari getData() juga
+    $data = $this->getData($mulai, $sampai, $kategori);
     $catatan = CatatanLaporan::pluck('catatan', 'nik')->toArray();
 
-    // ...lanjutan sama seperti sebelumnya
-}
+    $spreadsheet = new \PhpOffice\PhpSpreadsheet\Spreadsheet();
+    $sheet = $spreadsheet->getActiveSheet();
 
+    // Header
+    $sheet->setCellValue('A1', 'No')
+          ->setCellValue('B1', 'NIK')
+          ->setCellValue('C1', 'Nama')
+          ->setCellValue('D1', 'Divisi')
+          ->setCellValue('E1', 'Jabatan')
+          ->setCellValue('F1', 'Total Hari')
+          ->setCellValue('G1', 'Hadir')
+          ->setCellValue('H1', 'Izin')
+          ->setCellValue('I1', 'Sakit')
+          ->setCellValue('J1', 'Cuti')
+          ->setCellValue('K1', 'Alpha')
+          ->setCellValue('L1', 'Total Jam Kerja')
+          ->setCellValue('M1', 'Catatan');
+
+    $row = 2;
+    $no = 1;
+    foreach ($data as $r) {
+        $sheet->setCellValue("A{$row}", $no++)
+              ->setCellValue("B{$row}", $r->nik)
+              ->setCellValue("C{$row}", $r->nama)
+              ->setCellValue("D{$row}", $r->divisi)
+              ->setCellValue("E{$row}", $r->jabatan)
+              ->setCellValue("F{$row}", $r->total_hari)
+              ->setCellValue("G{$row}", $r->hadir)
+              ->setCellValue("H{$row}", $r->izin)
+              ->setCellValue("I{$row}", $r->sakit)
+              ->setCellValue("J{$row}", $r->cuti)
+              ->setCellValue("K{$row}", $r->alpha)
+              ->setCellValue("L{$row}", $r->durasi_jam_kerja)
+              ->setCellValue("M{$row}", $catatan[$r->nik] ?? '-');
+        $row++;
+    }
+
+    $writer = new \PhpOffice\PhpSpreadsheet\Writer\Xlsx($spreadsheet);
+    $filename = "Laporan Presensi {$kategori} {$mulai} - {$sampai}.xlsx";
+
+    // Output Excel
+    return response()->streamDownload(function () use ($writer) {
+        $writer->save('php://output');
+    }, $filename);
+}
 
 public function simpanCatatan(Request $request)
 {
