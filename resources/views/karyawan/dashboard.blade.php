@@ -7,20 +7,6 @@
         transform: scale(1.05);
     }
 
-    /* Gaya tombol titik tiga */
-    .menu-btn {
-        background: transparent;
-        border: none;
-        font-size: 1.3rem;
-        color: #6c757d;
-        cursor: pointer;
-    }
-
-    .menu-btn:hover {
-        color: #000;
-        transform: scale(1.1);
-    }
-
     .dropdown-menu {
         border-radius: 10px;
         box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.15);
@@ -29,45 +15,6 @@
 
 <!-- Card Profil Karyawan -->
 <div class="card profile-card p-3 mb-3 text-center position-relative">
-
-    <!-- Tombol Titik 3 -->
-    <div class="dropdown position-absolute top-0 end-0 m-2">
-        <button class="menu-btn" type="button" id="menuDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-            <i class="bi bi-three-dots-vertical"></i>
-        </button>
-        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="menuDropdown">
-            <li>
-                <form action="{{ route('logout') }}" method="POST" class="d-inline">
-                    @csrf
-                    <button type="submit" class="dropdown-item text-danger fw-semibold d-flex align-items-center">
-                        <i class="bi bi-box-arrow-right me-2"></i> Logout
-                    </button>
-                </form>
-            </li>
-        </ul>
-    </div>
-    {{--
-    <!-- Isi Profil -->
-    <div class="d-flex flex-column align-items-center position-relative">
-        <!-- Foto Profil -->
-        <img id="previewFoto"
-             src="{{ $karyawan->foto
-                    ? asset('storage/'.$karyawan->foto)
-                    : asset('img/profile.png') }}"
-    class="rounded-circle mb-2"
-    width="90" height="90"
-    alt="Foto Karyawan"
-    style="object-fit: cover;">
-
-    <!-- Tombol Edit Foto -->
-    <input type="file" id="inputFoto" class="d-none" accept="image/*">
-    <label for="inputFoto"
-        class="position-absolute bottom-0 end-0 bg-primary text-white rounded-circle p-1"
-        style="cursor: pointer;">
-        <i class="bi bi-pencil-fill"></i>
-    </label> --}}
-
-    <!-- Semua teks tebal -->
     <h6 class="mb-0 mt-2 fw-bold">{{ $karyawan->nama_lengkap ?? 'Nama Karyawan' }}</h6>
     <small class="text-muted d-block fw-bold">
         Divisi: {{ $karyawan->nama_divisi ?? '-' }}
@@ -78,49 +25,7 @@
     <small class="text-muted d-block fw-bold">
         Status: {{ $karyawan->nama_jabatan ?? '-' }}
     </small>
-
-
 </div>
-</div>
-
-{{-- <!-- Modal Preview Foto -->
-<div class="modal fade" id="modalPreview" tabindex="-1" aria-labelledby="modalPreviewLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-            <form action="{{ route('karyawan.uploadFoto') }}" method="POST" enctype="multipart/form-data" id="formFoto">
-@csrf
-<div class="modal-header">
-    <h5 class="modal-title" id="modalPreviewLabel">Preview Foto</h5>
-    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-</div>
-<div class="modal-body text-center">
-    <img id="modalFoto" src="" class="rounded-circle" width="150" height="150" style="object-fit: cover;">
-    <input type="hidden" name="fotoBase64" id="fotoBase64">
-</div>
-<div class="modal-footer">
-    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-    <button type="submit" class="btn btn-primary">Save</button>
-</div>
-</form>
-</div>
-</div>
-</div> --}}
-
-<script>
-    document.getElementById('inputFoto').addEventListener('change', function(e) {
-        let file = e.target.files[0];
-        if (file) {
-            let reader = new FileReader();
-            reader.onload = function(e) {
-                document.getElementById('modalFoto').src = e.target.result;
-                document.getElementById('fotoBase64').value = e.target.result;
-                var modal = new bootstrap.Modal(document.getElementById('modalPreview'));
-                modal.show();
-            };
-            reader.readAsDataURL(file);
-        }
-    });
-</script>
 
 <!-- Jam & Absensi -->
 <div class="card p-3 mb-3 text-center">
@@ -136,7 +41,6 @@
             let seconds = now.getSeconds();
             let ampm = hours >= 12 ? 'PM' : 'AM';
             hours = hours % 12 || 12;
-
             let timeString = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')} ${ampm}`;
             document.getElementById('liveClock').textContent = timeString;
 
@@ -157,18 +61,18 @@
         @if(!$presensiHariIni)
         <a href="{{ route('absensi.formMasuk') }}"
             class="btn btn-success btn-lg px-4 shadow-sm d-flex align-items-center">
-            <i class="bi bi-box-arrow-in-right me-2"></i> Masuk
+            <i class="bi bi-box-arrow-in-right me-2"></i>Presensi Masuk
         </a>
         <button class="btn btn-secondary btn-lg px-4 shadow-sm" disabled>
-            <i class="bi bi-box-arrow-left me-2"></i> Keluar
+            <i class="bi bi-box-arrow-left me-2"></i>Presensi Keluar
         </button>
         @elseif(!$presensiHariIni->jam_keluar)
         <button class="btn btn-secondary btn-lg px-4 shadow-sm" disabled>
-            <i class="bi bi-box-arrow-in-right me-2"></i> Masuk
+            <i class="bi bi-box-arrow-in-right me-2"></i> Presensi Masuk
         </button>
         <a href="{{ route('absensi.formKeluar') }}"
             class="btn btn-danger btn-lg px-4 shadow-sm d-flex align-items-center">
-            <i class="bi bi-box-arrow-left me-2"></i> Keluar
+            <i class="bi bi-box-arrow-left me-2"></i> Presensi Keluar
         </a>
         @else
         <div class="alert alert-success text-center w-100 fw-bold shadow-sm rounded-3">
@@ -183,11 +87,11 @@
             <i class="bi bi-file-medical-fill me-2"></i> Ajukan Sakit
         </a>
     </div>
+
     <div class="mt-3">
         <a href="{{ route('tracking.form') }}"
             class="btn btn-primary btn-lg w-100 shadow-sm d-flex align-items-center justify-content-center">
             <i class="bi bi-geo-alt-fill me-2"></i> Pelacakan Lapangan
-
         </a>
     </div>
 
@@ -195,9 +99,8 @@
     <div class="card shadow-lg border-0 mb-4 rounded-4 mt-2">
         <div class="card-body">
             <h5 class="fw-bold mb-3 text-purple">
-                <i class="bi-calendar-check-fill me-2"></i> Riwayat Presensi
+                <i class="bi bi-calendar-check-fill me-2"></i> Riwayat Presensi
             </h5>
-
 
             <form method="GET" action="{{ route('karyawan.dashboard') }}">
                 <div class="d-flex align-items-end gap-3 flex-wrap">
@@ -260,16 +163,18 @@
                     </tbody>
                 </table>
             </div>
-            <!-- Tombol Logout
-        <div class="mt-4">
-            <form action="{{ route('logout') }}" method="POST" class="d-inline w-100">
-                @csrf
-                <button type="submit"
-                        class="btn btn-danger btn-lg w-100 shadow-sm d-flex align-items-center justify-content-center rounded-pill">
-                    <i class="bi bi-box-arrow-right me-2"></i> Logout
-                </button>
-            </form>
-        </div> -->
         </div>
     </div>
-    @endsection
+</div>
+
+<!-- Tombol Logout di bagian paling bawah -->
+<div class="mt-4 mb-3 text-center">
+    <form action="{{ route('logout') }}" method="POST" class="d-inline w-100">
+        @csrf
+        <button type="submit"
+            class="btn btn-danger btn-lg w-100 shadow-sm fw-semibold d-flex align-items-center justify-content-center rounded-pill">
+            <i class="bi bi-box-arrow-right me-2"></i> Logout
+        </button>
+    </form>
+</div>
+@endsection
