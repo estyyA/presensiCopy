@@ -81,6 +81,8 @@
                                 <th>Tanggal</th>
                                 <th>Jam Masuk</th>
                                 <th>Jam Keluar</th>
+                                <th>Lokasi Masuk</th>     <!-- TAMBAHAN -->
+                                <th>Lokasi Keluar</th>    <!-- TAMBAHAN -->
                                 <th>Status</th>
                                 <th>Aksi</th>
                                 <th>Surat</th>
@@ -96,6 +98,9 @@
                                     <td>{{ \Carbon\Carbon::parse($p->tgl_presen)->format('d/m/Y') }}</td>
                                     <td>{{ $p->jam_masuk ?? '-' }}</td>
                                     <td>{{ $p->jam_keluar ?? '-' }}</td>
+                                    <td>{{ $p->lokasi_masuk ?? '-' }}</td>   <!-- TAMBAHAN -->
+                                    <td>{{ $p->lokasi_keluar ?? '-' }}</td>  <!-- TAMBAHAN -->
+
                                     <td>
                                         @switch(strtolower($p->status))
                                             @case('hadir')

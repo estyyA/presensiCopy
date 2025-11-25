@@ -157,6 +157,8 @@ class PageController extends Controller
             'presensi.tgl_presen',
             'presensi.jam_masuk',
             'presensi.jam_keluar',
+            'presensi.lokasi_masuk',
+            'presensi.lokasi_keluar',
             'presensi.status',
             'presensi.surat', // ✅ tambahkan ini
             'karyawan.NIK',
