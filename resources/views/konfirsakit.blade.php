@@ -38,7 +38,7 @@
                         @forelse($pengajuans as $i => $p)
                             <tr>
                                 <td>{{ $i + 1 }}</td>
-                                <td>{{ $p->karyawan->nama_lengkap }}</td>
+                                <td>{{ $p->karyawan->nama_lengkap ?? '-' }}</td>
                                 <td>{{ $p->karyawan->departement->nama_divisi ?? '-' }}</td>
                                 <td>{{ \Carbon\Carbon::parse($p->tgl_pengajuan)->format('d/m/Y') }}</td>
                                 <td>{{ \Carbon\Carbon::parse($p->tgl_mulai)->format('d/m/Y') }}</td>
