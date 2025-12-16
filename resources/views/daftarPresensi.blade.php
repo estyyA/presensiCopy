@@ -111,9 +111,7 @@
                                                 <span class="badge badge-info px-3 py-1">Sakit</span>
                                             @break
 
-                                            @case('cuti')
-                                                <span class="badge badge-primary px-3 py-1">Cuti</span>
-                                            @break
+                                            
 
                                             @default
                                                 <span class="badge badge-danger px-3 py-1">Alpha</span>
@@ -190,7 +188,6 @@
                                     <select name="status" id="status" class="form-control" required>
                                         <option value="hadir">Hadir</option>
                                         <option value="sakit">Sakit</option>
-                                        <option value="cuti">Cuti</option>
                                         <option value="alpha">Alpha</option>
                                     </select>
                                 </div>
