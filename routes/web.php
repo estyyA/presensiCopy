@@ -118,6 +118,7 @@ Route::middleware(['role:admin'])->group(function () {
 )->name('konfirsakit.updateStatus');
     Route::post('/konfirsakit/{id}/setujui', [PageController::class, 'setujuiSakit'])->name('konfirsakit.setujui');
     Route::post('/konfirsakit/{id}/tolak', [PageController::class, 'tolakSakit'])->name('konfirsakit.tolak');
+
 });
 
 
@@ -147,6 +148,11 @@ Route::middleware(['role:karyawan'])->group(function () {
 
     Route::get('/pengajuan-sakit', [PageController::class, 'formSakit'])->name('presensi.formSakit');
     Route::post('/pengajuan-sakit', [PageController::class, 'storeSakit'])->name('presensi.storeSakit');
+        // RIWAYAT pengajuan sakit (karyawan)
+    Route::get('/riwayatSakit',
+        [PageController::class, 'riwayatSakit']
+    )->name('presensi.riwayatSakit');
+
 
 
     // simpan data

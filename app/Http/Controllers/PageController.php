@@ -1020,6 +1020,21 @@ public function updateStatusSakit(Request $request, $id)
         return back()->with('error', $e->getMessage());
     }
 }
+public function riwayatSakit()
+{
+    $karyawan = session('karyawan');
+    if (!$karyawan) {
+        return redirect()->route('login.form')
+            ->with('error', 'Silakan login terlebih dahulu.');
+    }
+
+    $riwayat = DB::table('sakit')
+        ->where('NIK', $karyawan->NIK)
+        ->orderByDesc('tgl_pengajuan')
+        ->paginate(5);
+
+    return view('karyawan.riwayatSakit', compact('riwayat'));
+}
 
 
 // tampilkan form
