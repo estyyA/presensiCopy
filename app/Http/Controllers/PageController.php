@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Barryvdh\DomPDF\Facade as PDF;
 use Maatwebsite\Excel\Facades\Excel;
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Hash;
@@ -407,6 +409,12 @@ public function laporan(Request $request)
         [$mulai, $sampai] = [$sampai, $mulai];
     }
 
+    // ✅ Validasi kategori (tanpa izin)
+    $allowedKategori = [null, 'semua', 'hadir', 'sakit', 'alpha'];
+    if (!in_array($kategori, $allowedKategori, true)) {
+        $kategori = null;
+    }
+
     $data = $this->getData($mulai, $sampai, $kategori);
     $catatan = CatatanLaporan::pluck('catatan', 'nik');
 
@@ -417,7 +425,7 @@ public function laporan(Request $request)
 }
 
 
-/** ---------------- GET DATA (tanpa cuti, alpha otomatis, Senin-Jumat) ---------------- */
+/** ---------------- GET DATA (tanpa cuti, tanpa izin, alpha otomatis, Senin-Jumat) ---------------- */
 private function getData($mulai = null, $sampai = null, $kategori = null)
 {
     // 1) Tentukan rentang tanggal
@@ -428,7 +436,7 @@ private function getData($mulai = null, $sampai = null, $kategori = null)
 
     // Jika tetap kosong (misal belum ada presensi sama sekali)
     if (!$mulai || !$sampai) {
-        $mulai = date('Y-m-d');
+        $mulai  = date('Y-m-d');
         $sampai = date('Y-m-d');
     }
 
@@ -461,7 +469,6 @@ private function getData($mulai = null, $sampai = null, $kategori = null)
             DB::raw('GROUP_CONCAT(DISTINCT logs.surat SEPARATOR ", ") as surat'),
 
             DB::raw('SUM(CASE WHEN logs.status = "hadir" THEN 1 ELSE 0 END) as hadir'),
-            DB::raw('SUM(CASE WHEN logs.status = "izin" THEN 1 ELSE 0 END) as izin'),
             DB::raw('SUM(CASE WHEN logs.status = "sakit" THEN 1 ELSE 0 END) as sakit'),
 
             // alpha yang memang tercatat sebagai status "alpha" di presensi (kalau ada)
@@ -472,16 +479,16 @@ private function getData($mulai = null, $sampai = null, $kategori = null)
         )
         ->get();
 
-    // 4) Ambil presensi pertama tiap karyawan (untuk menghitung alpha dari pertama kerja)
+    // 4) Ambil presensi pertama tiap karyawan (untuk hitung alpha dari pertama kerja)
     $firstMap = DB::table('presensi')
         ->select('NIK', DB::raw('MIN(tgl_presen) as first_presensi'))
         ->groupBy('NIK')
         ->pluck('first_presensi', 'NIK')
         ->toArray();
 
-    // 5) Hitung total hari kerja (Senin-Jumat), alpha otomatis, dan durasi jam kerja
+    // 5) Hitung total hari kerja (Senin-Jumat), alpha otomatis, durasi jam kerja
     foreach ($rekap as $r) {
-        $nik = $r->nik;
+        $nik   = $r->nik;
         $first = $firstMap[$nik] ?? null;
 
         // Start = max(first_presensi, mulai filter) (kalau first ada)
@@ -502,7 +509,7 @@ private function getData($mulai = null, $sampai = null, $kategori = null)
             $period = new \DatePeriod($startDate, new \DateInterval('P1D'), $endDate->modify('+1 day'));
 
             foreach ($period as $d) {
-                // 1=Senin, 5=Jumat
+                // 1=Senin ... 5=Jumat
                 if ((int)$d->format('N') < 6) {
                     $hariKerja++;
                 }
@@ -513,12 +520,11 @@ private function getData($mulai = null, $sampai = null, $kategori = null)
 
         // cast angka
         $hadir = (int)($r->hadir ?? 0);
-        $izin  = (int)($r->izin ?? 0);
         $sakit = (int)($r->sakit ?? 0);
         $alpha_presensi = (int)($r->alpha_presensi ?? 0);
 
-        // alpha otomatis dari hari kerja yang tidak terisi status apapun
-        $alpha_kosong = max(0, $hariKerja - ($hadir + $izin + $sakit));
+        // alpha otomatis dari hari kerja yang tidak terisi status apapun (hadir/sakit)
+        $alpha_kosong = max(0, $hariKerja - ($hadir + $sakit));
         $r->alpha = $alpha_presensi + $alpha_kosong;
 
         // durasi jam kerja
@@ -528,13 +534,12 @@ private function getData($mulai = null, $sampai = null, $kategori = null)
         $r->durasi_jam_kerja = "{$jam} Jam {$menit} Menit";
     }
 
-    // 6) Filter kategori (hadir/izin/sakit/alpha)
+    // 6) Filter kategori (hadir/sakit/alpha)
+    $rekap = collect($rekap);
     if ($kategori && $kategori !== 'semua') {
-        $rekap = collect($rekap)->filter(function ($r) use ($kategori) {
+        $rekap = $rekap->filter(function ($r) use ($kategori) {
             return (int)($r->{$kategori} ?? 0) > 0;
         })->values();
-    } else {
-        $rekap = collect($rekap);
     }
 
     return $rekap;
@@ -548,6 +553,12 @@ public function cetakPdf(Request $request)
     $sampai   = $request->sampai;
     $kategori = $request->kategori;
 
+    // ✅ kategori valid (tanpa izin)
+    $allowedKategori = [null, 'semua', 'hadir', 'sakit', 'alpha'];
+    if (!in_array($kategori, $allowedKategori, true)) {
+        $kategori = null;
+    }
+
     $data = $this->getData($mulai, $sampai, $kategori);
     $catatan = CatatanLaporan::pluck('catatan', 'nik')->toArray();
 
@@ -559,7 +570,8 @@ public function cetakPdf(Request $request)
         'kategori' => $kategori,
     ])->setPaper('a4', 'landscape');
 
-    return $pdf->download("Laporan Presensi {$kategori} {$mulai} - {$sampai}.pdf");
+    $k = $kategori ?: 'Semua';
+    return $pdf->download("Laporan Presensi {$k} {$mulai} - {$sampai}.pdf");
 }
 
 
@@ -570,13 +582,19 @@ public function exportExcel(Request $request)
     $sampai   = $request->sampai;
     $kategori = $request->kategori;
 
+    // ✅ kategori valid (tanpa izin)
+    $allowedKategori = [null, 'semua', 'hadir', 'sakit', 'alpha'];
+    if (!in_array($kategori, $allowedKategori, true)) {
+        $kategori = null;
+    }
+
     $data = $this->getData($mulai, $sampai, $kategori);
     $catatan = CatatanLaporan::pluck('catatan', 'nik')->toArray();
 
-    $spreadsheet = new \PhpOffice\PhpSpreadsheet\Spreadsheet();
+    $spreadsheet = new Spreadsheet();
     $sheet = $spreadsheet->getActiveSheet();
 
-    // Header (tanpa cuti)
+    // Header (tanpa cuti, tanpa izin)
     $sheet->setCellValue('A1', 'No')
         ->setCellValue('B1', 'NIK')
         ->setCellValue('C1', 'Nama')
@@ -584,11 +602,10 @@ public function exportExcel(Request $request)
         ->setCellValue('E1', 'Jabatan')
         ->setCellValue('F1', 'Total Hari')
         ->setCellValue('G1', 'Hadir')
-        ->setCellValue('H1', 'Izin')
-        ->setCellValue('I1', 'Sakit')
-        ->setCellValue('J1', 'Alpha')
-        ->setCellValue('K1', 'Total Jam Kerja')
-        ->setCellValue('L1', 'Catatan');
+        ->setCellValue('H1', 'Sakit')
+        ->setCellValue('I1', 'Alpha')
+        ->setCellValue('J1', 'Total Jam Kerja')
+        ->setCellValue('K1', 'Catatan');
 
     $row = 2;
     $no = 1;
@@ -601,23 +618,22 @@ public function exportExcel(Request $request)
             ->setCellValue("E{$row}", $r->jabatan ?? '-')
             ->setCellValue("F{$row}", $r->total_hari ?? 0)
             ->setCellValue("G{$row}", $r->hadir ?? 0)
-            ->setCellValue("H{$row}", $r->izin ?? 0)
-            ->setCellValue("I{$row}", $r->sakit ?? 0)
-            ->setCellValue("J{$row}", $r->alpha ?? 0)
-            ->setCellValue("K{$row}", $r->durasi_jam_kerja ?? '0 Jam 0 Menit')
-            ->setCellValue("L{$row}", $catatan[$r->nik] ?? '-');
+            ->setCellValue("H{$row}", $r->sakit ?? 0)
+            ->setCellValue("I{$row}", $r->alpha ?? 0)
+            ->setCellValue("J{$row}", $r->durasi_jam_kerja ?? '0 Jam 0 Menit')
+            ->setCellValue("K{$row}", $catatan[$r->nik] ?? '-');
 
         $row++;
     }
 
-    $writer = new \PhpOffice\PhpSpreadsheet\Writer\Xlsx($spreadsheet);
-    $filename = "Laporan Presensi {$kategori} {$mulai} - {$sampai}.xlsx";
+    $writer = new Xlsx($spreadsheet);
+    $k = $kategori ?: 'Semua';
+    $filename = "Laporan Presensi {$k} {$mulai} - {$sampai}.xlsx";
 
     return response()->streamDownload(function () use ($writer) {
         $writer->save('php://output');
     }, $filename);
 }
-
 
     /** ---------------- LOGOUT ---------------- */
     public function logout(Request $request)

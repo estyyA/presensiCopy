@@ -72,8 +72,8 @@
                     </a>
                 </li>
 
-                {{-- Tanpa cuti --}}
-                @foreach (['hadir', 'izin', 'sakit', 'alpha'] as $kategori)
+                {{-- ✅ Tanpa izin --}}
+                @foreach (['hadir', 'sakit', 'alpha'] as $kategori)
                     <li class="nav-item">
                         <a class="nav-link {{ request('kategori') == $kategori ? 'active bg-purple text-white' : '' }}"
                             href="{{ route('laporan', array_merge(request()->all(), ['kategori' => $kategori])) }}">
@@ -115,20 +115,17 @@
                                 @elseif(request('kategori') == 'sakit')
                                     <th>Sakit</th>
                                     <th>Surat</th>
-                                @elseif(request('kategori') == 'izin')
-                                    <th>Izin</th>
                                 @elseif(request('kategori') == 'alpha')
                                     <th>Alpha</th>
                                 @else
                                     {{-- Jika pilih semua --}}
                                     <th>Hadir</th>
-                                    <th>Izin</th>
                                     <th>Sakit</th>
                                     <th>Surat</th>
                                     <th>Alpha</th>
                                 @endif
 
-                                {{-- Kolom Total Jam Kerja di ujung sebelum catatan (hanya hadir & semua) --}}
+                                {{-- Kolom Total Jam Kerja (hanya hadir & semua) --}}
                                 @if (request('kategori') == 'hadir' || request('kategori') == null)
                                     <th>Total Jam Kerja</th>
                                 @endif
@@ -151,16 +148,13 @@
                                         $kategori = request('kategori');
 
                                         $hadir = (int) ($row->hadir ?? 0);
-                                        $izin  = (int) ($row->izin ?? 0);
                                         $sakit = (int) ($row->sakit ?? 0);
                                         $alpha = (int) ($row->alpha ?? 0);
 
-                                        $totalSemua = $hadir + $izin + $sakit + $alpha;
+                                        $totalSemua = $hadir + $sakit + $alpha;
 
                                         if ($kategori == 'hadir') {
                                             $totalHari = $hadir;
-                                        } elseif ($kategori == 'izin') {
-                                            $totalHari = $izin;
                                         } elseif ($kategori == 'sakit') {
                                             $totalHari = $sakit;
                                         } elseif ($kategori == 'alpha') {
@@ -191,16 +185,12 @@
                                             @endif
                                         </td>
 
-                                    @elseif(request('kategori') == 'izin')
-                                        <td><span class="badge badge-warning px-3">{{ $izin }}</span></td>
-
                                     @elseif(request('kategori') == 'alpha')
                                         <td><span class="badge badge-danger px-3">{{ $alpha }}</span></td>
 
                                     @else
                                         {{-- Jika pilih semua --}}
                                         <td><span class="badge badge-success px-3">{{ $hadir }}</span></td>
-                                        <td><span class="badge badge-warning px-3">{{ $izin }}</span></td>
                                         <td><span class="badge badge-info px-3">{{ $sakit }}</span></td>
                                         <td>
                                             @if (!empty($row->surat))
@@ -215,7 +205,7 @@
                                         <td><span class="badge badge-danger px-3">{{ $alpha }}</span></td>
                                     @endif
 
-                                    {{-- ✅ Total Jam Kerja di ujung --}}
+                                    {{-- ✅ Total Jam Kerja --}}
                                     @if (request('kategori') == 'hadir' || request('kategori') == null)
                                         <td>
                                             @php
@@ -244,7 +234,7 @@
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="{{ (request('kategori') == 'sakit') ? 10 : ((request('kategori') == null) ? 12 : 9) }}"
+                                    <td colspan="{{ (request('kategori') == 'sakit') ? 9 : ((request('kategori') == null) ? 11 : 8) }}"
                                         class="text-muted">
                                         ⚠️ Tidak ada data presensi
                                     </td>

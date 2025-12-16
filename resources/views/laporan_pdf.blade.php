@@ -58,20 +58,17 @@
                 <th>Jabatan</th>
                 <th>Total Hari</th>
 
-                {{-- ✅ Kolom dinamis sesuai kategori (tanpa cuti) --}}
+                {{-- ✅ Kolom dinamis sesuai kategori (tanpa cuti & tanpa izin) --}}
                 @if ($kategori == 'hadir')
                     <th>Hadir</th>
                     <th>Total Jam Kerja</th>
                 @elseif($kategori == 'sakit')
                     <th>Sakit</th>
-                @elseif($kategori == 'izin')
-                    <th>Izin</th>
                 @elseif($kategori == 'alpha')
                     <th>Alpha</th>
                 @else
                     <th>Hadir</th>
                     <th>Sakit</th>
-                    <th>Izin</th>
                     <th>Alpha</th>
                     <th>Total Jam Kerja</th>
                 @endif
@@ -85,10 +82,10 @@
                 @php
                     $hadir = (int) ($row->hadir ?? 0);
                     $sakit = (int) ($row->sakit ?? 0);
-                    $izin  = (int) ($row->izin ?? 0);
                     $alpha = (int) ($row->alpha ?? 0);
 
-                    $totalHari = $hadir + $sakit + $izin + $alpha;
+                    // ✅ Total hari tanpa izin & tanpa cuti
+                    $totalHari = $hadir + $sakit + $alpha;
                 @endphp
 
                 <tr>
@@ -98,23 +95,19 @@
                     <td>{{ $row->divisi ?? '-' }}</td>
                     <td>{{ $row->jabatan ?? '-' }}</td>
 
-                    {{-- ✅ Total Hari tanpa cuti --}}
                     <td>{{ $totalHari }}</td>
 
-                    {{-- ✅ Kolom presensi sesuai kategori --}}
+                    {{-- ✅ Kolom sesuai kategori --}}
                     @if ($kategori == 'hadir')
                         <td>{{ $hadir }}</td>
                         <td>{{ $row->durasi_jam_kerja ?? '0 Jam 0 Menit' }}</td>
                     @elseif($kategori == 'sakit')
                         <td>{{ $sakit }}</td>
-                    @elseif($kategori == 'izin')
-                        <td>{{ $izin }}</td>
                     @elseif($kategori == 'alpha')
                         <td>{{ $alpha }}</td>
                     @else
                         <td>{{ $hadir }}</td>
                         <td>{{ $sakit }}</td>
-                        <td>{{ $izin }}</td>
                         <td>{{ $alpha }}</td>
                         <td>{{ $row->durasi_jam_kerja ?? '0 Jam 0 Menit' }}</td>
                     @endif
