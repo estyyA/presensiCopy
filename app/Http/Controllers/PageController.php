@@ -975,11 +975,7 @@ public function deletePresensi($id)
 public function updatePresensi(Request $request, $id)
 {
     $request->validate([
-<<<<<<< Updated upstream
-        'status' => 'required|in:hadir,sakit,cuti,alpha',
-=======
-        'status' => 'required|in:hadir,sakit,izin,alpha',
->>>>>>> Stashed changes
+        'status' => 'required|in:hadir,sakit,alpha',
     ]);
 
     DB::table('presensi')
