@@ -1310,7 +1310,7 @@ public function deletePresensi($id)
 public function updatePresensi(Request $request, $id)
 {
     $request->validate([
-        'status' => 'required|in:hadir,sakit,izin,cuti,alpha',
+        'status' => 'required|in:hadir,sakit,cuti,alpha',
     ]);
 
     DB::table('presensi')
