@@ -27,21 +27,20 @@ use App\Sakit;
 
 class PageController extends Controller
 {
-   /** ---------------- DASHBOARD ---------------- */
+    /** ---------------- DASHBOARD ---------------- */
 public function dashboard()
 {
-    // ================= TOTAL KARYAWAN AKTIF =================
     $totalKaryawan = DB::table('karyawan')
         ->where('status', 'Aktif')
         ->count();
 
-    $today       = Carbon::today();
-    $startWeek   = Carbon::now()->startOfWeek();
-    $endWeek     = Carbon::now()->endOfWeek();
-    $startMonth  = Carbon::now()->startOfMonth();
-    $endMonth    = Carbon::now()->endOfMonth();
+    $today = Carbon::today();
+    $startWeek = Carbon::now()->startOfWeek();
+    $endWeek   = Carbon::now()->endOfWeek();
+    $startMonth = Carbon::now()->startOfMonth();
+    $endMonth   = Carbon::now()->endOfMonth();
 
-    /** ================= HARIAN ================= */
+    /** ================= Harian ================= */
     $harianMasuk = DB::table('presensi')
         ->whereDate('tgl_presen', $today)
         ->where('status', 'hadir')
@@ -52,9 +51,9 @@ public function dashboard()
         ->where('status', 'sakit')
         ->count();
 
-    $harianAlpha = max(0, $totalKaryawan - ($harianMasuk + $harianSakit));
+    $harianAlpha = $totalKaryawan - ($harianMasuk + $harianSakit);
 
-    /** ================= MINGGUAN ================= */
+    /** ================= Mingguan ================= */
     $mingguanMasuk = DB::table('presensi')
         ->whereBetween('tgl_presen', [$startWeek, $endWeek])
         ->where('status', 'hadir')
@@ -65,9 +64,9 @@ public function dashboard()
         ->where('status', 'sakit')
         ->count();
 
-    $mingguanAlpha = max(0, $totalKaryawan - ($mingguanMasuk + $mingguanSakit));
+    $mingguanAlpha = $totalKaryawan - ($mingguanMasuk + $mingguanSakit);
 
-    /** ================= BULANAN ================= */
+    /** ================= Bulanan ================= */
     $bulananMasuk = DB::table('presensi')
         ->whereBetween('tgl_presen', [$startMonth, $endMonth])
         ->where('status', 'hadir')
@@ -78,12 +77,12 @@ public function dashboard()
         ->where('status', 'sakit')
         ->count();
 
-    $bulananAlpha = max(0, $totalKaryawan - ($bulananMasuk + $bulananSakit));
+    $bulananAlpha = $totalKaryawan - ($bulananMasuk + $bulananSakit);
 
-    /** ================= DATA PROFIL KARYAWAN ================= */
+    /** ================= Data Profil Karyawan ================= */
     $karyawan = null;
     if (Auth::check()) {
-        $nik = Auth::user()->NIK; // sesuaikan dengan field login
+        $nik = Auth::user()->NIK;
         $karyawan = DB::table('karyawan')->where('NIK', $nik)->first();
         session(['karyawan' => $karyawan]);
     }
