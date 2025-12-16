@@ -23,45 +23,52 @@
                             <!-- Kolom Kiri -->
                             <div class="col-md-6">
                                 <div class="form-floating mb-3">
+                                    <label for="NIK">NIK</label>
                                     <input type="text" name="NIK" class="form-control shadow-sm"
                                         value="{{ $karyawan->NIK }}" readonly>
-                                    <label for="NIK">NIK</label>
+                                    
                                 </div>
 
                                 <div class="form-floating mb-3">
+                                    <label for="username">Username</label>
                                     <input type="text" name="username" class="form-control shadow-sm"
                                         value="{{ $karyawan->username }}">
-                                    <label for="username">Username</label>
+                                    
                                 </div>
 
                                 <div class="form-floating mb-3">
+                                    <label for="nama_lengkap">Nama Lengkap</label>
                                     <input type="text" name="nama_lengkap" class="form-control shadow-sm"
                                         value="{{ $karyawan->nama_lengkap }}" readonly>
-                                    <label for="nama_lengkap">Nama Lengkap</label>
+                                    
                                 </div>
 
                                 <div class="form-floating mb-3">
+                                    <label for="no_hp">No HP</label>
                                     <input type="text" name="no_hp" class="form-control shadow-sm"
                                         value="{{ $karyawan->no_hp }}">
-                                    <label for="no_hp">No HP</label>
+                                    
                                 </div>
 
                                 <div class="form-floating mb-3">
+                                    <label for="tgl_lahir">Tanggal Lahir</label>
                                     <input type="date" name="tgl_lahir" class="form-control shadow-sm"
                                         value="{{ $karyawan->tgl_lahir }}">
-                                    <label for="tgl_lahir">Tanggal Lahir</label>
+                                    
                                 </div>
                             </div>
 
                             <!-- Kolom Kanan -->
                             <div class="col-md-6">
                                 <div class="form-floating mb-3">
-                                    <textarea name="alamat" class="form-control shadow-sm" style="height: 100px">{{ $karyawan->alamat }}</textarea>
                                     <label for="alamat">Alamat</label>
+                                    <textarea name="alamat" class="form-control shadow-sm" style="height: 100px">{{ $karyawan->alamat }}</textarea>
+                                    
                                 </div>
 
                                 <!-- Divisi -->
                                 <div class="form-floating mb-3">
+                                    <label for="id_divisi">Divisi</label>
                                     <select name="id_divisi" id="id_divisi" class="form-select shadow-sm">
                                         <option value="">-- Pilih Divisi --</option>
                                         @foreach ($departements as $divisi)
@@ -71,11 +78,12 @@
                                             </option>
                                         @endforeach
                                     </select>
-                                    <label for="id_divisi">Divisi</label>
+                                    
                                 </div>
 
                                 <!-- Sub Divisi -->
                                 <div class="form-floating mb-3">
+                                    <label for="id_subdivisi">Sub Divisi</label>
                                     <select name="id_subdivisi" id="id_subdivisi" class="form-select shadow-sm">
                                         <option value="">-- Pilih Sub Divisi --</option>
                                         @foreach ($subdepartements as $sub)
@@ -85,11 +93,12 @@
                                             </option>
                                         @endforeach
                                     </select>
-                                    <label for="id_subdivisi">Sub Divisi</label>
+                                    
                                 </div>
 
                                 <!-- Jabatan -->
                                 <div class="form-floating mb-3">
+                                    <label for="id_jabatan">Jabatan</label>
                                     <select name="id_jabatan" class="form-select shadow-sm">
                                         @foreach ($jabatans as $jabatan)
                                             <option value="{{ $jabatan->id_jabatan }}"
@@ -98,13 +107,14 @@
                                             </option>
                                         @endforeach
                                     </select>
-                                    <label for="id_jabatan">Jabatan</label>
+                                    
                                 </div>
 
                                 {{-- Role disembunyikan, default karyawan --}}
                                 <input type="hidden" name="role" value="karyawan">
 
                                 <div class="form-floating mb-3">
+                                    <label for="status">Status</label>
                                     <select name="status" class="form-select shadow-sm">
                                         <option value="Aktif" {{ $karyawan->status == 'Aktif' ? 'selected' : '' }}>Aktif
                                         </option>
@@ -113,7 +123,6 @@
                                         <option value="Resign" {{ $karyawan->status == 'Resign' ? 'selected' : '' }}>Resign
                                         </option>
                                     </select>
-                                    <label for="status">Status</label>
                                 </div>
 
                                 <!-- Button -->
