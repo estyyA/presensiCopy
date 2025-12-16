@@ -27,28 +27,24 @@ use App\Sakit;
 
 class PageController extends Controller
 {
-    /** ---------------- DASHBOARD ---------------- */
-    public function dashboard()
+   /** ---------------- DASHBOARD ---------------- */
+public function dashboard()
 {
+    // ================= TOTAL KARYAWAN AKTIF =================
     $totalKaryawan = DB::table('karyawan')
-    ->where('status', 'Aktif')
-    ->count();
+        ->where('status', 'Aktif')
+        ->count();
 
-    $today = Carbon::today();
-    $startWeek = Carbon::now()->startOfWeek();
-    $endWeek   = Carbon::now()->endOfWeek();
-    $startMonth = Carbon::now()->startOfMonth();
-    $endMonth   = Carbon::now()->endOfMonth();
+    $today       = Carbon::today();
+    $startWeek   = Carbon::now()->startOfWeek();
+    $endWeek     = Carbon::now()->endOfWeek();
+    $startMonth  = Carbon::now()->startOfMonth();
+    $endMonth    = Carbon::now()->endOfMonth();
 
-    /** ================= Harian ================= */
+    /** ================= HARIAN ================= */
     $harianMasuk = DB::table('presensi')
         ->whereDate('tgl_presen', $today)
         ->where('status', 'hadir')
-        ->count();
-
-    $harianIzin = DB::table('presensi')
-        ->whereDate('tgl_presen', $today)
-        ->where('status', 'izin')
         ->count();
 
     $harianSakit = DB::table('presensi')
@@ -56,18 +52,12 @@ class PageController extends Controller
         ->where('status', 'sakit')
         ->count();
 
+    $harianAlpha = max(0, $totalKaryawan - ($harianMasuk + $harianSakit));
 
-    $harianAlpha = $totalKaryawan - ($harianMasuk + $harianIzin + $harianSakit );
-
-    /** ================= Mingguan ================= */
+    /** ================= MINGGUAN ================= */
     $mingguanMasuk = DB::table('presensi')
         ->whereBetween('tgl_presen', [$startWeek, $endWeek])
         ->where('status', 'hadir')
-        ->count();
-
-    $mingguanIzin = DB::table('presensi')
-        ->whereBetween('tgl_presen', [$startWeek, $endWeek])
-        ->where('status', 'izin')
         ->count();
 
     $mingguanSakit = DB::table('presensi')
@@ -75,19 +65,12 @@ class PageController extends Controller
         ->where('status', 'sakit')
         ->count();
 
+    $mingguanAlpha = max(0, $totalKaryawan - ($mingguanMasuk + $mingguanSakit));
 
-
-    $mingguanAlpha = $totalKaryawan - ($mingguanMasuk + $mingguanIzin + $mingguanSakit);
-
-    /** ================= Bulanan ================= */
+    /** ================= BULANAN ================= */
     $bulananMasuk = DB::table('presensi')
         ->whereBetween('tgl_presen', [$startMonth, $endMonth])
         ->where('status', 'hadir')
-        ->count();
-
-    $bulananIzin = DB::table('presensi')
-        ->whereBetween('tgl_presen', [$startMonth, $endMonth])
-        ->where('status', 'izin')
         ->count();
 
     $bulananSakit = DB::table('presensi')
@@ -95,27 +78,25 @@ class PageController extends Controller
         ->where('status', 'sakit')
         ->count();
 
+    $bulananAlpha = max(0, $totalKaryawan - ($bulananMasuk + $bulananSakit));
 
-    $bulananAlpha = $totalKaryawan - ($bulananMasuk + $bulananIzin + $bulananSakit);
-
-    /** ================= Data Profil Karyawan ================= */
+    /** ================= DATA PROFIL KARYAWAN ================= */
     $karyawan = null;
     if (Auth::check()) {
-        $nik = Auth::user()->NIK; // sesuaikan field login kamu
+        $nik = Auth::user()->NIK; // sesuaikan dengan field login
         $karyawan = DB::table('karyawan')->where('NIK', $nik)->first();
-
-        // simpan juga ke session biar konsisten
         session(['karyawan' => $karyawan]);
     }
 
     return view('dashboard', compact(
         'totalKaryawan',
-        'harianMasuk','harianIzin','harianSakit','harianAlpha',
-        'mingguanMasuk','mingguanIzin','mingguanSakit','mingguanAlpha',
-        'bulananMasuk','bulananIzin','bulananSakit','bulananAlpha',
+        'harianMasuk','harianSakit','harianAlpha',
+        'mingguanMasuk','mingguanSakit','mingguanAlpha',
+        'bulananMasuk','bulananSakit','bulananAlpha',
         'karyawan'
     ));
 }
+
 
 
 
