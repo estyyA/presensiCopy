@@ -191,9 +191,6 @@
         <a href="{{ route('konfirsakit') }}" class="nav-link @if(Request::is('konfirsakit*')) active @endif">
             <i class="fa fa-notes-medical mr-2"></i> Konfirmasi Sakit
         </a>
-        <a href="{{ route('cuti.index') }}" class="nav-link @if(Request::is('cuti*')) active @endif">
-            <i class="fa fa-calendar-check mr-2"></i> Input Cuti
-        </a>
         <a href="{{ route('tracking.admin') }}"
         class="nav-link @if(Request::is('tracking/admin*')) active @endif">
             <i class="fa fa-map-marker-alt mr-2"></i> Pelacakan Lapangan

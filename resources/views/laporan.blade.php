@@ -64,7 +64,7 @@
         <div class="card-body">
             <h5 class="font-weight-bold mb-3 text-purple">📌 Pilih Kategori Laporan</h5>
             <ul class="nav nav-pills mb-3">
-                {{-- Tambahan menu Semua --}}
+                {{-- Menu Semua --}}
                 <li class="nav-item">
                     <a class="nav-link {{ request('kategori') == null ? 'active bg-purple text-white' : '' }}"
                         href="{{ route('laporan', array_merge(request()->all(), ['kategori' => null])) }}">
@@ -72,7 +72,8 @@
                     </a>
                 </li>
 
-                @foreach (['hadir', 'izin', 'sakit', 'cuti', 'alpha'] as $kategori)
+                {{-- Tanpa cuti --}}
+                @foreach (['hadir', 'izin', 'sakit', 'alpha'] as $kategori)
                     <li class="nav-item">
                         <a class="nav-link {{ request('kategori') == $kategori ? 'active bg-purple text-white' : '' }}"
                             href="{{ route('laporan', array_merge(request()->all(), ['kategori' => $kategori])) }}">
@@ -94,6 +95,7 @@
                     - Semua
                 @endif
             </h5>
+
             <div class="table-responsive">
                 <form method="POST" action="{{ route('laporan.simpanCatatan') }}">
                     @csrf
@@ -115,8 +117,6 @@
                                     <th>Surat</th>
                                 @elseif(request('kategori') == 'izin')
                                     <th>Izin</th>
-                                @elseif(request('kategori') == 'cuti')
-                                    <th>Cuti</th>
                                 @elseif(request('kategori') == 'alpha')
                                     <th>Alpha</th>
                                 @else
@@ -125,7 +125,6 @@
                                     <th>Izin</th>
                                     <th>Sakit</th>
                                     <th>Surat</th>
-                                    <th>Cuti</th>
                                     <th>Alpha</th>
                                 @endif
 
@@ -137,6 +136,7 @@
                                 <th>Catatan</th>
                             </tr>
                         </thead>
+
                         <tbody>
                             @forelse($data as $i => $row)
                                 <tr>
@@ -146,40 +146,40 @@
                                     <td>{{ $row->divisi ?? '-' }}</td>
                                     <td>{{ $row->jabatan ?? '-' }}</td>
 
-                                    {{-- ✅ Total Hari sesuai kategori --}}
+                                    {{-- ✅ Total Hari --}}
+                                    @php
+                                        $kategori = request('kategori');
+
+                                        $hadir = (int) ($row->hadir ?? 0);
+                                        $izin  = (int) ($row->izin ?? 0);
+                                        $sakit = (int) ($row->sakit ?? 0);
+                                        $alpha = (int) ($row->alpha ?? 0);
+
+                                        $totalSemua = $hadir + $izin + $sakit + $alpha;
+
+                                        if ($kategori == 'hadir') {
+                                            $totalHari = $hadir;
+                                        } elseif ($kategori == 'izin') {
+                                            $totalHari = $izin;
+                                        } elseif ($kategori == 'sakit') {
+                                            $totalHari = $sakit;
+                                        } elseif ($kategori == 'alpha') {
+                                            $totalHari = $alpha;
+                                        } else {
+                                            $totalHari = $totalSemua;
+                                        }
+                                    @endphp
+
                                     <td>
-                                        @php
-                                            $kategori = request('kategori');
-                                            $totalSemua =
-                                                ($row->hadir ?? 0) +
-                                                ($row->izin ?? 0) +
-                                                ($row->sakit ?? 0) +
-                                                ($row->cuti ?? 0) +
-                                                ($row->alpha ?? 0);
-
-                                            if ($kategori == 'hadir') {
-                                                $totalHari = $row->hadir ?? 0;
-                                            } elseif ($kategori == 'sakit') {
-                                                $totalHari = $row->sakit ?? 0;
-                                            } elseif ($kategori == 'izin') {
-                                                $totalHari = $row->izin ?? 0;
-                                            } elseif ($kategori == 'cuti') {
-                                                $totalHari = $row->cuti ?? 0;
-                                            } elseif ($kategori == 'alpha') {
-                                                $totalHari = $row->alpha ?? 0;
-                                            } else {
-                                                $totalHari = $totalSemua;
-                                            }
-                                        @endphp
-
-                                        <span class="badge badge-dark px-3">{{ $totalSemua }}</span>
+                                        <span class="badge badge-dark px-3">{{ $totalHari }}</span>
                                     </td>
 
                                     {{-- ✅ Kolom sesuai kategori --}}
                                     @if (request('kategori') == 'hadir')
-                                        <td><span class="badge badge-success px-3">{{ $row->hadir ?? 0 }}</span></td>
+                                        <td><span class="badge badge-success px-3">{{ $hadir }}</span></td>
+
                                     @elseif(request('kategori') == 'sakit')
-                                        <td><span class="badge badge-info px-3">{{ $row->sakit ?? 0 }}</span></td>
+                                        <td><span class="badge badge-info px-3">{{ $sakit }}</span></td>
                                         <td>
                                             @if (!empty($row->surat))
                                                 <a href="{{ asset('storage/' . $row->surat) }}" target="_blank"
@@ -190,17 +190,18 @@
                                                 <span class="text-muted">-</span>
                                             @endif
                                         </td>
+
                                     @elseif(request('kategori') == 'izin')
-                                        <td><span class="badge badge-warning px-3">{{ $row->izin ?? 0 }}</span></td>
-                                    @elseif(request('kategori') == 'cuti')
-                                        <td><span class="badge badge-primary px-3">{{ $row->cuti ?? 0 }}</span></td>
+                                        <td><span class="badge badge-warning px-3">{{ $izin }}</span></td>
+
                                     @elseif(request('kategori') == 'alpha')
-                                        <td><span class="badge badge-danger px-3">{{ $row->alpha ?? 0 }}</span></td>
+                                        <td><span class="badge badge-danger px-3">{{ $alpha }}</span></td>
+
                                     @else
                                         {{-- Jika pilih semua --}}
-                                        <td><span class="badge badge-success px-3">{{ $row->hadir ?? 0 }}</span></td>
-                                        <td><span class="badge badge-warning px-3">{{ $row->izin ?? 0 }}</span></td>
-                                        <td><span class="badge badge-info px-3">{{ $row->sakit ?? 0 }}</span></td>
+                                        <td><span class="badge badge-success px-3">{{ $hadir }}</span></td>
+                                        <td><span class="badge badge-warning px-3">{{ $izin }}</span></td>
+                                        <td><span class="badge badge-info px-3">{{ $sakit }}</span></td>
                                         <td>
                                             @if (!empty($row->surat))
                                                 <a href="{{ asset('storage/' . $row->surat) }}" target="_blank"
@@ -211,8 +212,7 @@
                                                 <span class="text-muted">-</span>
                                             @endif
                                         </td>
-                                        <td><span class="badge badge-primary px-3">{{ $row->cuti ?? 0 }}</span></td>
-                                        <td><span class="badge badge-danger px-3">{{ $row->alpha ?? 0 }}</span></td>
+                                        <td><span class="badge badge-danger px-3">{{ $alpha }}</span></td>
                                     @endif
 
                                     {{-- ✅ Total Jam Kerja di ujung --}}
@@ -244,7 +244,7 @@
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="{{ request('kategori') == 'hadir' ? 9 : (request('kategori') ? 8 : 12) }}"
+                                    <td colspan="{{ (request('kategori') == 'sakit') ? 10 : ((request('kategori') == null) ? 12 : 9) }}"
                                         class="text-muted">
                                         ⚠️ Tidak ada data presensi
                                     </td>
@@ -267,41 +267,22 @@
 
 @push('styles')
     <style>
-        .bg-purple {
-            background-color: #6f42c1 !important;
-        }
-
-        .text-purple {
-            color: #6f42c1 !important;
-        }
-
+        .bg-purple { background-color: #6f42c1 !important; }
+        .text-purple { color: #6f42c1 !important; }
         .btn-purple {
             background-color: #6f42c1;
             color: #fff;
             border-radius: 6px;
         }
-
-        .btn-purple:hover {
-            background-color: #59309a;
-        }
-
-        .badge {
-            font-size: 0.85rem;
-        }
-
-        textarea {
-            resize: none;
-        }
-
-        .nav-pills .nav-link {
-            border-radius: 6px;
-        }
+        .btn-purple:hover { background-color: #59309a; }
+        .badge { font-size: 0.85rem; }
+        textarea { resize: none; }
+        .nav-pills .nav-link { border-radius: 6px; }
     </style>
 @endpush
 
 @push('scripts')
     <script>
-        // Auto-close alert
         document.addEventListener("DOMContentLoaded", function() {
             setTimeout(() => {
                 document.querySelectorAll('.alert.auto-close').forEach(el => $(el).alert('close'));

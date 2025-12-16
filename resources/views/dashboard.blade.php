@@ -11,6 +11,7 @@
                 <h3>{{ $totalKaryawan }}</h3>
             </div>
         </div>
+
         <div class="col-md-2">
             <div class="card card-stat shadow-sm p-3 text-center">
                 <i class="fa fa-user-check text-success fa-2x mb-2"></i>
@@ -18,6 +19,7 @@
                 <h3>{{ $harianMasuk }}</h3>
             </div>
         </div>
+
         <div class="col-md-2">
             <div class="card card-stat shadow-sm p-3 text-center">
                 <i class="fa fa-user-clock text-warning fa-2x mb-2"></i>
@@ -25,6 +27,7 @@
                 <h3>{{ $harianIzin }}</h3>
             </div>
         </div>
+
         <div class="col-md-2">
             <div class="card card-stat shadow-sm p-3 text-center">
                 <i class="fa fa-user-md text-info fa-2x mb-2"></i>
@@ -32,13 +35,9 @@
                 <h3>{{ $harianSakit }}</h3>
             </div>
         </div>
-        <div class="col-md-2">
-            <div class="card card-stat shadow-sm p-3 text-center">
-                <i class="fa fa-plane-departure text-primary fa-2x mb-2"></i>
-                <div>Cuti Hari Ini</div>
-                <h3>{{ $harianCuti }}</h3>
-            </div>
-        </div>
+
+        {{-- ✅ Cuti dihapus --}}
+
         <div class="col-md-2">
             <div class="card card-stat shadow-sm p-3 text-center">
                 <i class="fa fa-user-slash text-danger fa-2x mb-2"></i>
@@ -57,6 +56,7 @@
                 <option value="bulanan">Bulanan</option>
             </select>
         </div>
+
         <div class="card-body d-flex justify-content-center">
             <div style="max-width: 700px; width: 100%;">
                 <canvas id="chartKaryawan"></canvas>
@@ -69,51 +69,40 @@
     <script>
         var ctx = document.getElementById('chartKaryawan').getContext('2d');
 
-        // Data dari controller
+        // ✅ Data dari controller (tanpa cuti)
         var dataPeriode = {
-            harian: [{{ $harianMasuk }}, {{ $harianIzin }}, {{ $harianSakit }}, {{ $harianCuti }},
-                {{ $harianAlpha }}
-            ],
-            mingguan: [{{ $mingguanMasuk }}, {{ $mingguanIzin }}, {{ $mingguanSakit }}, {{ $mingguanCuti }},
-                {{ $mingguanAlpha }}
-            ],
-            bulanan: [{{ $bulananMasuk }}, {{ $bulananIzin }}, {{ $bulananSakit }}, {{ $bulananCuti }},
-                {{ $bulananAlpha }}
-            ],
+            harian: [{{ $harianMasuk }}, {{ $harianIzin }}, {{ $harianSakit }}, {{ $harianAlpha }}],
+            mingguan: [{{ $mingguanMasuk }}, {{ $mingguanIzin }}, {{ $mingguanSakit }}, {{ $mingguanAlpha }}],
+            bulanan: [{{ $bulananMasuk }}, {{ $bulananIzin }}, {{ $bulananSakit }}, {{ $bulananAlpha }}],
         };
 
-        // Buat chart
+        // ✅ Buat chart
         var chartKaryawan = new Chart(ctx, {
             type: 'bar',
             data: {
-                labels: ['Masuk', 'Izin', 'Sakit', 'Cuti', 'Alpha'],
+                labels: ['Masuk', 'Izin', 'Sakit', 'Alpha'],
                 datasets: [{
                     label: 'Jumlah Karyawan',
                     data: dataPeriode['harian'],
                     backgroundColor: [
                         '#11ab59ff', // Masuk
-                        '#f39c12', // Izin
-                        '#0dcaf0', // Sakit
-                        '#0d6efd', // Cuti
-                        '#d81017ff' // Alpha
+                        '#f39c12',   // Izin
+                        '#0dcaf0',   // Sakit
+                        '#d81017ff'  // Alpha
                     ]
                 }]
             },
             options: {
                 responsive: true,
                 plugins: {
-                    legend: {
-                        display: false
-                    },
+                    legend: { display: false },
                     title: {
                         display: true,
                         text: 'Statistik Presensi Karyawan (Harian)'
                     }
                 },
                 scales: {
-                    y: {
-                        beginAtZero: true
-                    }
+                    y: { beginAtZero: true }
                 }
             }
         });

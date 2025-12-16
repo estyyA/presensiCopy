@@ -58,7 +58,7 @@
                 <th>Jabatan</th>
                 <th>Total Hari</th>
 
-                {{-- ✅ Kolom dinamis sesuai kategori --}}
+                {{-- ✅ Kolom dinamis sesuai kategori (tanpa cuti) --}}
                 @if ($kategori == 'hadir')
                     <th>Hadir</th>
                     <th>Total Jam Kerja</th>
@@ -66,15 +66,12 @@
                     <th>Sakit</th>
                 @elseif($kategori == 'izin')
                     <th>Izin</th>
-                @elseif($kategori == 'cuti')
-                    <th>Cuti</th>
                 @elseif($kategori == 'alpha')
                     <th>Alpha</th>
                 @else
                     <th>Hadir</th>
                     <th>Sakit</th>
                     <th>Izin</th>
-                    <th>Cuti</th>
                     <th>Alpha</th>
                     <th>Total Jam Kerja</th>
                 @endif
@@ -82,8 +79,18 @@
                 <th>Catatan</th>
             </tr>
         </thead>
+
         <tbody>
             @foreach ($data as $i => $row)
+                @php
+                    $hadir = (int) ($row->hadir ?? 0);
+                    $sakit = (int) ($row->sakit ?? 0);
+                    $izin  = (int) ($row->izin ?? 0);
+                    $alpha = (int) ($row->alpha ?? 0);
+
+                    $totalHari = $hadir + $sakit + $izin + $alpha;
+                @endphp
+
                 <tr>
                     <td>{{ $i + 1 }}</td>
                     <td>{{ $row->nik }}</td>
@@ -91,35 +98,24 @@
                     <td>{{ $row->divisi ?? '-' }}</td>
                     <td>{{ $row->jabatan ?? '-' }}</td>
 
-                    {{-- ✅ Total Hari SELALU menjumlah semua kategori (sinkron dgn Excel) --}}
-                    <td>
-                        {{
-                            ($row->hadir ?? 0) +
-                            ($row->sakit ?? 0) +
-                            ($row->izin ?? 0) +
-                            ($row->cuti ?? 0) +
-                            ($row->alpha ?? 0)
-                        }}
-                    </td>
+                    {{-- ✅ Total Hari tanpa cuti --}}
+                    <td>{{ $totalHari }}</td>
 
                     {{-- ✅ Kolom presensi sesuai kategori --}}
                     @if ($kategori == 'hadir')
-                        <td>{{ $row->hadir ?? 0 }}</td>
+                        <td>{{ $hadir }}</td>
                         <td>{{ $row->durasi_jam_kerja ?? '0 Jam 0 Menit' }}</td>
                     @elseif($kategori == 'sakit')
-                        <td>{{ $row->sakit ?? 0 }}</td>
+                        <td>{{ $sakit }}</td>
                     @elseif($kategori == 'izin')
-                        <td>{{ $row->izin ?? 0 }}</td>
-                    @elseif($kategori == 'cuti')
-                        <td>{{ $row->cuti ?? 0 }}</td>
+                        <td>{{ $izin }}</td>
                     @elseif($kategori == 'alpha')
-                        <td>{{ $row->alpha ?? 0 }}</td>
+                        <td>{{ $alpha }}</td>
                     @else
-                        <td>{{ $row->hadir ?? 0 }}</td>
-                        <td>{{ $row->sakit ?? 0 }}</td>
-                        <td>{{ $row->izin ?? 0 }}</td>
-                        <td>{{ $row->cuti ?? 0 }}</td>
-                        <td>{{ $row->alpha ?? 0 }}</td>
+                        <td>{{ $hadir }}</td>
+                        <td>{{ $sakit }}</td>
+                        <td>{{ $izin }}</td>
+                        <td>{{ $alpha }}</td>
                         <td>{{ $row->durasi_jam_kerja ?? '0 Jam 0 Menit' }}</td>
                     @endif
 
