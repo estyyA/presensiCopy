@@ -877,6 +877,59 @@ public function tolakSakit($id)
     return redirect()->back()->with('success', 'Pengajuan sakit ditolak.');
 }
 
+public function updateStatusSakit(Request $request, $id)
+{
+    $request->validate([
+        'status_pengajuan' => 'required|in:menunggu,disetujui,ditolak'
+    ]);
+
+    $pengajuan = DB::table('sakit')->where('id', $id)->first();
+    if (!$pengajuan) {
+        return back()->with('error', 'Data tidak ditemukan');
+    }
+
+    DB::beginTransaction();
+    try {
+        DB::table('sakit')->where('id', $id)->update([
+            'status_pengajuan' => $request->status_pengajuan,
+            'updated_at' => now(),
+        ]);
+
+        $mulai = \Carbon\Carbon::parse($pengajuan->tgl_mulai);
+        $selesai = \Carbon\Carbon::parse($pengajuan->tgl_selesai);
+
+        if ($request->status_pengajuan === 'disetujui') {
+            for ($tgl = $mulai; $tgl->lte($selesai); $tgl->addDay()) {
+                DB::table('presensi')->updateOrInsert(
+                    [
+                        'NIK' => $pengajuan->NIK,
+                        'tgl_presen' => $tgl->toDateString(),
+                    ],
+                    [
+                        'status' => 'sakit',
+                        'surat' => $pengajuan->surat_dokter,
+                    ]
+                );
+            }
+        } else {
+            DB::table('presensi')
+                ->where('NIK', $pengajuan->NIK)
+                ->whereBetween('tgl_presen', [
+                    $mulai->toDateString(),
+                    $selesai->toDateString()
+                ])
+                ->where('status', 'sakit')
+                ->delete();
+        }
+
+        DB::commit();
+        return back()->with('success', 'Status berhasil diperbarui');
+    } catch (\Exception $e) {
+        DB::rollBack();
+        return back()->with('error', $e->getMessage());
+    }
+}
+
 
 // tampilkan form
 public function trackingSalesForm()

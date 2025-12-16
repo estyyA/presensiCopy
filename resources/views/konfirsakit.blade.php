@@ -31,7 +31,6 @@
                             <th>Keterangan</th>
                             <th>Surat</th>
                             <th>Status</th>
-                            <th>Aksi</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -54,33 +53,20 @@
                                         <span class="text-muted">-</span>
                                     @endif
                                 </td>
-                                <td>
-                                    @if ($p->status_pengajuan == 'menunggu')
-                                        <span class="badge badge-warning">Menunggu</span>
-                                    @elseif($p->status_pengajuan == 'disetujui')
-                                        <span class="badge badge-success">Disetujui</span>
-                                    @else
-                                        <span class="badge badge-danger">Ditolak</span>
-                                    @endif
-                                </td>
-                                <td>
-                                    @if ($p->status_pengajuan == 'menunggu')
-                                        <form action="{{ route('konfirsakit.setujui', $p->id) }}" method="POST"
-                                            class="d-inline">
-                                            @csrf
-                                            <button class="btn btn-success btn-sm"
-                                                onclick="return confirm('Setujui pengajuan ini?')">✔</button>
-                                        </form>
-                                        <form action="{{ route('konfirsakit.tolak', $p->id) }}" method="POST"
-                                            class="d-inline">
-                                            @csrf
-                                            <button class="btn btn-danger btn-sm"
-                                                onclick="return confirm('Tolak pengajuan ini?')">✖</button>
-                                        </form>
-                                    @else
-                                        <span class="text-muted">-</span>
-                                    @endif
-                                </td>
+                
+<td>
+    <form action="{{ route('konfirsakit.updateStatus', $p->id) }}" method="POST">
+        @csrf
+        <select name="status_pengajuan"
+            class="form-control form-control-sm"
+            onchange="this.form.submit()">
+            <option value="menunggu" {{ $p->status_pengajuan=='menunggu'?'selected':'' }}>Menunggu</option>
+            <option value="disetujui" {{ $p->status_pengajuan=='disetujui'?'selected':'' }}>Disetujui</option>
+            <option value="ditolak" {{ $p->status_pengajuan=='ditolak'?'selected':'' }}>Ditolak</option>
+        </select>
+    </form>
+</td>
+
                             </tr>
                         @empty
                             <tr>
